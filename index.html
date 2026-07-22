@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>專屬線上點餐</title>
+    <title>★★線上點餐★★</title>
     <style>
         body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: #f4f4f9; margin: 0 auto; padding: 0; color: #333; max-width: 500px; scroll-behavior: smooth; }
         h1, h2 { text-align: center; color: #2c3e50; margin-top: 15px; }
@@ -109,7 +109,7 @@
                     <h3 style="margin-top:5px; border-bottom: none; padding-bottom: 0;">⏰ 預訂取餐時間</h3>
                     <div class="radio-group" id="date-selection"></div>
                     <div class="radio-group" id="time-selection" style="margin-top: 15px;">
-                        <label><input type="radio" name="timeType" value="ASAP" checked onchange="toggleTimeInput()"> 盡快準備</label>
+                        <label><input type="radio" name="timeType" value="ASAP" checked onchange="toggleTimeInput()"> 立即</label>
                         <label><input type="radio" name="timeType" value="SPECIFIC" onchange="toggleTimeInput()"> 指定時間</label>
                     </div>
                     <div id="specific-time-container" style="display:none; margin-top: 10px;">
@@ -139,9 +139,9 @@
 
                 <h3 style="margin-top:25px;">📝 訂單備註</h3>
                 <div style="font-size:0.85em; color:#e74c3c; margin-bottom:8px; line-height:1.4;">
-                    ⚠️ 提醒您：加蛋、加起司等需「加價」之項目，請務必於餐點『選規格』中勾選。若寫於備註恕無法為您提供喔！
+                    ⚠️ 提醒您：需「加價」之項目，請務必於餐點『選規格』中勾選。若寫於備註恕無法提供！
                 </div>
-                <textarea id="order-notes" class="table-input" rows="2" placeholder="有什麼想告訴老闆的嗎？ (例如：漢堡不要洋蔥)"></textarea>
+                <textarea id="order-notes" class="table-input" rows="2" placeholder="有什麼想告訴老闆的嗎？"></textarea>
 
             </div>
             <button class="submit-btn" onclick="submitOrder()">送出訂單</button>
@@ -151,8 +151,8 @@
     <div id="order-status-view">
         <h2 style="margin-top:0;">📝 點餐進度與號碼牌</h2>
         <div id="orders-list"></div>
-        <button class="continue-btn" onclick="continueOrdering()">➕ 我還要加點</button>
-        <button class="finish-btn" onclick="finishAllOrders()">✅ 全部取餐完畢，清除紀錄</button>
+        <button class="continue-btn" onclick="continueOrdering()">➕ 繼續點餐</button>
+        <button class="finish-btn" onclick="finishAllOrders()">✅ 取餐完畢，清除紀錄</button>
     </div>
 
     <div id="option-modal" class="modal-overlay" style="display: none;">
@@ -664,7 +664,7 @@
 
             const backendData = { time: timeString, diningType: finalDiningType, tableNumber: tableNumber, customerName: customerName, customerPhone: customerPhone, detailsText: detailsText, totalAmount: total };
 
-            document.getElementById("loading-screen").innerHTML = `<h2>🔄 訂單傳送中...</h2><p>正在為您抽取專屬號碼牌</p>`;
+            document.getElementById("loading-screen").innerHTML = `<h2>🔄 訂單傳送中...</h2><p>請勿關閉頁面</p>`;
             document.getElementById("loading-screen").style.display = "flex";
 
             const controller = new AbortController();
@@ -797,7 +797,7 @@
                 let order = allOrders[i];
                 
                 let statusText = "⏳ 等待店家確認";
-                if (order.status === 'accepted') statusText = "👩‍🍳 廚房製作中";
+                if (order.status === 'accepted') statusText = "👩‍🍳 店家已接單";
                 if (order.status === 'ready') statusText = "🎉 製餐完成，請前往取餐";
                 if (order.status === 'cancelled') statusText = "❌ 店家已取消此單";
                 
