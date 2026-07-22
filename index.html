@@ -798,7 +798,7 @@
                 
                 let statusText = "⏳ 等待店家確認";
                 if (order.status === 'accepted') statusText = "👩‍🍳 店家已接單";
-                if (order.status === 'ready') statusText = "🎉 製餐完成，請前往取餐";
+                if (order.status === 'ready') statusText = "🎉 製餐完成";
                 if (order.status === 'cancelled') statusText = "❌ 店家已取消此單";
                 
                 let contactInfoText = (order.customerName && order.customerPhone) ? `<br>👤 聯絡人：${order.customerName} (${order.customerPhone})` : "";
