@@ -8,7 +8,6 @@
         body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: #f4f4f9; margin: 0 auto; padding: 0; color: #333; max-width: 500px; scroll-behavior: smooth; }
         h1, h2 { text-align: center; color: #2c3e50; margin-top: 15px; }
         
-        /* 🌟 分類導覽列升級：改成自動換行 (flex-wrap: wrap) */
         .top-nav { background-color: #fff; padding: 12px 10px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; position: sticky; top: 0; z-index: 20; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .nav-btn { background-color: #ecf0f1; border: none; padding: 8px 14px; border-radius: 20px; font-weight: bold; color: #7f8c8d; cursor: pointer; transition: all 0.2s ease; font-size: 0.95em; }
         .nav-btn.active { background-color: #3498db; color: white; box-shadow: 0 2px 5px rgba(52, 152, 219, 0.4); } 
@@ -31,7 +30,7 @@
         .qty-control { display: flex; align-items: center; gap: 10px; }
         .qty-btn { background: #f0f0f0; border: none; width: 30px; height: 30px; border-radius: 5px; font-size: 1.2em; font-weight: bold; cursor: pointer;}
         .qty-number { font-weight: bold; font-size: 1.1em; width: 20px; text-align: center; }
-        .cart { background: #fff; padding: 20px; border-radius: 10px; margin: 25px 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.08); }
+        .cart { background: #fff; padding: 20px; border-radius: 10px; margin: 15px 15px 25px 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
         .cart-item { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 12px; }
         .cart-item-main { display: flex; justify-content: space-between; align-items: center; }
         .cart-item-options { font-size: 0.85em; color: #7f8c8d; margin-top: 5px; } 
@@ -88,15 +87,17 @@
         <div class="top-nav" id="top-nav"></div>
         <div id="active-banner" class="active-orders-banner" onclick="showStatusView()" style="display:none;"></div>
         <div id="closed-banner-container"></div>
-        <h1>🍳 我們的早餐店</h1>
+        
+        <!-- 點餐區塊 -->
         <div class="menu-container" id="menu"></div>
-        <div class="cart" id="cart-section">
-            <h2>🛒 購物車</h2>
+        
+        <!-- 購物車區塊 (預設隱藏) -->
+        <div class="cart" id="cart-section" style="display: none;">
+            <h2 style="margin-top: 0;">🛒 結帳與送出訂單</h2>
             <div id="cart-items"><p style="text-align:center; color:#999;">目前購物車是空的喔！</p></div>
             <div class="total">總計: $<span id="total-price">0</span></div>
             
             <div class="checkout-options" id="checkout-options" style="display: none;">
-                
                 <h3 style="margin-top:25px;" id="dining-title">🍽️ 用餐方式</h3>
                 <div class="radio-group" id="dining-radios">
                     <label><input type="radio" name="diningType" value="外帶" onchange="toggleCheckoutInputs()"> 外帶</label>
@@ -447,9 +448,17 @@
 
         function showMenuView() { document.getElementById("menu-view").style.display = "block"; document.getElementById("order-status-view").style.display = "none"; updateBanner(); }
         function showStatusView() { document.getElementById("menu-view").style.display = "none"; document.getElementById("order-status-view").style.display = "block"; renderOrdersList(); }
-        function continueOrdering() { showMenuView(); window.scrollTo(0, 0); }
+        
+        function continueOrdering() { 
+            currentCategoryFilter = '全部';
+            filterCategory('全部');
+            showMenuView(); 
+            window.scrollTo(0, 0); 
+        }
+        
         function updateBanner() { const banner = document.getElementById("active-banner"); if (allOrders.length > 0) { banner.style.display = "block"; if (allOrders.some(order => order.status === 'ready')) { banner.className = "active-orders-banner ready"; banner.innerHTML = "🎉 您有餐點已完成，點此查看取餐號碼！"; } else { banner.className = "active-orders-banner"; banner.innerHTML = "🛒 您有進行中的訂單，點此查看進度"; } } else { banner.style.display = "none"; } }
         
+        // 🌟 新版：包含「購物車」按鈕與紅點提示的導覽列
         function renderNavBar() { 
             const navDiv = document.getElementById("top-nav"); 
             let html = `<button class="nav-btn ${currentCategoryFilter === '全部' ? 'active' : ''}" onclick="filterCategory('全部')">全部</button>`;
@@ -459,13 +468,32 @@
                     html += `<button class="nav-btn ${currentCategoryFilter === category ? 'active' : ''}" onclick="filterCategory('${category}')">${category}</button>`;
                 }
             }); 
+
+            // 計算購物車數量並加上紅點提示
+            let cartQty = 0;
+            for(let key in cart) { cartQty += cart[key].qty; }
+            let badgeHtml = cartQty > 0 ? `<span class="item-badge">${cartQty}</span>` : '';
+
+            // 獨立的購物車按鈕，給予稍微不同的顏色讓它更明顯
+            let cartBtnStyle = currentCategoryFilter === '購物車' ? 'background-color:#e67e22; color:white;' : 'background-color:#fcf3cf; color:#d35400;';
+            html += `<button class="nav-btn ${currentCategoryFilter === '購物車' ? 'active' : ''}" style="${cartBtnStyle}" onclick="filterCategory('購物車')">🛒 購物車 ${badgeHtml}</button>`;
+
             navDiv.innerHTML = html;
         }
         
+        // 🌟 新版：點擊分類時，切換選單與購物車畫面的顯示
         function filterCategory(categoryName) {
             currentCategoryFilter = categoryName;
             renderNavBar(); 
-            renderMenu();   
+            
+            if (categoryName === '購物車') {
+                document.getElementById("menu").style.display = "none";
+                document.getElementById("cart-section").style.display = "block";
+            } else {
+                document.getElementById("menu").style.display = "block";
+                document.getElementById("cart-section").style.display = "none";
+                renderMenu();   
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' }); 
         }
 
@@ -525,7 +553,13 @@
         function updateCart(cartKey, baseId, name, unitPrice, optionsString, delta) {
             if (!cart[cartKey]) { cart[cartKey] = { baseId: baseId, name: name, price: unitPrice, optionsText: optionsString, qty: 0 }; }
             cart[cartKey].qty += delta; if (cart[cartKey].qty <= 0) delete cart[cartKey];
-            renderMenu(); updateCartUI();
+            
+            // 如果目前不是在看購物車畫面，才重新渲染菜單數字
+            if (currentCategoryFilter !== '購物車') {
+                renderMenu(); 
+            }
+            updateCartUI();
+            renderNavBar(); // 🔥 即時更新頂部購物車紅點數字
         }
 
         function updateCartUI() {
@@ -682,7 +716,9 @@
                     const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
                     renderPickupDateSelection(todayOver, isDayClosed(tomorrow)); 
                     
-                    updateCartUI(); renderMenu();
+                    updateCartUI(); 
+                    renderNavBar(); // 送出成功後，清除標籤上的紅點數字
+                    
                     document.getElementById("loading-screen").innerHTML = `<h2>🔄 正在與總部連線...</h2><p>同步今日營業資訊中</p>`;
                     showStatusView();
                 } else {
