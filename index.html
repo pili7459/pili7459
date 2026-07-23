@@ -142,7 +142,7 @@
                 <div id="promo-message" style="font-size:0.9em; margin-top:5px; color:#e74c3c; font-weight:bold;"></div>
 
                 <div id="cutlery-container" style="display: none;">
-                    <h3 style="margin-top:25px;">🍴 餐具與吸管</h3>
+                     <input type="checkbox" id="need-cutlery" checked style="width: 18px; height: 18px;">🍴 餐具與吸管</h3> 
                     <label style="font-size: 1.1em; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: bold; color: #555; margin-top: 10px;">
                         <input type="checkbox" id="need-cutlery" checked style="width: 18px; height: 18px;"> 請提供餐具與吸管
                     </label>
@@ -722,7 +722,7 @@
             
             let needCutlery = "";
             if (baseDiningType !== "內用") {
-                needCutlery = document.getElementById("need-cutlery").checked ? "✅ 請提供餐具/吸管" : "❌";
+                needCutlery = document.getElementById("need-cutlery").checked ? "✅ 餐具/吸管" : "❌ 餐具/吸管";
                 detailsText += `🍴 ${needCutlery}\n`;
             }
 
