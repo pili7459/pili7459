@@ -113,7 +113,7 @@
                     <h3 style="margin-top:5px; border-bottom: none; padding-bottom: 0;">⏰ 預訂取餐時間</h3>
                     <div class="radio-group" id="date-selection"></div>
                     <div class="radio-group" id="time-selection" style="margin-top: 15px;">
-                        <label><input type="radio" name="timeType" value="ASAP" checked onchange="toggleTimeInput()"> 盡快準備</label>
+                        <label><input type="radio" name="timeType" value="ASAP" checked onchange="toggleTimeInput()"> 立即</label>
                         <label><input type="radio" name="timeType" value="SPECIFIC" onchange="toggleTimeInput()"> 指定時間</label>
                     </div>
                     <div id="specific-time-container" style="display:none; margin-top: 10px;">
@@ -160,7 +160,7 @@
     </div>
 
     <div id="order-status-view">
-        <h2 style="margin-top:0;">📝 點餐進度與號碼牌</h2>
+        <h2 style="margin-top:0;">📝 餐點進度</h2>
         <div id="orders-list"></div>
         <button class="continue-btn" onclick="continueOrdering()">➕ 回到點餐頁面</button>
         <!-- 🚫 這裡已經將「全部取餐完畢」的按鈕刪除囉！ -->
