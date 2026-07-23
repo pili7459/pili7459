@@ -33,7 +33,7 @@
         .cart { background: #fff; padding: 20px; border-radius: 10px; margin: 15px 15px 25px 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
         .cart-item { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 12px; }
         .cart-item-main { display: flex; justify-content: space-between; align-items: center; }
-        .cart-item-options { font-size: 0.85em; color: #7f8c8d; margin-top: 5px; } 
+        .cart-item-options { font-size: 0.9em; color: #7f8c8d; margin-top: 5px; } 
         
         .total { font-size: 1.3em; font-weight: bold; text-align: right; margin-top: 15px; color: #2c3e50; }
         
@@ -134,7 +134,6 @@
                     <input type="tel" id="customer-phone" placeholder="👉 請輸入手機號碼 (外帶/自取必填)" class="table-input" style="margin-top: 10px;">
                 </div>
 
-                <!-- 🌟 修復排版的優惠碼區塊 -->
                 <h3 style="margin-top:25px;">🎟️ 優惠碼</h3>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <input type="text" id="promo-code-input" placeholder="輸入優惠碼" class="table-input" style="margin-top: 0; flex: 1;">
@@ -539,6 +538,19 @@
             });
         }
 
+        // 🌟 反悔魔法：允許點擊已經勾選的單選按鈕來取消選取
+        function toggleRadio(element) {
+            if (element.dataset.wasChecked === "true") {
+                element.checked = false;
+                element.dataset.wasChecked = "false";
+            } else {
+                let group = document.getElementsByName(element.name);
+                group.forEach(r => r.dataset.wasChecked = "false");
+                element.dataset.wasChecked = "true";
+            }
+            calcModalPrice();
+        }
+
         function openModal(itemId) {
             currentModalItem = menuData.find(i => i.id === itemId); document.getElementById("modal-item-name").innerText = currentModalItem.name; document.getElementById("modal-base-price").innerText = `$${currentModalItem.price}`;
             let optionsHtml = "";
@@ -546,21 +558,51 @@
                 optionsHtml += `<div class="option-group"><div class="option-group-title">${group.title}</div>`;
                 group.items.forEach((opt, optIdx) => {
                     let priceText = opt.price > 0 ? `<span class="option-price">+$${opt.price}</span>` : "";
-                    if (group.type === "radio") { let checked = optIdx === 0 ? "checked" : ""; optionsHtml += `<div class="option-item"><label><input type="radio" name="group_${index}" value="${opt.name}" data-price="${opt.price}" onchange="calcModalPrice()" ${checked}> ${opt.name}</label>${priceText}</div>`; } 
-                    else { optionsHtml += `<div class="option-item"><label><input type="checkbox" class="modal-checkbox" value="${opt.name}" data-price="${opt.price}" onchange="calcModalPrice()"> ${opt.name}</label>${priceText}</div>`; }
+                    if (group.type === "radio") { 
+                        // 拿掉 checked，並加上 onclick 反悔魔法
+                        optionsHtml += `<div class="option-item"><label><input type="radio" name="group_${index}" value="${opt.name}" data-price="${opt.price}" onclick="toggleRadio(this)"> ${opt.name}</label>${priceText}</div>`; 
+                    } 
+                    else { 
+                        optionsHtml += `<div class="option-item"><label><input type="checkbox" class="modal-checkbox" value="${opt.name}" data-price="${opt.price}" onchange="calcModalPrice()"> ${opt.name}</label>${priceText}</div>`; 
+                    }
                 });
                 optionsHtml += `</div>`;
             });
             document.getElementById("modal-options-container").innerHTML = optionsHtml; document.getElementById("option-modal").style.display = "flex"; calcModalPrice(); 
         }
+
         function closeModal() { document.getElementById("option-modal").style.display = "none"; currentModalItem = null; }
-        function calcModalPrice() { let total = currentModalItem.price; const radios = document.querySelectorAll('#modal-options-container input[type="radio"]:checked'); radios.forEach(r => total += parseInt(r.dataset.price)); const checkboxes = document.querySelectorAll('#modal-options-container input[type="checkbox"]:checked'); checkboxes.forEach(c => total += parseInt(c.dataset.price)); document.getElementById("modal-calc-price").innerText = total; }
+        
+        function calcModalPrice() { 
+            let total = currentModalItem.price; 
+            const radios = document.querySelectorAll('#modal-options-container input[type="radio"]:checked'); 
+            radios.forEach(r => total += parseInt(r.dataset.price)); 
+            const checkboxes = document.querySelectorAll('#modal-options-container input[type="checkbox"]:checked'); 
+            checkboxes.forEach(c => total += parseInt(c.dataset.price)); 
+            document.getElementById("modal-calc-price").innerText = total; 
+        }
+
+        // 🌟 在結帳選項上標示加價金額
         function confirmOptions() {
             let selectedOptions = []; let addedPrice = 0;
-            const radios = document.querySelectorAll('#modal-options-container input[type="radio"]:checked'); radios.forEach(r => { selectedOptions.push(r.value); addedPrice += parseInt(r.dataset.price); });
-            const checkboxes = document.querySelectorAll('#modal-options-container input[type="checkbox"]:checked'); checkboxes.forEach(c => { selectedOptions.push(c.value); addedPrice += parseInt(c.dataset.price); });
-            const optionsString = selectedOptions.join(", "); const cartKey = `${currentModalItem.id}_${selectedOptions.join("_")}`; const finalPrice = currentModalItem.price + addedPrice;
-            updateCart(cartKey, currentModalItem.id, currentModalItem.name, finalPrice, optionsString, 1); closeModal();
+            const radios = document.querySelectorAll('#modal-options-container input[type="radio"]:checked'); 
+            radios.forEach(r => { 
+                let p = parseInt(r.dataset.price);
+                selectedOptions.push(p > 0 ? `${r.value}+${p}` : r.value); 
+                addedPrice += p; 
+            });
+            const checkboxes = document.querySelectorAll('#modal-options-container input[type="checkbox"]:checked'); 
+            checkboxes.forEach(c => { 
+                let p = parseInt(c.dataset.price);
+                selectedOptions.push(p > 0 ? `${c.value}+${p}` : c.value); 
+                addedPrice += p; 
+            });
+            
+            const optionsString = selectedOptions.join(", "); 
+            const cartKey = `${currentModalItem.id}_${selectedOptions.join("_")}`; 
+            const finalPrice = currentModalItem.price + addedPrice;
+            updateCart(cartKey, currentModalItem.id, currentModalItem.name, finalPrice, optionsString, 1); 
+            closeModal();
         }
 
         function applyPromoCode() {
@@ -595,6 +637,7 @@
             renderNavBar(); 
         }
 
+        // 🌟 移除了購物車裡的灰色單價
         function updateCartUI() {
             const cartDiv = document.getElementById("cart-items"); const checkoutOptions = document.getElementById("checkout-options"); const totalSpan = document.getElementById("total-price");
             if (Object.keys(cart).length === 0) { 
@@ -609,7 +652,7 @@
             for (let cartKey in cart) {
                 let item = cart[cartKey]; let itemTotal = item.price * item.qty; subtotal += itemTotal;
                 let optHtml = item.optionsText ? `<div class="cart-item-options">📝 ${item.optionsText}</div>` : '';
-                cartDiv.innerHTML += `<div class="cart-item"><div class="cart-item-main"><div style="flex:1;"><strong>${item.name}</strong> <br> <span style="font-size:0.8em; color:#888;">$${item.price}</span>${optHtml}</div><div class="qty-control" style="transform: scale(0.9);"><button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '${item.name}', ${item.price}, '${item.optionsText}', -1)">-</button><span class="qty-number">${item.qty}</span><button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '${item.name}', ${item.price}, '${item.optionsText}', 1)">+</button></div><div style="width: 50px; text-align: right; font-weight: bold;">$${itemTotal}</div></div></div>`;
+                cartDiv.innerHTML += `<div class="cart-item"><div class="cart-item-main"><div style="flex:1;"><strong>${item.name}</strong>${optHtml}</div><div class="qty-control" style="transform: scale(0.9);"><button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '${item.name}', ${item.price}, '${item.optionsText}', -1)">-</button><span class="qty-number">${item.qty}</span><button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '${item.name}', ${item.price}, '${item.optionsText}', 1)">+</button></div><div style="width: 50px; text-align: right; font-weight: bold; font-size: 1.1em;">$${itemTotal}</div></div></div>`;
             }
             
             let finalTotal = subtotal;
@@ -836,7 +879,6 @@
             allOrders.length === 0 ? showMenuView() : renderOrdersList(); 
         }
 
-        // 🌟 自動刪除已結帳或已取消的訂單
         function checkOrderStatus() {
             if (document.getElementById("order-status-view").style.display !== "block") return;
             let changed = false;
@@ -851,7 +893,6 @@
                         let sheetText = data.status; 
                         let payStatus = data.paymentStatus; 
 
-                        // 💡 一旦發現已經被櫃台結帳，或是被取消，就直接從手機記憶體中銷毀這筆訂單
                         if (payStatus && (payStatus.includes("已結帳") || payStatus.includes("取消"))) {
                             allOrders = allOrders.filter(o => o.id !== order.id);
                             changed = true;
