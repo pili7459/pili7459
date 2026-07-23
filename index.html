@@ -907,7 +907,7 @@
                 let contactInfoText = (order.customerName && order.customerPhone) ? `<br>👤：${order.customerName} (${order.customerPhone})` : "";
                 let diningMetaText = `🍽️：${order.diningType}` + (order.diningType.includes("內用") ? ` (第 ${order.tableNumber} 桌)` : contactInfoText);
 
-                let detailsText = "";
+                let detailsText = " ";
                 for (let k in order.cartData) {
                     let item = order.cartData[k]; detailsText += `<div class="order-item-row"><strong>${item.name}</strong> x ${item.qty}`;
                     if(item.optionsText) detailsText += `<div class="order-item-opts">└ ${item.optionsText}</div>`; detailsText += `</div>`;
