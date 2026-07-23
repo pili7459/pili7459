@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>★★線上點餐★★</title>
+    <title>專屬線上點餐</title>
     <style>
         body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: #f4f4f9; margin: 0 auto; padding: 0; color: #333; max-width: 500px; scroll-behavior: smooth; }
         h1, h2 { text-align: center; color: #2c3e50; margin-top: 15px; }
@@ -34,7 +34,9 @@
         .cart-item { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 12px; }
         .cart-item-main { display: flex; justify-content: space-between; align-items: center; }
         .cart-item-options { font-size: 0.85em; color: #7f8c8d; margin-top: 5px; } 
+        
         .total { font-size: 1.3em; font-weight: bold; text-align: right; margin-top: 15px; color: #2c3e50; }
+        
         .checkout-options { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px solid #e9ecef;}
         .checkout-options h3 { margin: 0 0 10px 0; font-size: 1.1em; color: #2c3e50; border-bottom: 2px solid #ccc; padding-bottom: 5px;}
         .radio-group { display: flex; gap: 20px; margin-top: 10px; }
@@ -88,16 +90,19 @@
         <div id="active-banner" class="active-orders-banner" onclick="showStatusView()" style="display:none;"></div>
         <div id="closed-banner-container"></div>
         
-        <!-- 點餐區塊 -->
         <div class="menu-container" id="menu"></div>
         
-        <!-- 購物車區塊 (預設隱藏) -->
         <div class="cart" id="cart-section" style="display: none;">
             <h2 style="margin-top: 0;">🛒 結帳與送出訂單</h2>
             <div id="cart-items"><p style="text-align:center; color:#999;">目前購物車是空的喔！</p></div>
-            <div class="total">總計: $<span id="total-price">0</span></div>
+            
+            <div class="total">
+                總計: <span id="display-subtotal" style="display:none; text-decoration:line-through; font-size:0.7em; color:#999; margin-right:5px;"></span>$<span id="total-price">0</span>
+            </div>
+            <div id="discount-display" style="text-align:right; font-size:0.9em; color:#e74c3c; font-weight:bold; margin-top:5px;"></div>
             
             <div class="checkout-options" id="checkout-options" style="display: none;">
+                
                 <h3 style="margin-top:25px;" id="dining-title">🍽️ 用餐方式</h3>
                 <div class="radio-group" id="dining-radios">
                     <label><input type="radio" name="diningType" value="外帶" onchange="toggleCheckoutInputs()"> 外帶</label>
@@ -109,7 +114,7 @@
                     <h3 style="margin-top:5px; border-bottom: none; padding-bottom: 0;">⏰ 預訂取餐時間</h3>
                     <div class="radio-group" id="date-selection"></div>
                     <div class="radio-group" id="time-selection" style="margin-top: 15px;">
-                        <label><input type="radio" name="timeType" value="ASAP" checked onchange="toggleTimeInput()"> 立即</label>
+                        <label><input type="radio" name="timeType" value="ASAP" checked onchange="toggleTimeInput()"> 盡快準備</label>
                         <label><input type="radio" name="timeType" value="SPECIFIC" onchange="toggleTimeInput()"> 指定時間</label>
                     </div>
                     <div id="specific-time-container" style="display:none; margin-top: 10px;">
@@ -130,6 +135,14 @@
                     <input type="tel" id="customer-phone" placeholder="👉 請輸入手機號碼 (外帶/自取必填)" class="table-input" style="margin-top: 10px;">
                 </div>
 
+                <!-- 🌟 優惠碼區塊 -->
+                <h3 style="margin-top:25px;">🎟️ 優惠碼</h3>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="promo-code-input" placeholder="輸入優惠碼" class="table-input" style="margin-top:0;">
+                    <button type="button" class="add-btn" style="background:#e67e22;" onclick="applyPromoCode()">套用</button>
+                </div>
+                <div id="promo-message" style="font-size:0.9em; margin-top:5px; color:#e74c3c; font-weight:bold;"></div>
+
                 <div id="cutlery-container" style="display: none;">
                     <h3 style="margin-top:25px;">🍴 餐具與吸管</h3>
                     <label style="font-size: 1.1em; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: bold; color: #555; margin-top: 10px;">
@@ -139,9 +152,9 @@
 
                 <h3 style="margin-top:25px;">📝 訂單備註</h3>
                 <div style="font-size:0.85em; color:#e74c3c; margin-bottom:8px; line-height:1.4;">
-                    ⚠️ 提醒您：需「加價」之項目，請務必於餐點『選規格』中勾選。若寫於備註恕無法提供！
+                    ⚠️ 提醒您：加蛋、加起司等需「加價」之項目，請務必於餐點『選規格』中勾選。若寫於備註恕無法為您提供喔！
                 </div>
-                <textarea id="order-notes" class="table-input" rows="2" placeholder="有什麼想告訴老闆的嗎？"></textarea>
+                <textarea id="order-notes" class="table-input" rows="2" placeholder="有什麼想告訴老闆的嗎？ (例如：漢堡不要洋蔥)"></textarea>
 
             </div>
             <button class="submit-btn" onclick="submitOrder()">送出訂單</button>
@@ -151,8 +164,8 @@
     <div id="order-status-view">
         <h2 style="margin-top:0;">📝 點餐進度與號碼牌</h2>
         <div id="orders-list"></div>
-        <button class="continue-btn" onclick="continueOrdering()">➕ 繼續點餐</button>
-        <button class="finish-btn" onclick="finishAllOrders()">✅ 取餐完畢，清除紀錄</button>
+        <button class="continue-btn" onclick="continueOrdering()">➕ 我還要加點</button>
+        <button class="finish-btn" onclick="finishAllOrders()">✅ 全部取餐完畢，清除紀錄</button>
     </div>
 
     <div id="option-modal" class="modal-overlay" style="display: none;">
@@ -179,11 +192,11 @@
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxTGrRGwx5aNc6LDKOkevrQVRN4Q_n8ERZqzUgi59cuALgED4pIjkcNMFDOIdQIrkcm/exec";
 
-        let shopSettings = { closedDaysOfWeek: [], closedDates: [], openTime: "06:00", closeTime: "13:00", minTable: 1, maxTable: 20 };
+        let shopSettings = { closedDaysOfWeek: [], closedDates: [], openTime: "06:00", closeTime: "13:00", minTable: 1, maxTable: 20, promoDiscountCode: "", promoDiscountRate: 1, promoDeductCode: "", promoDeductAmount: 0 };
         let menuData = []; let categories = [];
         let cart = {}; let allOrders = []; let currentModalItem = null; 
-        
         let currentCategoryFilter = '全部';
+        let appliedPromo = null; // 記錄目前套用的優惠碼資訊
 
         function fetchSettingsAndInit() {
             fetch(`${API_URL}?t=${new Date().getTime()}`).then(res => res.json()).then(data => {
@@ -194,6 +207,12 @@
                     if (data.settings.closedDates) shopSettings.closedDates = data.settings.closedDates;
                     if (data.settings.minTable) shopSettings.minTable = data.settings.minTable;
                     if (data.settings.maxTable) shopSettings.maxTable = data.settings.maxTable;
+                    
+                    // 接收優惠碼設定
+                    if (data.settings.promoDiscountCode !== undefined) shopSettings.promoDiscountCode = data.settings.promoDiscountCode;
+                    if (data.settings.promoDiscountRate !== undefined) shopSettings.promoDiscountRate = data.settings.promoDiscountRate;
+                    if (data.settings.promoDeductCode !== undefined) shopSettings.promoDeductCode = data.settings.promoDeductCode;
+                    if (data.settings.promoDeductAmount !== undefined) shopSettings.promoDeductAmount = data.settings.promoDeductAmount;
                 }
                 if (data.menu && data.menu.length > 0) {
                     menuData = data.menu;
@@ -458,7 +477,6 @@
         
         function updateBanner() { const banner = document.getElementById("active-banner"); if (allOrders.length > 0) { banner.style.display = "block"; if (allOrders.some(order => order.status === 'ready')) { banner.className = "active-orders-banner ready"; banner.innerHTML = "🎉 您有餐點已完成，點此查看取餐號碼！"; } else { banner.className = "active-orders-banner"; banner.innerHTML = "🛒 您有進行中的訂單，點此查看進度"; } } else { banner.style.display = "none"; } }
         
-        // 🌟 新版：包含「購物車」按鈕與紅點提示的導覽列
         function renderNavBar() { 
             const navDiv = document.getElementById("top-nav"); 
             let html = `<button class="nav-btn ${currentCategoryFilter === '全部' ? 'active' : ''}" onclick="filterCategory('全部')">全部</button>`;
@@ -469,19 +487,16 @@
                 }
             }); 
 
-            // 計算購物車數量並加上紅點提示
             let cartQty = 0;
             for(let key in cart) { cartQty += cart[key].qty; }
             let badgeHtml = cartQty > 0 ? `<span class="item-badge">${cartQty}</span>` : '';
 
-            // 獨立的購物車按鈕，給予稍微不同的顏色讓它更明顯
             let cartBtnStyle = currentCategoryFilter === '購物車' ? 'background-color:#e67e22; color:white;' : 'background-color:#fcf3cf; color:#d35400;';
             html += `<button class="nav-btn ${currentCategoryFilter === '購物車' ? 'active' : ''}" style="${cartBtnStyle}" onclick="filterCategory('購物車')">🛒 購物車 ${badgeHtml}</button>`;
 
             navDiv.innerHTML = html;
         }
         
-        // 🌟 新版：點擊分類時，切換選單與購物車畫面的顯示
         function filterCategory(categoryName) {
             currentCategoryFilter = categoryName;
             renderNavBar(); 
@@ -550,28 +565,76 @@
             updateCart(cartKey, currentModalItem.id, currentModalItem.name, finalPrice, optionsString, 1); closeModal();
         }
 
+        // 🌟 優惠碼套用邏輯
+        function applyPromoCode() {
+            const input = document.getElementById("promo-code-input").value.trim();
+            const msgDiv = document.getElementById("promo-message");
+            if (!input) { msgDiv.innerText = "⚠️ 請輸入優惠碼"; msgDiv.style.color = "#e74c3c"; appliedPromo = null; updateCartUI(); return; }
+
+            if (shopSettings.promoDiscountCode && input === shopSettings.promoDiscountCode) {
+                appliedPromo = { type: 'discount', rate: shopSettings.promoDiscountRate, code: input };
+                msgDiv.innerText = `✅ 套用成功！享 ${shopSettings.promoDiscountRate * 10} 折優惠`;
+                msgDiv.style.color = "#27ae60";
+            } else if (shopSettings.promoDeductCode && input === shopSettings.promoDeductCode) {
+                appliedPromo = { type: 'deduct', amount: shopSettings.promoDeductAmount, code: input };
+                msgDiv.innerText = `✅ 套用成功！現折 $${shopSettings.promoDeductAmount} 元`;
+                msgDiv.style.color = "#27ae60";
+            } else {
+                appliedPromo = null;
+                msgDiv.innerText = "❌ 優惠碼無效或已過期";
+                msgDiv.style.color = "#e74c3c";
+            }
+            updateCartUI();
+        }
+
         function updateCart(cartKey, baseId, name, unitPrice, optionsString, delta) {
             if (!cart[cartKey]) { cart[cartKey] = { baseId: baseId, name: name, price: unitPrice, optionsText: optionsString, qty: 0 }; }
             cart[cartKey].qty += delta; if (cart[cartKey].qty <= 0) delete cart[cartKey];
             
-            // 如果目前不是在看購物車畫面，才重新渲染菜單數字
             if (currentCategoryFilter !== '購物車') {
                 renderMenu(); 
             }
             updateCartUI();
-            renderNavBar(); // 🔥 即時更新頂部購物車紅點數字
+            renderNavBar(); 
         }
 
         function updateCartUI() {
             const cartDiv = document.getElementById("cart-items"); const checkoutOptions = document.getElementById("checkout-options"); const totalSpan = document.getElementById("total-price");
-            if (Object.keys(cart).length === 0) { cartDiv.innerHTML = '<p style="text-align:center; color:#999;">目前購物車是空的喔！</p>'; totalSpan.innerText = "0"; checkoutOptions.style.display = "none"; return; }
-            checkoutOptions.style.display = "block"; cartDiv.innerHTML = ""; let total = 0;
+            if (Object.keys(cart).length === 0) { 
+                cartDiv.innerHTML = '<p style="text-align:center; color:#999;">目前購物車是空的喔！</p>'; 
+                totalSpan.innerText = "0"; checkoutOptions.style.display = "none"; 
+                document.getElementById("display-subtotal").style.display = "none";
+                document.getElementById("discount-display").innerText = "";
+                return; 
+            }
+            
+            checkoutOptions.style.display = "block"; cartDiv.innerHTML = ""; let subtotal = 0;
             for (let cartKey in cart) {
-                let item = cart[cartKey]; let itemTotal = item.price * item.qty; total += itemTotal;
+                let item = cart[cartKey]; let itemTotal = item.price * item.qty; subtotal += itemTotal;
                 let optHtml = item.optionsText ? `<div class="cart-item-options">📝 ${item.optionsText}</div>` : '';
                 cartDiv.innerHTML += `<div class="cart-item"><div class="cart-item-main"><div style="flex:1;"><strong>${item.name}</strong> <br> <span style="font-size:0.8em; color:#888;">$${item.price}</span>${optHtml}</div><div class="qty-control" style="transform: scale(0.9);"><button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '${item.name}', ${item.price}, '${item.optionsText}', -1)">-</button><span class="qty-number">${item.qty}</span><button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '${item.name}', ${item.price}, '${item.optionsText}', 1)">+</button></div><div style="width: 50px; text-align: right; font-weight: bold;">$${itemTotal}</div></div></div>`;
             }
-            totalSpan.innerText = total;
+            
+            // 計算優惠碼折扣
+            let finalTotal = subtotal;
+            let discountAmt = 0;
+            if (appliedPromo && subtotal > 0) {
+                if (appliedPromo.type === 'discount') {
+                    discountAmt = Math.round(subtotal * (1 - appliedPromo.rate));
+                } else if (appliedPromo.type === 'deduct') {
+                    discountAmt = appliedPromo.amount > subtotal ? subtotal : appliedPromo.amount;
+                }
+                finalTotal = subtotal - discountAmt;
+                
+                document.getElementById("display-subtotal").style.display = "inline";
+                document.getElementById("display-subtotal").innerText = "$" + subtotal;
+                document.getElementById("discount-display").innerText = `🎟️ 已折抵 -$${discountAmt}`;
+            } else {
+                document.getElementById("display-subtotal").style.display = "none";
+                document.getElementById("discount-display").innerText = "";
+            }
+            
+            totalSpan.innerText = finalTotal;
         }
 
         function submitOrder() {
@@ -647,9 +710,23 @@
                 if(item.optionsText) detailsText += `  └ ${item.optionsText}\n`;
             }
             
-            let needCutlery = "";
             detailsText += `----------------------\n`;
             
+            // 🌟 將優惠碼資訊寫入訂單明細給老闆看
+            let finalTotal = total;
+            if (appliedPromo && total > 0) {
+                let discountAmt = 0;
+                if (appliedPromo.type === 'discount') {
+                    discountAmt = Math.round(total * (1 - appliedPromo.rate));
+                } else {
+                    discountAmt = appliedPromo.amount > total ? total : appliedPromo.amount;
+                }
+                finalTotal = total - discountAmt;
+                detailsText += `🎟️ 優惠碼 (${appliedPromo.code}): -$${discountAmt}\n`;
+                detailsText += `----------------------\n`;
+            }
+            
+            let needCutlery = "";
             if (baseDiningType !== "內用") {
                 needCutlery = document.getElementById("need-cutlery").checked ? "✅ 需要提供餐具/吸管" : "❌ 不用出餐具/吸管";
                 detailsText += `🍴 ${needCutlery}\n`;
@@ -662,9 +739,9 @@
 
             const timeString = getFormattedTime();
 
-            const backendData = { time: timeString, diningType: finalDiningType, tableNumber: tableNumber, customerName: customerName, customerPhone: customerPhone, detailsText: detailsText, totalAmount: total };
+            const backendData = { time: timeString, diningType: finalDiningType, tableNumber: tableNumber, customerName: customerName, customerPhone: customerPhone, detailsText: detailsText, totalAmount: finalTotal };
 
-            document.getElementById("loading-screen").innerHTML = `<h2>🔄 訂單傳送中...</h2><p>請勿關閉頁面</p>`;
+            document.getElementById("loading-screen").innerHTML = `<h2>🔄 訂單傳送中...</h2><p>正在為您抽取專屬號碼牌</p>`;
             document.getElementById("loading-screen").style.display = "flex";
 
             const controller = new AbortController();
@@ -694,11 +771,17 @@
                         id: Date.now(), orderNumber: orderNum, time: timeString, diningType: finalDiningType, 
                         tableNumber: tableNumber, customerName: customerName, customerPhone: customerPhone, 
                         needCutlery: needCutlery, orderNotes: orderNotes, 
-                        readyTime: null, cartData: cart, totalAmount: total, status: 'pending' 
+                        readyTime: null, cartData: cart, totalAmount: finalTotal, status: 'pending' 
                     };
                     allOrders.push(newOrder); localStorage.setItem('myBreakfastOrders', JSON.stringify(allOrders));
                     
                     cart = {}; 
+                    
+                    // 🌟 清空優惠碼狀態
+                    appliedPromo = null;
+                    document.getElementById("promo-code-input").value = "";
+                    document.getElementById("promo-message").innerText = "";
+
                     const urlParams = new URLSearchParams(window.location.search);
                     const tableParam = urlParams.get('table');
 
@@ -717,7 +800,7 @@
                     renderPickupDateSelection(todayOver, isDayClosed(tomorrow)); 
                     
                     updateCartUI(); 
-                    renderNavBar(); // 送出成功後，清除標籤上的紅點數字
+                    renderNavBar(); 
                     
                     document.getElementById("loading-screen").innerHTML = `<h2>🔄 正在與總部連線...</h2><p>同步今日營業資訊中</p>`;
                     showStatusView();
@@ -797,8 +880,8 @@
                 let order = allOrders[i];
                 
                 let statusText = "⏳ 等待店家確認";
-                if (order.status === 'accepted') statusText = "👩‍🍳 店家已接單";
-                if (order.status === 'ready') statusText = "🎉 製餐完成";
+                if (order.status === 'accepted') statusText = "👩‍🍳 廚房製作中";
+                if (order.status === 'ready') statusText = "🎉 製餐完成，請前往取餐";
                 if (order.status === 'cancelled') statusText = "❌ 店家已取消此單";
                 
                 let contactInfoText = (order.customerName && order.customerPhone) ? `<br>👤 聯絡人：${order.customerName} (${order.customerPhone})` : "";
@@ -841,7 +924,7 @@
                             <div class="order-meta">${diningMetaText}</div>
                             ${detailsText}
                             <hr style="border:0; border-top:1px dashed #ccc; margin:10px 0;">
-                            <strong>此單小計：$${order.totalAmount}</strong>
+                            <strong>此單總計：$${order.totalAmount}</strong>
                         </div>
                         ${readyTimeHtml}
                         ${actionBtnHtml}
