@@ -187,7 +187,6 @@
     </div>
 
     <script>
-        // ⚠️ 已經幫你填好最新的 API 網址囉
         const API_URL = "https://script.google.com/macros/s/AKfycbxTGrRGwx5aNc6LDKOkevrQVRN4Q_n8ERZqzUgi59cuALgED4pIjkcNMFDOIdQIrkcm/exec";
 
         let shopSettings = { closedDaysOfWeek: [], closedDates: [], openTime: "06:00", closeTime: "13:00", minTable: 1, maxTable: 20, promoDiscountCode: "", promoDiscountRate: 1, promoDeductCode: "", promoDeductAmount: 0 };
@@ -356,8 +355,21 @@
             renderPickupDateSelection(todayOver, tomorrowClosed);
             document.getElementById("shop-hours-text").innerText = `※ 營業時間：${shopSettings.openTime} ~ ${shopSettings.closeTime}`;
             
+            // 🌟 載入暫存的購物車資料
+            const savedCart = localStorage.getItem('myBreakfastCart');
+            const savedCartExpiry = localStorage.getItem('myBreakfastCartExpiry');
+            if (savedCart && savedCartExpiry) {
+                if (new Date().getTime() < parseInt(savedCartExpiry)) {
+                    cart = JSON.parse(savedCart);
+                } else {
+                    localStorage.removeItem('myBreakfastCart');
+                    localStorage.removeItem('myBreakfastCartExpiry');
+                }
+            }
+
             renderNavBar(); 
             renderMenu();
+            updateCartUI(); 
 
             const savedOrders = localStorage.getItem('myBreakfastOrders');
             if (savedOrders) allOrders = JSON.parse(savedOrders);
@@ -538,7 +550,6 @@
             });
         }
 
-        // 🌟 反悔魔法：允許點擊已經勾選的單選按鈕來取消選取
         function toggleRadio(element) {
             if (element.dataset.wasChecked === "true") {
                 element.checked = false;
@@ -559,7 +570,6 @@
                 group.items.forEach((opt, optIdx) => {
                     let priceText = opt.price > 0 ? `<span class="option-price">+$${opt.price}</span>` : "";
                     if (group.type === "radio") { 
-                        // 拿掉 checked，並加上 onclick 反悔魔法
                         optionsHtml += `<div class="option-item"><label><input type="radio" name="group_${index}" value="${opt.name}" data-price="${opt.price}" onclick="toggleRadio(this)"> ${opt.name}</label>${priceText}</div>`; 
                     } 
                     else { 
@@ -582,7 +592,6 @@
             document.getElementById("modal-calc-price").innerText = total; 
         }
 
-        // 🌟 在結帳選項上標示加價金額
         function confirmOptions() {
             let selectedOptions = []; let addedPrice = 0;
             const radios = document.querySelectorAll('#modal-options-container input[type="radio"]:checked'); 
@@ -630,6 +639,10 @@
             if (!cart[cartKey]) { cart[cartKey] = { baseId: baseId, name: name, price: unitPrice, optionsText: optionsString, qty: 0 }; }
             cart[cartKey].qty += delta; if (cart[cartKey].qty <= 0) delete cart[cartKey];
             
+            // 🌟 將購物車寫入 1 小時防呆暫存
+            localStorage.setItem('myBreakfastCart', JSON.stringify(cart));
+            localStorage.setItem('myBreakfastCartExpiry', new Date().getTime() + 60 * 60 * 1000); 
+
             if (currentCategoryFilter !== '購物車') {
                 renderMenu(); 
             }
@@ -637,7 +650,6 @@
             renderNavBar(); 
         }
 
-        // 🌟 移除了購物車裡的灰色單價
         function updateCartUI() {
             const cartDiv = document.getElementById("cart-items"); const checkoutOptions = document.getElementById("checkout-options"); const totalSpan = document.getElementById("total-price");
             if (Object.keys(cart).length === 0) { 
@@ -815,6 +827,10 @@
                     
                     cart = {}; 
                     
+                    // 🌟 結帳送出後，清掉 1 小時防呆暫存
+                    localStorage.removeItem('myBreakfastCart');
+                    localStorage.removeItem('myBreakfastCartExpiry');
+
                     appliedPromo = null;
                     document.getElementById("promo-code-input").value = "";
                     document.getElementById("promo-message").innerText = "";
