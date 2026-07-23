@@ -150,9 +150,9 @@
 
                 <h3 style="margin-top:25px;">📝 訂單備註</h3>
                 <div style="font-size:0.85em; color:#e74c3c; margin-bottom:8px; line-height:1.4;">
-                    ⚠️ 提醒您：加蛋、加起司等需「加價」之項目，請務必於餐點『選規格』中勾選。若寫於備註恕無法為您提供喔！
+                    ⚠️ 提醒您：需「加價」之項目，請於餐點『選規格』中勾選。若寫於備註恕無法提供！
                 </div>
-                <textarea id="order-notes" class="table-input" rows="2" placeholder="有什麼想告訴老闆的嗎？ (例如：漢堡不要洋蔥)"></textarea>
+                <textarea id="order-notes" class="table-input" rows="2" placeholder="有什麼想說的？"></textarea>
 
             </div>
             <button class="submit-btn" onclick="submitOrder()">送出訂單</button>
@@ -162,7 +162,7 @@
     <div id="order-status-view">
         <h2 style="margin-top:0;">📝 點餐進度與號碼牌</h2>
         <div id="orders-list"></div>
-        <button class="continue-btn" onclick="continueOrdering()">➕ 我還要加點</button>
+        <button class="continue-btn" onclick="continueOrdering()">➕ 回到點餐頁面</button>
         <!-- 🚫 這裡已經將「全部取餐完畢」的按鈕刪除囉！ -->
     </div>
 
@@ -227,7 +227,7 @@
         function getFormattedTime() {
             const now = new Date();
             const year = now.getFullYear(); const month = String(now.getMonth() + 1).padStart(2, '0'); const day = String(now.getDate()).padStart(2, '0');
-            const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
             const weekday = weekdays[now.getDay()];
             const hours = String(now.getHours()).padStart(2, '0'); const minutes = String(now.getMinutes()).padStart(2, '0'); const seconds = String(now.getSeconds()).padStart(2, '0');
             return `${year}/${month}/${day} ${weekday} ${hours}:${minutes}:${seconds}`;
@@ -691,9 +691,9 @@
             if (timeType === "SPECIFIC" && baseDiningType === "自取") {
                 const specificTime = document.getElementById("pickup-time").value;
                 if (!specificTime) { alert("⚠️ 您選擇了指定時間，請選擇取餐時間！"); document.getElementById("pickup-time").focus(); return; }
-                pickupAddonText = ` (🕒 預訂: ${pickupDate} ${specificTime})`;
+                pickupAddonText = ` (預訂: ${pickupDate} ${specificTime})`;
             } else {
-                pickupAddonText = ` (🕒 盡快準備)`;
+                pickupAddonText = ``;
             }
 
             const finalDiningType = baseDiningType + pickupAddonText;
@@ -735,7 +735,7 @@
 
             const backendData = { time: timeString, diningType: finalDiningType, tableNumber: tableNumber, customerName: customerName, customerPhone: customerPhone, detailsText: detailsText, totalAmount: finalTotal };
 
-            document.getElementById("loading-screen").innerHTML = `<h2>🔄 訂單傳送中...</h2><p>正在為您抽取專屬號碼牌</p>`;
+            document.getElementById("loading-screen").innerHTML = `<h2>🔄 訂單傳送中...</h2><p>請勿關閉頁面</p>`;
             document.getElementById("loading-screen").style.display = "flex";
 
             const controller = new AbortController();
@@ -899,13 +899,13 @@
             for (let i = allOrders.length - 1; i >= 0; i--) {
                 let order = allOrders[i];
                 
-                let statusText = "⏳ 等待店家確認";
-                if (order.status === 'accepted') statusText = "👩‍🍳 廚房製作中";
-                if (order.status === 'ready') statusText = "🎉 製餐完成，請前往取餐";
-                if (order.status === 'cancelled') statusText = "❌ 店家已取消此單";
+                let statusText = "等待店家確認";
+                if (order.status === 'accepted') statusText = "店家已接單";
+                if (order.status === 'ready') statusText = "餐點製作完成";
+                if (order.status === 'cancelled') statusText = "店家已取消此單";
                 
-                let contactInfoText = (order.customerName && order.customerPhone) ? `<br>👤 聯絡人：${order.customerName} (${order.customerPhone})` : "";
-                let diningMetaText = `🍽️ 方式：${order.diningType}` + (order.diningType.includes("內用") ? ` (第 ${order.tableNumber} 桌)` : contactInfoText);
+                let contactInfoText = (order.customerName && order.customerPhone) ? `<br>👤：${order.customerName} (${order.customerPhone})` : "";
+                let diningMetaText = `🍽️：${order.diningType}` + (order.diningType.includes("內用") ? ` (第 ${order.tableNumber} 桌)` : contactInfoText);
 
                 let detailsText = "";
                 for (let k in order.cartData) {
@@ -937,14 +937,14 @@
                 listDiv.innerHTML += `
                     <div class="order-card ${order.status}">
                         <div class="order-header">
-                            <div class="order-number-box"><span class="order-number">#${order.orderNumber}</span><span class="order-time">點餐時間 ${order.time}</span></div>
+                            <div class="order-number-box"><span class="order-number">#${order.orderNumber}</span><span class="order-time"> ${order.time}</span></div>
                             <span class="order-status-badge ${order.status}">${statusText}</span>
                         </div>
                         <div class="order-details-text">
                             <div class="order-meta">${diningMetaText}</div>
                             ${detailsText}
                             <hr style="border:0; border-top:1px dashed #ccc; margin:10px 0;">
-                            <strong>此單總計：$${order.totalAmount}</strong>
+                            <strong>總計：$${order.totalAmount}</strong>
                         </div>
                         ${readyTimeHtml}
                         ${actionBtnHtml}
