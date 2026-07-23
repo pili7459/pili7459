@@ -7,14 +7,17 @@
     <style>
         body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: #f4f4f9; margin: 0 auto; padding: 0; color: #333; max-width: 500px; scroll-behavior: smooth; }
         h1, h2 { text-align: center; color: #2c3e50; margin-top: 15px; }
+        
         .top-nav { background-color: #fff; padding: 12px 10px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; position: sticky; top: 0; z-index: 20; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .nav-btn { background-color: #ecf0f1; border: none; padding: 8px 14px; border-radius: 20px; font-weight: bold; color: #7f8c8d; cursor: pointer; transition: all 0.2s ease; font-size: 0.95em; }
         .nav-btn.active { background-color: #3498db; color: white; box-shadow: 0 2px 5px rgba(52, 152, 219, 0.4); } 
+
         .active-orders-banner { background-color: #f39c12; color: white; text-align: center; padding: 12px; font-weight: bold; position: sticky; top: 85px; z-index: 15; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); animation: pulse 2s infinite; }
         .active-orders-banner.ready { background-color: #3498db; animation: pulseReady 1.5s infinite; }
         .closed-overlay { background: #e74c3c; color: white; padding: 15px; border-radius: 8px; text-align: center; font-size: 1.2em; font-weight: bold; margin: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         @keyframes pulse { 0% { background-color: #f39c12; } 50% { background-color: #e67e22; } 100% { background-color: #f39c12; } }
         @keyframes pulseReady { 0% { background-color: #3498db; } 50% { background-color: #2980b9; } 100% { background-color: #3498db; } }
+        
         .category-section { scroll-margin-top: 140px; }
         .category-title { background-color: #2c3e50; color: white; padding: 10px 15px; border-radius: 8px; margin: 15px 15px 10px 15px; font-weight: bold; font-size: 1.2em; position: sticky; top: 125px; z-index: 10; }
         .menu-container { padding: 0; } 
@@ -31,7 +34,9 @@
         .cart-item { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 12px; }
         .cart-item-main { display: flex; justify-content: space-between; align-items: center; }
         .cart-item-options { font-size: 0.9em; color: #7f8c8d; margin-top: 5px; } 
+        
         .total { font-size: 1.3em; font-weight: bold; text-align: right; margin-top: 15px; color: #2c3e50; }
+        
         .checkout-options { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px solid #e9ecef;}
         .checkout-options h3 { margin: 0 0 10px 0; font-size: 1.1em; color: #2c3e50; border-bottom: 2px solid #ccc; padding-bottom: 5px;}
         .radio-group { display: flex; gap: 20px; margin-top: 10px; }
@@ -56,7 +61,7 @@
         .order-details-text { line-height: 1.6; font-size: 1.1em;}
         .order-item-row { margin-bottom: 8px; }
         .order-item-opts { font-size: 0.8em; color: #7f8c8d; padding-left: 10px;}
-        .order-meta { font-weight: bold; color: #2980b9; margin-bottom: 10px; background: #ebf5fb; padding: 8px; border-radius: 5px; display: inline-block; width: 100%; box-sizing: border-box;}
+        .order-meta { font-weight: bold; color: #2980b9; margin-bottom: 10px; background: #ebf5fb; padding: 12px; border-radius: 8px; display: inline-block; width: 100%; box-sizing: border-box; line-height: 1.4;}
         .ready-time-tag { font-weight: bold; color: #d35400; margin-top: 15px; background: #fdf2e9; padding: 10px; border-radius: 5px; text-align: center; border: 1px dashed #e67e22; }
         .cancelled-time-tag { font-weight: bold; color: #c0392b; margin-top: 15px; background: #fadbd8; padding: 10px; border-radius: 5px; text-align: center; border: 1px dashed #e74c3c; }
         .cancel-small-btn { background: #e74c3c; color: white; border: none; padding: 8px 12px; border-radius: 5px; font-size: 0.9em; margin-top: 15px; cursor: pointer; width: 100%; font-weight:bold;}
@@ -182,7 +187,7 @@
     </div>
 
     <script>
-        // ⚠️ 已經幫你填好最新的 API 網址囉
+        // ⚠️ 請填入你最新發布的 Google Apps Script 網址
         const API_URL = "https://script.google.com/macros/s/AKfycbxTGrRGwx5aNc6LDKOkevrQVRN4Q_n8ERZqzUgi59cuALgED4pIjkcNMFDOIdQIrkcm/exec";
 
         let shopSettings = { closedDaysOfWeek: [], closedDates: [], openTime: "06:00", closeTime: "13:00", minTable: 1, maxTable: 20, promoDiscountCode: "", promoDiscountRate: 1, promoDeductCode: "", promoDeductAmount: 0 };
@@ -230,7 +235,8 @@
         function getFormattedTime() {
             const now = new Date();
             const year = now.getFullYear(); const month = String(now.getMonth() + 1).padStart(2, '0'); const day = String(now.getDate()).padStart(2, '0');
-            const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            // 🌟 將星期改為「周」
+            const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
             const weekday = weekdays[now.getDay()];
             const hours = String(now.getHours()).padStart(2, '0'); const minutes = String(now.getMinutes()).padStart(2, '0'); const seconds = String(now.getSeconds()).padStart(2, '0');
             return `${year}/${month}/${day} ${weekday} ${hours}:${minutes}:${seconds}`;
@@ -746,12 +752,13 @@
             const timeType = document.querySelector('input[name="timeType"]:checked').value;
             let pickupAddonText = "";
 
+            // 🌟 移除 🕒 符號
             if (timeType === "SPECIFIC" && baseDiningType === "自取") {
                 const specificTime = document.getElementById("pickup-time").value;
                 if (!specificTime) { alert("⚠️ 您選擇了指定時間，請選擇取餐時間！"); document.getElementById("pickup-time").focus(); return; }
-                pickupAddonText = ` (🕒 預訂: ${pickupDate} ${specificTime})`;
+                pickupAddonText = ` (預訂: ${pickupDate} ${specificTime})`;
             } else {
-                pickupAddonText = ` (🕒 盡快準備)`;
+                pickupAddonText = ` (盡快準備)`;
             }
 
             const finalDiningType = baseDiningType + pickupAddonText;
@@ -817,8 +824,6 @@
 
                 if(data.result === "success") {
                     const orderNum = data.orderNumber; 
-                    
-                    // 🌟 記錄從後台回傳的這張單屬於哪一天！
                     const orderDate = data.orderDate || getTodayDateString();
 
                     const newOrder = { 
@@ -905,7 +910,7 @@
             let checkPromises = activeOrders.map(order => {
                 if (order.status === 'cancelled') return Promise.resolve(); 
                 
-                // 🌟 查詢時帶上訂單日期，不怕跨日單號重複
+                // 🌟 這裡完美修復查詢 Bug，告訴總部要查「哪一天」的單
                 let targetDateParam = order.orderDate ? `&orderDate=${order.orderDate}` : '';
                 return fetch(`${API_URL}?orderNumber=${order.orderNumber}${targetDateParam}&t=${new Date().getTime()}`, { redirect: "follow" })
                     .then(res => res.json())
@@ -960,13 +965,19 @@
             for (let i = allOrders.length - 1; i >= 0; i--) {
                 let order = allOrders[i];
                 
+                // 🌟 優化進度文案
                 let statusText = "⏳ 等待店家確認";
-                if (order.status === 'accepted') statusText = "👩‍🍳 廚房製作中";
-                if (order.status === 'ready') statusText = "🎉 製餐完成，請前往取餐";
+                if (order.status === 'accepted') statusText = "👩‍🍳 店家已接單";
+                if (order.status === 'ready') statusText = "🎉 餐點製作完成";
                 if (order.status === 'cancelled') statusText = "❌ 店家已取消此單";
                 
-                let contactInfoText = (order.customerName && order.customerPhone) ? `<br>👤 聯絡人：${order.customerName} (${order.customerPhone})` : "";
-                let diningMetaText = `🍽️ 方式：${order.diningType}` + (order.diningType.includes("內用") ? ` (第 ${order.tableNumber} 桌)` : contactInfoText);
+                // 🌟 極簡化排版：移除不必要的字跟符號
+                let cleanDiningType = order.diningType.replace("🕒 ", "").replace("🍽️ 方式：", "").replace("🍽️ ", "");
+                let contactInfoText = (order.customerName && order.customerPhone) ? `<br>${order.customerName} (${order.customerPhone})` : "";
+                let diningMetaText = `${cleanDiningType}` + (order.diningType.includes("內用") ? ` (第 ${order.tableNumber} 桌)` : contactInfoText);
+
+                // 🌟 將歷史訂單存的「星期」改顯示成「周」，並拿掉「點餐時間」字眼
+                let displayTime = order.time.replace("點餐時間 ", "").replace(/星期/g, "周");
 
                 let detailsText = "";
                 for (let k in order.cartData) {
@@ -983,7 +994,7 @@
 
                 let readyTimeHtml = "";
                 if (order.status === 'ready' && order.readyTime) {
-                    readyTimeHtml = `<div class="ready-time-tag">✅ 本單已於 ${order.readyTime} 製作完成！</div>`;
+                    readyTimeHtml = `<div class="ready-time-tag">✅ 本單已於 ${order.readyTime.replace(/星期/g, "周")} 製作完成！</div>`;
                 } else if (order.status === 'cancelled') {
                     readyTimeHtml = `<div class="cancelled-time-tag">⚠️ 很抱歉，店家因故無法出餐，已為您取消此訂單。</div>`;
                 }
@@ -998,7 +1009,10 @@
                 listDiv.innerHTML += `
                     <div class="order-card ${order.status}">
                         <div class="order-header">
-                            <div class="order-number-box"><span class="order-number">#${order.orderNumber}</span><span class="order-time">點餐時間 ${order.time}</span></div>
+                            <div class="order-number-box">
+                                <span class="order-number">#${order.orderNumber}</span>
+                                <span class="order-time">${displayTime}</span>
+                            </div>
                             <span class="order-status-badge ${order.status}">${statusText}</span>
                         </div>
                         <div class="order-details-text">
