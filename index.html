@@ -66,7 +66,6 @@
         .cancelled-time-tag { font-weight: bold; color: #c0392b; margin-top: 15px; background: #fadbd8; padding: 10px; border-radius: 5px; text-align: center; border: 1px dashed #e74c3c; }
         .cancel-small-btn { background: #e74c3c; color: white; border: none; padding: 8px 12px; border-radius: 5px; font-size: 0.9em; margin-top: 15px; cursor: pointer; width: 100%; font-weight:bold;}
         .continue-btn { background: #f39c12; color: white; border: none; padding: 15px; font-size: 1.2em; border-radius: 8px; font-weight: bold; width: 100%; margin-bottom: 15px; cursor: pointer; }
-        .finish-btn { background: #95a5a6; color: white; border: none; padding: 15px; font-size: 1.2em; border-radius: 8px; font-weight: bold; width: 100%; cursor: pointer; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 100; display: flex; justify-content: center; align-items: flex-end; }
         .modal-content { background: #fff; width: 100%; max-width: 500px; border-radius: 20px 20px 0 0; padding: 20px; box-sizing: border-box; animation: slideUp 0.3s ease-out; max-height: 85vh; overflow-y: auto;}
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -135,7 +134,6 @@
                     <input type="tel" id="customer-phone" placeholder="👉 請輸入手機號碼 (外帶/自取必填)" class="table-input" style="margin-top: 10px;">
                 </div>
 
-                <!-- 🌟 優惠碼區塊 -->
                 <h3 style="margin-top:25px;">🎟️ 優惠碼</h3>
                 <div style="display:flex; gap:10px;">
                     <input type="text" id="promo-code-input" placeholder="輸入優惠碼" class="table-input" style="margin-top:0;">
@@ -165,7 +163,7 @@
         <h2 style="margin-top:0;">📝 點餐進度與號碼牌</h2>
         <div id="orders-list"></div>
         <button class="continue-btn" onclick="continueOrdering()">➕ 我還要加點</button>
-        <button class="finish-btn" onclick="finishAllOrders()">✅ 全部取餐完畢，清除紀錄</button>
+        <!-- 🚫 這裡已經將「全部取餐完畢」的按鈕刪除囉！ -->
     </div>
 
     <div id="option-modal" class="modal-overlay" style="display: none;">
@@ -196,7 +194,7 @@
         let menuData = []; let categories = [];
         let cart = {}; let allOrders = []; let currentModalItem = null; 
         let currentCategoryFilter = '全部';
-        let appliedPromo = null; // 記錄目前套用的優惠碼資訊
+        let appliedPromo = null; 
 
         function fetchSettingsAndInit() {
             fetch(`${API_URL}?t=${new Date().getTime()}`).then(res => res.json()).then(data => {
@@ -208,7 +206,6 @@
                     if (data.settings.minTable) shopSettings.minTable = data.settings.minTable;
                     if (data.settings.maxTable) shopSettings.maxTable = data.settings.maxTable;
                     
-                    // 接收優惠碼設定
                     if (data.settings.promoDiscountCode !== undefined) shopSettings.promoDiscountCode = data.settings.promoDiscountCode;
                     if (data.settings.promoDiscountRate !== undefined) shopSettings.promoDiscountRate = data.settings.promoDiscountRate;
                     if (data.settings.promoDeductCode !== undefined) shopSettings.promoDeductCode = data.settings.promoDeductCode;
@@ -565,7 +562,6 @@
             updateCart(cartKey, currentModalItem.id, currentModalItem.name, finalPrice, optionsString, 1); closeModal();
         }
 
-        // 🌟 優惠碼套用邏輯
         function applyPromoCode() {
             const input = document.getElementById("promo-code-input").value.trim();
             const msgDiv = document.getElementById("promo-message");
@@ -615,7 +611,6 @@
                 cartDiv.innerHTML += `<div class="cart-item"><div class="cart-item-main"><div style="flex:1;"><strong>${item.name}</strong> <br> <span style="font-size:0.8em; color:#888;">$${item.price}</span>${optHtml}</div><div class="qty-control" style="transform: scale(0.9);"><button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '${item.name}', ${item.price}, '${item.optionsText}', -1)">-</button><span class="qty-number">${item.qty}</span><button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '${item.name}', ${item.price}, '${item.optionsText}', 1)">+</button></div><div style="width: 50px; text-align: right; font-weight: bold;">$${itemTotal}</div></div></div>`;
             }
             
-            // 計算優惠碼折扣
             let finalTotal = subtotal;
             let discountAmt = 0;
             if (appliedPromo && subtotal > 0) {
@@ -712,7 +707,6 @@
             
             detailsText += `----------------------\n`;
             
-            // 🌟 將優惠碼資訊寫入訂單明細給老闆看
             let finalTotal = total;
             if (appliedPromo && total > 0) {
                 let discountAmt = 0;
@@ -777,7 +771,6 @@
                     
                     cart = {}; 
                     
-                    // 🌟 清空優惠碼狀態
                     appliedPromo = null;
                     document.getElementById("promo-code-input").value = "";
                     document.getElementById("promo-message").innerText = "";
@@ -842,17 +835,29 @@
             allOrders.length === 0 ? showMenuView() : renderOrdersList(); 
         }
 
+        // 🌟 核心魔法：接收總部的「結帳指令」，自動刪除手機上的訂單
         function checkOrderStatus() {
             if (document.getElementById("order-status-view").style.display !== "block") return;
             let changed = false;
-            let checkPromises = allOrders.map(order => {
-                if (order.status === 'ready' || order.status === 'cancelled') return Promise.resolve(); 
+            let activeOrders = [...allOrders]; 
+
+            let checkPromises = activeOrders.map(order => {
+                if (order.status === 'cancelled') return Promise.resolve(); 
                 
                 return fetch(`${API_URL}?orderNumber=${order.orderNumber}&t=${new Date().getTime()}`, { redirect: "follow" })
                     .then(res => res.json())
                     .then(data => {
-                        let sheetText = data.status; let newStatus = order.status;
-                        
+                        let sheetText = data.status; 
+                        let payStatus = data.paymentStatus; 
+
+                        // 💡 一旦發現已經被櫃台結帳，就直接從手機記憶體中銷毀這筆訂單！
+                        if (payStatus && payStatus.includes("已結帳")) {
+                            allOrders = allOrders.filter(o => o.id !== order.id);
+                            changed = true;
+                            return; 
+                        }
+
+                        let newStatus = order.status;
                         if (sheetText.includes("取消")) { 
                             newStatus = 'cancelled'; 
                         } else if (sheetText.includes("完成") || sheetText.includes("取餐")) { 
@@ -868,7 +873,22 @@
                         }
                     }).catch(e => console.log("查詢中..."));
             });
-            Promise.all(checkPromises).then(() => { if (changed) { localStorage.setItem('myBreakfastOrders', JSON.stringify(allOrders)); renderOrdersList(); } });
+
+            Promise.all(checkPromises).then(() => { 
+                if (changed) { 
+                    localStorage.setItem('myBreakfastOrders', JSON.stringify(allOrders)); 
+                    
+                    // 💡 如果手機裡已經沒有任何進行中的訂單，自動跳回菜單畫面！
+                    if (allOrders.length === 0) {
+                        currentCategoryFilter = '全部';
+                        filterCategory('全部');
+                        showMenuView();
+                        window.scrollTo(0, 0);
+                    } else {
+                        renderOrdersList(); 
+                    }
+                } 
+            });
         }
         setInterval(checkOrderStatus, 5000);
 
@@ -933,7 +953,6 @@
             updateBanner();
         }
 
-        function finishAllOrders() { if(confirm("確定餐點都已經拿到了嗎？紀錄即將清除喔！")) { allOrders = []; localStorage.removeItem('myBreakfastOrders'); showMenuView(); } }
     </script>
 </body>
 </html>
