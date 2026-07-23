@@ -902,7 +902,7 @@
                 let statusText = "等待店家確認";
                 if (order.status === 'accepted') statusText = "店家已接單";
                 if (order.status === 'ready') statusText = "餐點製作完成";
-                if (order.status === 'cancelled') statusText = "店家已取消此單";
+                if (order.status === 'cancelled') statusText = "店家已取消";
                 
                 let contactInfoText = (order.customerName && order.customerPhone) ? `<br>👤：${order.customerName} (${order.customerPhone})` : "";
                 let diningMetaText = `🍽️：${order.diningType}` + (order.diningType.includes("內用") ? ` (第 ${order.tableNumber} 桌)` : contactInfoText);
@@ -922,7 +922,7 @@
 
                 let readyTimeHtml = "";
                 if (order.status === 'ready' && order.readyTime) {
-                    readyTimeHtml = `<div class="ready-time-tag">✅ 本單已於 ${order.readyTime} 製作完成！</div>`;
+                    readyTimeHtml = `<div class="ready-time-tag">本單已於${order.readyTime}完成</div>`;
                 } else if (order.status === 'cancelled') {
                     readyTimeHtml = `<div class="cancelled-time-tag">⚠️ 很抱歉，店家因故無法出餐，已為您取消此訂單。</div>`;
                 }
