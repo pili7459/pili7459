@@ -909,7 +909,6 @@
                 orderDateBackend = `${tmr.getFullYear()}-${String(tmr.getMonth() + 1).padStart(2, '0')}-${String(tmr.getDate()).padStart(2, '0')}`;
             }
 
-            // 🌟 只有自取需要在後面加上 (預訂時間)，內用外帶都不用加任何字
             if (baseDiningType === "自取") {
                 if (timeType === "SPECIFIC") {
                     const specificTime = document.getElementById("pickup-time").value;
@@ -1071,19 +1070,23 @@
                 return fetch(`${API_URL}?orderNumber=${order.orderNumber}${targetDateParam}&t=${new Date().getTime()}`, { redirect: "follow" })
                     .then(res => res.json())
                     .then(data => {
-                        let sheetText = data.status; 
-                        let payStatus = data.paymentStatus; 
+                        let sheetText = data.status || ""; 
+                        let payStatus = data.paymentStatus || ""; 
 
-                        if (payStatus && (payStatus.includes("已結帳") || payStatus.includes("取消"))) {
+                        let isCompleted = sheetText.includes("完成") || sheetText.includes("取餐");
+                        let isPaid = payStatus.includes("已結帳");
+
+                        // 🌟 退場機制：必須結帳＋完成才自動刪除
+                        if (isCompleted && isPaid) {
                             allOrders = allOrders.filter(o => o.id !== order.id);
                             changed = true;
                             return; 
                         }
 
                         let newStatus = order.status;
-                        if (sheetText.includes("取消")) { 
+                        if (sheetText.includes("取消") || payStatus.includes("取消")) { 
                             newStatus = 'cancelled'; 
-                        } else if (sheetText.includes("完成") || sheetText.includes("取餐")) { 
+                        } else if (isCompleted) { 
                             newStatus = 'ready'; 
                         } else if (sheetText.includes("接單") || sheetText.includes("製作中")) { 
                             newStatus = 'accepted'; 
@@ -1094,6 +1097,12 @@
                             if (newStatus === 'ready') { order.readyTime = getFormattedTime(); } 
                             changed = true; 
                         }
+                        
+                        if (order.paymentStatus !== payStatus) {
+                            order.paymentStatus = payStatus;
+                            changed = true;
+                        }
+
                     }).catch(e => console.log("查詢中..."));
             });
 
@@ -1157,12 +1166,21 @@
                 } else if (order.status === 'cancelled') {
                     actionBtnHtml = `<button class="finish-btn" style="margin-top:15px; font-size:1em; padding:10px;" onclick="hideCancelledOrder(${order.id})">我知道了，隱藏此單</button>`;
                 }
+                
+                // 🌟 如果客人已付款，給他一個安心的綠色小標籤
+                let paymentBadgeHtml = '';
+                if (order.paymentStatus && order.paymentStatus.includes("已結帳")) {
+                    paymentBadgeHtml = `<span style="background: #e9f7ef; color: #27ae60; padding: 3px 8px; border-radius: 12px; font-size: 0.7em; margin-left: 8px; vertical-align: middle;">💵 已付款</span>`;
+                }
 
                 listDiv.innerHTML += `
                     <div class="order-card ${order.status}">
                         <div class="order-header">
                             <div class="order-number-box">
-                                <span class="order-number">#${order.orderNumber}</span>
+                                <div style="display:flex; align-items:center;">
+                                    <span class="order-number">#${order.orderNumber}</span>
+                                    ${paymentBadgeHtml}
+                                </div>
                                 <span class="order-time">${displayTime}</span>
                             </div>
                             <span class="order-status-badge ${order.status}">${statusText}</span>
