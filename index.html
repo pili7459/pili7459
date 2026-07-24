@@ -17,7 +17,7 @@
         .nav-btn { background-color: transparent; border: none; padding: 15px 5px; font-weight: bold; color: #7f8c8d; cursor: pointer; transition: all 0.2s ease; font-size: 1em; white-space: nowrap; border-left: 4px solid transparent; text-align: center; border-bottom: 1px solid #f0f0f0; width: 100%; }
         .nav-btn.active { background-color: #f4f8fb; color: #3498db; border-left: 4px solid #3498db; }
         
-        .main-content { flex: 1; height: 100dvh; overflow-y: auto; scroll-behavior: smooth; position: relative; }
+        .main-content { flex: 1; height: 100dvh; overflow-y: auto; scroll-behavior: smooth; position: relative; padding-bottom: 160px; }
         .main-content::-webkit-scrollbar { display: none; }
 
         .active-orders-banner { background-color: #f39c12; color: white; text-align: center; padding: 12px; font-weight: bold; position: sticky; top: 0; z-index: 15; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); animation: pulse 2s infinite; }
@@ -29,19 +29,17 @@
         .category-section { margin-bottom: 25px;}
         .category-title { background-color: #2c3e50; color: white; padding: 10px 15px; border-radius: 8px; margin: 15px 15px 10px 15px; font-weight: bold; font-size: 1.1em; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .menu-container { padding: 0; } 
-        /* 🌟 菜單底部加入 120px 的空白，保證最後一個餐點滑得出來 */
-        .menu-side { width: 100%; padding-bottom: 120px; }
         .menu-item { background: #fff; padding: 15px; margin: 0 15px 12px 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .item-info h3 { margin: 0 0 5px 0; font-size: 1.1em; line-height: 1.3;}
         .item-price { color: #e74c3c; font-weight: bold; }
+        .item-badge { background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.8em; margin-left: 5px; vertical-align: top; }
         button.add-btn { background: #3498db; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;}
         button.spec-btn { background: #e67e22; } 
         .qty-control { display: flex; align-items: center; gap: 10px; }
         .qty-btn { background: #f0f0f0; border: none; width: 30px; height: 30px; border-radius: 5px; font-size: 1.2em; font-weight: bold; cursor: pointer;}
         .qty-number { font-weight: bold; font-size: 1.1em; width: 20px; text-align: center; }
         
-        /* 🌟 購物車底部加入 120px margin，保證送出按鈕不被擋住 */
-        .cart { background: #fff; padding: 20px; border-radius: 10px; margin: 15px 15px 120px 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .cart { background: #fff; padding: 20px; border-radius: 10px; margin: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
         .cart-item { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 12px; }
         .cart-item-main { display: flex; justify-content: space-between; align-items: center; }
         .cart-item-options { font-size: 0.9em; color: #7f8c8d; margin-top: 5px; } 
@@ -53,8 +51,7 @@
         .table-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 1.1em; margin-top: 10px; box-sizing: border-box; font-family: inherit;}
         .submit-btn { width: 100%; padding: 15px; background: #2ecc71; font-size: 1.2em; margin-top: 15px; border-radius: 8px; border: none; color: white; font-weight: bold; cursor: pointer;}
         
-        /* 🌟 號碼牌頁面底部加入 120px padding */
-        #order-status-view { display: none; padding: 20px; padding-bottom: 120px; }
+        #order-status-view { display: none; padding: 20px; }
         .order-card { background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; border-left: 6px solid #ccc; position: relative;}
         .order-card.pending { border-left-color: #f39c12; }
         .order-card.accepted { border-left-color: #27ae60; }
@@ -224,7 +221,7 @@
             </div>
         </div>
 
-        <!-- 內部對話框 (鎖定在 app-container 內) -->
+        <!-- 內部對話框 -->
         <div id="chat-modal">
             <div class="chat-header">
                 <span>💬 聯絡店家</span>
@@ -267,7 +264,7 @@
             <h2>🔄 正在與總部連線...</h2>
             <p style="color:#7f8c8d;">同步今日營業資訊中</p>
         </div>
-    </div> <!-- app-container 結束 -->
+    </div>
 
     <script>
         // ⚠️ 請填寫最新的 API 網址
@@ -678,7 +675,6 @@
             }
         }
 
-        // 🌟 切換畫面時，控制左側分類的顯示與隱藏
         function showMenuView() { 
             document.getElementById("menu-view").style.display = "block"; 
             document.getElementById("order-status-view").style.display = "none"; 
@@ -714,7 +710,6 @@
             navDiv.innerHTML = html;
         }
         
-        // 🌟 使用錨點滑動，不再隱藏其他分類，保證全部都看得到！
         function filterCategory(categoryName) {
             currentCategoryFilter = categoryName;
             renderNavBar(); 
@@ -762,7 +757,8 @@
                             let basicCartKey = item.id.toString(); let qty = cart[basicCartKey] ? cart[basicCartKey].qty : 0;
                             btn = qty === 0 ? `<button class="add-btn" onclick="updateCart('${basicCartKey}', ${item.id}, '${item.name}', ${item.price}, '', 1)">加入</button>` : `<div class="qty-control"><button class="qty-btn" onclick="updateCart('${basicCartKey}', ${item.id}, '${item.name}', ${item.price}, '', -1)">-</button><span class="qty-number">${qty}</span><button class="qty-btn" onclick="updateCart('${basicCartKey}', ${item.id}, '${item.name}', ${item.price}, '', 1)">+</button></div>`;
                         }
-                        html += `<div class="menu-item"><div class="item-info"><h3>${item.name}${badgeHtml}</h3><span class="item-price">$${item.price}</span></div>${btn}</div>`;
+                        // 🌟 為每一行餐點加上 id，方便局部更新不重新刷頁
+                        html += `<div class="menu-item" id="item-row-${item.id}"><div class="item-info"><h3 id="item-title-${item.id}">${item.name}${badgeHtml}</h3><span class="item-price">$${item.price}</span></div><div id="item-btn-box-${item.id}">${btn}</div></div>`;
                     });
                     menuDiv.innerHTML += html + `</div></div>`;
                 }
@@ -855,6 +851,7 @@
             updateCartUI();
         }
 
+        // 🌟 核心升級：局部更新 UI，點擊加入/增減數量時畫面絕不跳動！
         function updateCart(cartKey, baseId, name, unitPrice, optionsString, delta) {
             if (!cart[cartKey]) { cart[cartKey] = { baseId: baseId, name: name, price: unitPrice, optionsText: optionsString, qty: 0 }; }
             cart[cartKey].qty += delta; if (cart[cartKey].qty <= 0) delete cart[cartKey];
@@ -862,9 +859,32 @@
             localStorage.setItem('myBreakfastCart', JSON.stringify(cart));
             localStorage.setItem('myBreakfastCartExpiry', new Date().getTime() + 60 * 60 * 1000); 
 
-            if (currentCategoryFilter !== '購物車') {
-                renderMenu(); 
+            // 算該基本商品在購物車內的總數量
+            let totalQty = 0;
+            for (let k in cart) {
+                if (cart[k].baseId === baseId) totalQty += cart[k].qty;
             }
+
+            // 局部更新標題與紅點
+            let titleEl = document.getElementById(`item-title-${baseId}`);
+            if (titleEl) {
+                let targetItem = menuData.find(i => i.id === baseId);
+                let badgeHtml = totalQty > 0 ? `<span class="item-badge">${totalQty}</span>` : '';
+                if (targetItem) titleEl.innerHTML = `${targetItem.name}${badgeHtml}`;
+            }
+
+            // 局部更新按鈕 (無規格商品)
+            let btnBox = document.getElementById(`item-btn-box-${baseId}`);
+            let targetItem = menuData.find(i => i.id === baseId);
+            if (btnBox && targetItem && (!targetItem.options || targetItem.options.length === 0)) {
+                let basicCartKey = baseId.toString();
+                let currentQty = cart[basicCartKey] ? cart[basicCartKey].qty : 0;
+                let btnHtml = currentQty === 0 ? 
+                    `<button class="add-btn" onclick="updateCart('${basicCartKey}', ${baseId}, '${targetItem.name}', ${targetItem.price}, '', 1)">加入</button>` : 
+                    `<div class="qty-control"><button class="qty-btn" onclick="updateCart('${basicCartKey}', ${baseId}, '${targetItem.name}', ${targetItem.price}, '', -1)">-</button><span class="qty-number">${currentQty}</span><button class="qty-btn" onclick="updateCart('${basicCartKey}', ${baseId}, '${targetItem.name}', ${targetItem.price}, '', 1)">+</button></div>`;
+                btnBox.innerHTML = btnHtml;
+            }
+
             updateCartUI();
         }
 
