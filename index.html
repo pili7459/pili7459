@@ -84,7 +84,6 @@
 
         .fab-btn { position: fixed; bottom: 20px; right: 20px; background: #8e44ad; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.8em; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 50; transition: transform 0.2s; }
         .fab-btn:active { transform: scale(0.9); }
-        /* 🌟 客服小紅點的樣式 */
         .fab-badge { position: absolute; top: -3px; right: -3px; background: #e74c3c; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 0.7em; display: none; justify-content: center; align-items: center; font-weight: bold; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         
         #chat-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 200; flex-direction: column; }
@@ -105,7 +104,6 @@
 
     <div class="fab-btn" onclick="openChat()">
         💬
-        <!-- 🌟 新增的小紅點徽章 -->
         <span class="fab-badge" id="fab-badge">N</span>
     </div>
 
@@ -157,13 +155,17 @@
                 </div>
                 
                 <div id="datetime-container" style="display:none; background: #fff; padding: 10px; border-radius: 8px; margin-top: 15px; border: 1px dashed #ccc;">
-                    <h3 style="margin-top:5px; border-bottom: none; padding-bottom: 0;">⏰ 預訂取餐時間</h3>
-                    <div class="radio-group" id="date-selection"></div>
-                    <div class="radio-group" id="time-selection" style="margin-top: 15px;">
-                        <label><input type="radio" name="timeType" value="ASAP" checked onchange="toggleTimeInput()"> 立即</label>
-                        <label><input type="radio" name="timeType" value="SPECIFIC" onchange="toggleTimeInput()"> 指定時間</label>
+                    <h3 style="margin-top:5px; border-bottom: none; padding-bottom: 0;">⏰ 取餐時間</h3>
+                    
+                    <!-- 🌟 步驟一：選擇立即或指定時間 -->
+                    <div class="radio-group" id="time-selection" style="margin-top: 10px;">
+                        <label id="label-asap"><input type="radio" name="timeType" value="ASAP" checked onchange="toggleTimeInput()"> 立即</label>
+                        <label id="label-specific"><input type="radio" name="timeType" value="SPECIFIC" onchange="toggleTimeInput()"> 指定時間</label>
                     </div>
-                    <div id="specific-time-container" style="display:none; margin-top: 10px;">
+
+                    <!-- 🌟 步驟二：選擇日期與具體時間 (預設隱藏) -->
+                    <div id="specific-time-container" style="display:none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #eee;">
+                        <div class="radio-group" id="date-selection" style="margin-top: 0; margin-bottom: 15px;"></div>
                         <select id="pickup-time" class="table-input">
                             <option value="" disabled selected>👉 請選擇取餐時間</option>
                         </select>
@@ -243,8 +245,8 @@
         let currentCategoryFilter = '全部';
         let appliedPromo = null; 
         
+        let chatTimer = null;
         let isChatOpen = false;
-        // 🌟 記錄最後一次看到的訊息數量
         let lastMsgCount = parseInt(localStorage.getItem('customerMsgCount')) || 0; 
 
         function getMMDD(dateObj) {
@@ -302,7 +304,7 @@
         function openChat() {
             isChatOpen = true;
             document.getElementById("chat-modal").style.display = "flex";
-            document.getElementById("fab-badge").style.display = "none"; // 點開就消掉小紅點
+            document.getElementById("fab-badge").style.display = "none"; 
             
             let name = document.getElementById("customer-name").value.trim() || localStorage.getItem('savedCustomerName') || "";
             let phone = document.getElementById("customer-phone").value.trim() || localStorage.getItem('savedCustomerPhone') || "";
@@ -321,7 +323,6 @@
         function closeChat() {
             isChatOpen = false;
             document.getElementById("chat-modal").style.display = "none";
-            // 關閉時不要清除計時器，讓它繼續在背景偵測紅點
         }
 
         function startChat() {
@@ -342,10 +343,9 @@
             loadMsgs(true); 
         }
 
-        // 🌟 升級版：全域訊息檢查器
         function loadMsgs(force = false) {
             let phone = localStorage.getItem('savedCustomerPhone');
-            if (!phone) return; // 如果客人還沒留過電話，就先不抓
+            if (!phone) return; 
             
             fetch(`${API_URL}?action=getCustomerMsgs&phone=${phone}&t=${new Date().getTime()}`)
             .then(res => res.json())
@@ -353,7 +353,6 @@
                 if(data.result === 'success') {
                     let currentCount = data.messages.length;
                     
-                    // 🌟 背景收到新訊息時，如果聊天室沒開，顯示小紅點
                     if (currentCount > lastMsgCount) {
                         if (!isChatOpen) {
                             document.getElementById("fab-badge").style.display = "flex";
@@ -380,7 +379,6 @@
                             
                             if (wasAtBottom || force) box.scrollTop = box.scrollHeight;
                         }
-                        // 如果聊天室是開著的，更新最新數量並消掉紅點
                         lastMsgCount = currentCount;
                         localStorage.setItem('customerMsgCount', lastMsgCount);
                         document.getElementById("fab-badge").style.display = "none";
@@ -560,70 +558,49 @@
             if (savedOrders) allOrders = JSON.parse(savedOrders);
             if (allOrders.length > 0) showStatusView(); else showMenuView();   
             
-            // 🌟 啟動背景全域訊息檢查器 (每 5 秒檢查一次紅點)
             loadMsgs(); 
             setInterval(() => loadMsgs(false), 5000); 
         }
 
         function renderPickupDateSelection(todayOver, tomorrowClosed) {
-            const container = document.getElementById("date-selection"); let html = "";
+            const container = document.getElementById("date-selection"); 
+            let html = "";
             if (!todayOver) html += `<label><input type="radio" name="pickupDate" value="${todayMMDD}" checked onchange="handleDateChange()"> 📅 ${todayMMDD}</label>`; 
             if (!tomorrowClosed) {
                 const checkedStr = todayOver ? "checked" : "";
                 html += `<label><input type="radio" name="pickupDate" value="${tomorrowMMDD}" ${checkedStr} onchange="handleDateChange()"> 📅 ${tomorrowMMDD}</label>`;
             }
             container.innerHTML = html; 
-            handleDateChange();
+
+            // 🌟 防護機制：如果今天已打烊，藏起「立即」選項，強制選擇「指定時間」
+            const labelAsap = document.getElementById("label-asap");
+            const timeTypeSpecific = document.querySelector('input[name="timeType"][value="SPECIFIC"]');
+            
+            if (todayOver) {
+                labelAsap.style.display = "none";
+                timeTypeSpecific.checked = true;
+            } else {
+                labelAsap.style.display = "block";
+            }
+            
+            toggleTimeInput(); 
         }
 
         function handleDateChange() {
-            const selectedDateInput = document.querySelector('input[name="pickupDate"]:checked');
-            if (!selectedDateInput) return; 
-            const dateVal = selectedDateInput.value;
-            const timeOptions = document.getElementById("time-selection");
-            const timeTypeSpecific = document.querySelector('input[name="timeType"][value="SPECIFIC"]');
-            const timeTypeAsap = document.querySelector('input[name="timeType"][value="ASAP"]');
-            
             generateTimeOptions();
-
-            const dineInRadio = document.querySelector('input[name="diningType"][value="內用"]');
-            const takeoutRadio = document.querySelector('input[name="diningType"][value="外帶"]');
-            const pickupRadio = document.querySelector('input[name="diningType"][value="自取"]');
-            
-            const urlParams = new URLSearchParams(window.location.search);
-            const tableParam = urlParams.get('table');
-
-            if (dateVal === tomorrowMMDD) { 
-                timeOptions.style.display = "none"; 
-                timeTypeSpecific.checked = true; 
-                dineInRadio.disabled = true; 
-                takeoutRadio.disabled = true;
-                dineInRadio.parentElement.style.color = "#ccc"; 
-                takeoutRadio.parentElement.style.color = "#ccc";
-                if (!pickupRadio.checked) pickupRadio.checked = true;
-            } 
-            else { 
-                timeOptions.style.display = "flex"; 
-                timeTypeAsap.checked = true; 
-                dineInRadio.disabled = false; 
-                takeoutRadio.disabled = false;
-                dineInRadio.parentElement.style.color = "#555"; 
-                dineInRadio.parentElement.style.color = "#555";
-                
-                if (tableParam) {
-                    dineInRadio.checked = true;
-                }
-            }
-            
-            toggleTimeInput();
-            toggleCheckoutInputs();
         }
 
+        // 🌟 核心：切換 立即 / 指定時間 時，決定是否顯示日曆跟時間下拉選單
         function toggleTimeInput() {
             const type = document.querySelector('input[name="timeType"]:checked').value;
             const timeContainer = document.getElementById("specific-time-container");
-            if (type === "SPECIFIC") timeContainer.style.display = "block"; 
-            else { timeContainer.style.display = "none"; document.getElementById("pickup-time").value = ""; }
+            if (type === "SPECIFIC") {
+                timeContainer.style.display = "block";
+                handleDateChange(); 
+            } else { 
+                timeContainer.style.display = "none"; 
+                document.getElementById("pickup-time").value = ""; 
+            }
         }
 
         function toggleCheckoutInputs() {
@@ -926,22 +903,21 @@
                 customerPhone = "";
             }
 
-            const pickupDate = document.querySelector('input[name="pickupDate"]:checked').value;
             const timeType = document.querySelector('input[name="timeType"]:checked').value;
             let pickupAddonText = "";
             
             let orderDateBackend = getTodayDateString();
-            if (pickupDate === tomorrowMMDD) {
-                const tmr = new Date(); tmr.setDate(tmr.getDate() + 1);
-                orderDateBackend = `${tmr.getFullYear()}-${String(tmr.getMonth() + 1).padStart(2, '0')}-${String(tmr.getDate()).padStart(2, '0')}`;
-            }
-
-            if (baseDiningType === "自取") {
-                if (timeType === "SPECIFIC") {
-                    const specificTime = document.getElementById("pickup-time").value;
-                    if (!specificTime) { alert("⚠️ 您選擇了指定時間，請選擇取餐時間！"); document.getElementById("pickup-time").focus(); return; }
-                    pickupAddonText = ` (預訂: ${pickupDate} ${specificTime})`;
+            
+            // 🌟 嚴格保護：只有自取＋指定時間，才允許跨日訂單
+            if (baseDiningType === "自取" && timeType === "SPECIFIC") {
+                const pickupDate = document.querySelector('input[name="pickupDate"]:checked').value;
+                if (pickupDate === tomorrowMMDD) {
+                    const tmr = new Date(); tmr.setDate(tmr.getDate() + 1);
+                    orderDateBackend = `${tmr.getFullYear()}-${String(tmr.getMonth() + 1).padStart(2, '0')}-${String(tmr.getDate()).padStart(2, '0')}`;
                 }
+                const specificTime = document.getElementById("pickup-time").value;
+                if (!specificTime) { alert("⚠️ 您選擇了指定時間，請選擇取餐時間！"); document.getElementById("pickup-time").focus(); return; }
+                pickupAddonText = ` (預訂: ${pickupDate} ${specificTime})`;
             }
 
             const finalDiningType = baseDiningType + pickupAddonText;
@@ -961,7 +937,7 @@
                 if (appliedPromo.type === 'discount') {
                     discountAmt = Math.round(total * (1 - appliedPromo.rate));
                 } else {
-                    discountAmt = appliedPromo.amount > total ? total : appliedPromo.amount;
+                    discountAmt = appliedPromo.amount > subtotal ? subtotal : appliedPromo.amount;
                 }
                 finalTotal = total - discountAmt;
                 detailsText += `🎟️ 優惠碼 (${appliedPromo.code}): -$${discountAmt}\n`;
