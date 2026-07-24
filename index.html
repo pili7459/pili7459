@@ -32,12 +32,12 @@
         .menu-item { background: #fff; padding: 15px; margin: 0 15px 12px 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .item-info h3 { margin: 0 0 5px 0; font-size: 1.1em; line-height: 1.3;}
         .item-price { color: #e74c3c; font-weight: bold; }
-        .item-badge { background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.8em; margin-left: 5px; vertical-align: top; }
         button.add-btn { background: #3498db; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;}
         button.spec-btn { background: #e67e22; } 
         .qty-control { display: flex; align-items: center; gap: 10px; }
         .qty-btn { background: #f0f0f0; border: none; width: 30px; height: 30px; border-radius: 5px; font-size: 1.2em; font-weight: bold; cursor: pointer;}
         .qty-number { font-weight: bold; font-size: 1.1em; width: 20px; text-align: center; }
+        .item-badge { background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.8em; margin-left: 5px; vertical-align: top; }
         
         .cart { background: #fff; padding: 20px; border-radius: 10px; margin: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
         .cart-item { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 12px; }
@@ -114,94 +114,87 @@
 <body>
 
     <div class="app-container">
-        <!-- 左側分類導航 -->
+        
         <div class="side-nav" id="side-nav"></div>
         
-        <!-- 右側主內容區 -->
         <div class="main-content" id="main-content">
             <div id="menu-view" style="display:none;">
                 <div id="active-banner" class="active-orders-banner" onclick="showStatusView()" style="display:none;"></div>
                 <div id="closed-banner-container"></div>
                 
-                <div class="desktop-layout">
-                    <div class="menu-side">
-                        <div class="menu-container" id="menu"></div>
-                    </div>
+                <div class="menu-container" id="menu"></div>
+                <div style="height: 80px; width: 100%;"></div>
+                
+                <div class="cart" id="cart-section" style="display: none;">
+                    <h2 style="margin-top: 0;">🛒 結帳與送出訂單</h2>
+                    <div id="cart-items"><p style="text-align:center; color:#999;">目前購物車是空的喔！</p></div>
                     
-                    <div class="cart-side">
-                        <div class="cart" id="cart-section" style="display: none;">
-                            <h2 style="margin-top: 0;">🛒 結帳與送出訂單</h2>
-                            <div id="cart-items"><p style="text-align:center; color:#999;">目前購物車是空的喔！</p></div>
-                            
-                            <div class="total">
-                                總計: <span id="display-subtotal" style="display:none; text-decoration:line-through; font-size:0.7em; color:#999; margin-right:5px;"></span>$<span id="total-price">0</span>
-                            </div>
-                            <div id="discount-display" style="text-align:right; font-size:0.9em; color:#e74c3c; font-weight:bold; margin-top:5px;"></div>
-                            
-                            <div class="checkout-options" id="checkout-options" style="display: none;">
-                                
-                                <h3 style="margin-top:25px;" id="dining-title">🍽️ 用餐方式</h3>
-                                <div class="radio-group" id="dining-radios">
-                                    <label><input type="radio" name="diningType" value="外帶" onchange="toggleCheckoutInputs()"> 外帶</label>
-                                    <label><input type="radio" name="diningType" value="自取" onchange="toggleCheckoutInputs()"> 自取</label>
-                                    <label><input type="radio" name="diningType" value="內用" checked onchange="toggleCheckoutInputs()"> 內用</label>
-                                </div>
-                                
-                                <div id="datetime-container" style="display:none; background: #fff; padding: 10px; border-radius: 8px; margin-top: 15px; border: 1px dashed #ccc;">
-                                    <h3 style="margin-top:5px; border-bottom: none; padding-bottom: 0;">⏰ 取餐時間</h3>
-                                    
-                                    <div class="radio-group" id="time-selection" style="margin-top: 10px;">
-                                        <label id="label-asap"><input type="radio" name="timeType" value="ASAP" onchange="toggleTimeInput()"> 立即</label>
-                                        <label id="label-specific"><input type="radio" name="timeType" value="SPECIFIC" onchange="toggleTimeInput()"> 指定時間</label>
-                                    </div>
-
-                                    <div id="specific-time-container" style="display:none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #eee;">
-                                        <div class="radio-group" id="date-selection" style="margin-top: 0; margin-bottom: 15px;"></div>
-                                        <select id="pickup-time" class="table-input">
-                                            <option value="" disabled selected>👉 請選擇取餐時間</option>
-                                        </select>
-                                        <div style="font-size:0.85em; color:#e74c3c; margin-top:5px;" id="shop-hours-text"></div>
-                                    </div>
-                                </div>
-
-                                <div id="table-input-container" style="display: block; margin-top: 15px;">
-                                    <input type="number" id="table-number" placeholder="👉 請輸入桌號" class="table-input">
-                                </div>
-
-                                <div id="contact-info-container" style="display: none; margin-top: 15px;">
-                                    <input type="text" id="customer-name" placeholder="👉 請輸入姓名 (自取必填)" class="table-input">
-                                    <div style="font-size:0.8em; color:#7f8c8d; margin-top:3px; margin-left:5px;">※ 姓名最多 5 個中文字或 10 個英文字母</div>
-                                    <input type="tel" id="customer-phone" placeholder="👉 請輸入手機號碼 (自取必填)" class="table-input" style="margin-top: 10px;">
-                                </div>
-
-                                <h3 style="margin-top:25px;">🎟️ 優惠碼</h3>
-                                <div style="display: flex; gap: 10px; align-items: center;">
-                                    <input type="text" id="promo-code-input" placeholder="輸入優惠碼" class="table-input" style="margin-top: 0; flex: 1;">
-                                    <button type="button" class="add-btn" style="background:#e67e22; white-space: nowrap; flex-shrink: 0; padding: 12px 20px; font-size: 1.1em;" onclick="applyPromoCode()">套用</button>
-                                </div>
-                                <div id="promo-message" style="font-size:0.9em; margin-top:5px; color:#e74c3c; font-weight:bold;"></div>
-
-                                <div id="cutlery-container" style="display: none;">
-                                    <h3 style="margin-top:25px;">🍴 餐具與吸管</h3>
-                                    <label style="font-size: 1.1em; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: bold; color: #555; margin-top: 10px;">
-                                        <input type="checkbox" id="need-cutlery" checked style="width: 18px; height: 18px;"> 提供餐具與吸管
-                                    </label>
-                                </div>
-
-                                <h3 style="margin-top:25px;">📝 訂單備註</h3>
-                                <div style="font-size:0.85em; color:#e74c3c; margin-bottom:8px; line-height:1.4;">
-                                    ⚠️ 提醒您：加蛋、加起司等需「加價」之項目，請務必於餐點『選規格』中勾選。若寫於備註恕無法為您提供喔！
-                                </div>
-                                <textarea id="order-notes" class="table-input" rows="2" placeholder="有什麼想告訴老闆的嗎？ (例如：漢堡不要洋蔥)"></textarea>
-
-                            </div>
-                            <button class="submit-btn" onclick="submitOrder()">送出訂單</button>
-                        </div>
+                    <div class="total">
+                        總計: <span id="display-subtotal" style="display:none; text-decoration:line-through; font-size:0.7em; color:#999; margin-right:5px;"></span>$<span id="total-price">0</span>
                     </div>
+                    <div id="discount-display" style="text-align:right; font-size:0.9em; color:#e74c3c; font-weight:bold; margin-top:5px;"></div>
+                    
+                    <div class="checkout-options" id="checkout-options" style="display: none;">
+                        
+                        <h3 style="margin-top:25px;" id="dining-title">🍽️ 用餐方式</h3>
+                        <div class="radio-group" id="dining-radios">
+                            <label><input type="radio" name="diningType" value="外帶" onchange="toggleCheckoutInputs()"> 外帶</label>
+                            <label><input type="radio" name="diningType" value="自取" onchange="toggleCheckoutInputs()"> 自取</label>
+                            <label><input type="radio" name="diningType" value="內用" checked onchange="toggleCheckoutInputs()"> 內用</label>
+                        </div>
+                        
+                        <div id="datetime-container" style="display:none; background: #fff; padding: 10px; border-radius: 8px; margin-top: 15px; border: 1px dashed #ccc;">
+                            <h3 style="margin-top:5px; border-bottom: none; padding-bottom: 0;">⏰ 取餐時間</h3>
+                            
+                            <div class="radio-group" id="time-selection" style="margin-top: 10px;">
+                                <label id="label-asap"><input type="radio" name="timeType" value="ASAP" onchange="toggleTimeInput()"> 立即</label>
+                                <label id="label-specific"><input type="radio" name="timeType" value="SPECIFIC" onchange="toggleTimeInput()"> 指定時間</label>
+                            </div>
+
+                            <div id="specific-time-container" style="display:none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #eee;">
+                                <div class="radio-group" id="date-selection" style="margin-top: 0; margin-bottom: 15px;"></div>
+                                <select id="pickup-time" class="table-input">
+                                    <option value="" disabled selected>👉 請選擇取餐時間</option>
+                                </select>
+                                <div style="font-size:0.85em; color:#e74c3c; margin-top:5px;" id="shop-hours-text"></div>
+                            </div>
+                        </div>
+
+                        <div id="table-input-container" style="display: block; margin-top: 15px;">
+                            <input type="number" id="table-number" placeholder="👉 請輸入桌號" class="table-input">
+                        </div>
+
+                        <div id="contact-info-container" style="display: none; margin-top: 15px;">
+                            <input type="text" id="customer-name" placeholder="👉 請輸入姓名 (自取必填)" class="table-input">
+                            <div style="font-size:0.8em; color:#7f8c8d; margin-top:3px; margin-left:5px;">※ 姓名最多 5 個中文字或 10 個英文字母</div>
+                            <input type="tel" id="customer-phone" placeholder="👉 請輸入手機號碼 (自取必填)" class="table-input" style="margin-top: 10px;">
+                        </div>
+
+                        <h3 style="margin-top:25px;">🎟️ 優惠碼</h3>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="text" id="promo-code-input" placeholder="輸入優惠碼" class="table-input" style="margin-top: 0; flex: 1;">
+                            <button type="button" class="add-btn" style="background:#e67e22; white-space: nowrap; flex-shrink: 0; padding: 12px 20px; font-size: 1.1em;" onclick="applyPromoCode()">套用</button>
+                        </div>
+                        <div id="promo-message" style="font-size:0.9em; margin-top:5px; color:#e74c3c; font-weight:bold;"></div>
+
+                        <div id="cutlery-container" style="display: none;">
+                            <h3 style="margin-top:25px;">🍴 餐具與吸管</h3>
+                            <label style="font-size: 1.1em; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: bold; color: #555; margin-top: 10px;">
+                                <input type="checkbox" id="need-cutlery" checked style="width: 18px; height: 18px;"> 提供餐具與吸管
+                            </label>
+                        </div>
+
+                        <h3 style="margin-top:25px;">📝 訂單備註</h3>
+                        <div style="font-size:0.85em; color:#e74c3c; margin-bottom:8px; line-height:1.4;">
+                            ⚠️ 提醒您：加蛋、加起司等需「加價」之項目，請務必於餐點『選規格』中勾選。若寫於備註恕無法為您提供喔！
+                        </div>
+                        <textarea id="order-notes" class="table-input" rows="2" placeholder="有什麼想告訴老闆的嗎？ (例如：漢堡不要洋蔥)"></textarea>
+
+                    </div>
+                    <button class="submit-btn" onclick="submitOrder()">送出訂單</button>
                 </div>
             </div>
-
-            <!-- 🌟 訂單進度頁面 -->
+            
             <div id="order-status-view">
                 <h2 style="margin-top:0;">📝 點餐進度與號碼牌</h2>
                 <div id="orders-list"></div>
@@ -209,7 +202,6 @@
             </div>
         </div>
 
-        <!-- 🌟 右下角雙子星 FAB 浮動按鈕 -->
         <div class="fab-container">
             <div class="fab-btn fab-cart" id="fab-cart" onclick="filterCategory('購物車')">
                 🛒
@@ -221,7 +213,6 @@
             </div>
         </div>
 
-        <!-- 內部對話框 -->
         <div id="chat-modal">
             <div class="chat-header">
                 <span>💬 聯絡店家</span>
@@ -757,7 +748,6 @@
                             let basicCartKey = item.id.toString(); let qty = cart[basicCartKey] ? cart[basicCartKey].qty : 0;
                             btn = qty === 0 ? `<button class="add-btn" onclick="updateCart('${basicCartKey}', ${item.id}, '${item.name}', ${item.price}, '', 1)">加入</button>` : `<div class="qty-control"><button class="qty-btn" onclick="updateCart('${basicCartKey}', ${item.id}, '${item.name}', ${item.price}, '', -1)">-</button><span class="qty-number">${qty}</span><button class="qty-btn" onclick="updateCart('${basicCartKey}', ${item.id}, '${item.name}', ${item.price}, '', 1)">+</button></div>`;
                         }
-                        // 🌟 為每一行餐點加上 id，方便局部更新不重新刷頁
                         html += `<div class="menu-item" id="item-row-${item.id}"><div class="item-info"><h3 id="item-title-${item.id}">${item.name}${badgeHtml}</h3><span class="item-price">$${item.price}</span></div><div id="item-btn-box-${item.id}">${btn}</div></div>`;
                     });
                     menuDiv.innerHTML += html + `</div></div>`;
@@ -851,7 +841,6 @@
             updateCartUI();
         }
 
-        // 🌟 核心升級：局部更新 UI，點擊加入/增減數量時畫面絕不跳動！
         function updateCart(cartKey, baseId, name, unitPrice, optionsString, delta) {
             if (!cart[cartKey]) { cart[cartKey] = { baseId: baseId, name: name, price: unitPrice, optionsText: optionsString, qty: 0 }; }
             cart[cartKey].qty += delta; if (cart[cartKey].qty <= 0) delete cart[cartKey];
@@ -859,13 +848,11 @@
             localStorage.setItem('myBreakfastCart', JSON.stringify(cart));
             localStorage.setItem('myBreakfastCartExpiry', new Date().getTime() + 60 * 60 * 1000); 
 
-            // 算該基本商品在購物車內的總數量
             let totalQty = 0;
             for (let k in cart) {
                 if (cart[k].baseId === baseId) totalQty += cart[k].qty;
             }
 
-            // 局部更新標題與紅點
             let titleEl = document.getElementById(`item-title-${baseId}`);
             if (titleEl) {
                 let targetItem = menuData.find(i => i.id === baseId);
@@ -873,7 +860,6 @@
                 if (targetItem) titleEl.innerHTML = `${targetItem.name}${badgeHtml}`;
             }
 
-            // 局部更新按鈕 (無規格商品)
             let btnBox = document.getElementById(`item-btn-box-${baseId}`);
             let targetItem = menuData.find(i => i.id === baseId);
             if (btnBox && targetItem && (!targetItem.options || targetItem.options.length === 0)) {
@@ -1118,7 +1104,9 @@
                     renderPickupDateSelection(todayOver, isDayClosed(tomorrow)); 
                     
                     updateCartUI(); 
-                    renderNavBar(); 
+                    
+                    // 🌟 核心修復：訂單送出後強制大掃除，把菜單上的數字標籤刷乾淨！
+                    renderMenu(); 
                     
                     document.getElementById("loading-screen").innerHTML = `<h2>🔄 正在與總部連線...</h2><p>同步今日營業資訊中</p>`;
                     showStatusView();
