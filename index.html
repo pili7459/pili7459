@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>專屬線上點餐</title>
     <style>
-        /* 🌟 RWD 基礎排版更新：解開 500px 的封印 */
         body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: #f4f4f9; margin: 0; padding: 0; color: #333; scroll-behavior: smooth; }
         h1, h2 { text-align: center; color: #2c3e50; margin-top: 15px; }
         
@@ -19,7 +18,6 @@
         @keyframes pulse { 0% { background-color: #f39c12; } 50% { background-color: #e67e22; } 100% { background-color: #f39c12; } }
         @keyframes pulseReady { 0% { background-color: #3498db; } 50% { background-color: #2980b9; } 100% { background-color: #3498db; } }
         
-        /* 🌟 RWD 版面結構：手機版預設樣式 */
         .desktop-layout { display: flex; flex-direction: column; width: 100%; max-width: 500px; margin: 0 auto; }
         .menu-side { width: 100%; }
         .cart-side { width: 100%; }
@@ -106,13 +104,11 @@
         .chat-send-btn { background: #8e44ad; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 1.2em; cursor: pointer; display: flex; justify-content: center; align-items: center; }
         .chat-login { padding: 20px; display: flex; flex-direction: column; gap: 15px; margin-top: 50px; }
 
-        /* 🌟 RWD 電腦版：螢幕大於 900px 時自動展開 */
         @media (min-width: 900px) {
             .desktop-layout { flex-direction: row; max-width: 1200px; padding: 20px; gap: 30px; align-items: flex-start; }
             .menu-side { flex: 2; width: auto; }
             .cart-side { flex: 1; width: auto; position: sticky; top: 90px; }
             
-            /* 菜單變成漂亮的網格排版 */
             .category-items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
             .menu-item { margin: 0 !important; height: 100%; }
             .category-title { margin: 15px 0 10px 0; }
@@ -155,7 +151,6 @@
         <div id="active-banner" class="active-orders-banner" onclick="showStatusView()" style="display:none;"></div>
         <div id="closed-banner-container"></div>
         
-        <!-- 🌟 RWD 排版外框 -->
         <div class="desktop-layout">
             <div class="menu-side">
                 <div class="menu-container" id="menu"></div>
@@ -182,8 +177,10 @@
                         
                         <div id="datetime-container" style="display:none; background: #fff; padding: 10px; border-radius: 8px; margin-top: 15px; border: 1px dashed #ccc;">
                             <h3 style="margin-top:5px; border-bottom: none; padding-bottom: 0;">⏰ 取餐時間</h3>
+                            
+                            <!-- 🌟 強迫防呆：兩個選項預設都不打勾 -->
                             <div class="radio-group" id="time-selection" style="margin-top: 10px;">
-                                <label id="label-asap"><input type="radio" name="timeType" value="ASAP" checked onchange="toggleTimeInput()"> 立即</label>
+                                <label id="label-asap"><input type="radio" name="timeType" value="ASAP" onchange="toggleTimeInput()"> 立即</label>
                                 <label id="label-specific"><input type="radio" name="timeType" value="SPECIFIC" onchange="toggleTimeInput()"> 指定時間</label>
                             </div>
 
@@ -598,13 +595,18 @@
             container.innerHTML = html; 
 
             const labelAsap = document.getElementById("label-asap");
-            const timeTypeSpecific = document.querySelector('input[name="timeType"][value="SPECIFIC"]');
+            
+            // 🌟 防護：取消預設勾選，並且每次切換都會重置
+            let rAsap = document.querySelector('input[name="timeType"][value="ASAP"]');
+            let rSpec = document.querySelector('input[name="timeType"][value="SPECIFIC"]');
             
             if (todayOver) {
                 labelAsap.style.display = "none";
-                timeTypeSpecific.checked = true;
+                rSpec.checked = true;
             } else {
                 labelAsap.style.display = "block";
+                rAsap.checked = false;
+                rSpec.checked = false;
             }
             
             toggleTimeInput(); 
@@ -615,9 +617,10 @@
         }
 
         function toggleTimeInput() {
-            const type = document.querySelector('input[name="timeType"]:checked').value;
+            let checkedTimeType = document.querySelector('input[name="timeType"]:checked');
             const timeContainer = document.getElementById("specific-time-container");
-            if (type === "SPECIFIC") {
+            
+            if (checkedTimeType && checkedTimeType.value === "SPECIFIC") {
                 timeContainer.style.display = "block";
                 handleDateChange(); 
             } else { 
@@ -652,6 +655,15 @@
                 datetimeContainer.style.display = "block";
                 contactContainer.style.display = "block";
                 cutleryContainer.style.display = "block";
+                
+                // 🌟 客戶體驗防呆：每次點擊自取，確保兩個時間圈圈都被取消勾選
+                const todayOver = isTodayOver();
+                let rAsap = document.querySelector('input[name="timeType"][value="ASAP"]');
+                let rSpec = document.querySelector('input[name="timeType"][value="SPECIFIC"]');
+                if(!todayOver){
+                    rAsap.checked = false;
+                    rSpec.checked = false;
+                }
                 toggleTimeInput(); 
             } else if (type === "外帶") {
                 cutleryContainer.style.display = "block";
@@ -719,7 +731,6 @@
             categories.forEach(category => {
                 const items = menuData.filter(item => item.category === category);
                 if (items.length > 0) {
-                    // 🌟 網格版面輸出
                     let html = `<div class="category-section" id="section-${category}"><div class="category-title">${category}</div><div class="category-items-grid">`;
                     items.forEach(item => {
                         let totalQty = 0; for (let key in cart) { if (cart[key].baseId === item.id) totalQty += cart[key].qty; }
@@ -933,20 +944,28 @@
                 customerPhone = "";
             }
 
-            const timeType = document.querySelector('input[name="timeType"]:checked').value;
+            // 🌟 嚴格防呆：確保自取時有選擇取餐時間
+            let timeTypeNode = document.querySelector('input[name="timeType"]:checked');
             let pickupAddonText = "";
-            
             let orderDateBackend = getTodayDateString();
             
-            if (baseDiningType === "自取" && timeType === "SPECIFIC") {
-                const pickupDate = document.querySelector('input[name="pickupDate"]:checked').value;
-                if (pickupDate === tomorrowMMDD) {
-                    const tmr = new Date(); tmr.setDate(tmr.getDate() + 1);
-                    orderDateBackend = `${tmr.getFullYear()}-${String(tmr.getMonth() + 1).padStart(2, '0')}-${String(tmr.getDate()).padStart(2, '0')}`;
+            if (baseDiningType === "自取") {
+                if (!timeTypeNode) {
+                    alert("⚠️ 請先選擇「取餐時間」是要「立即」還是「指定時間」！"); 
+                    return; 
                 }
-                const specificTime = document.getElementById("pickup-time").value;
-                if (!specificTime) { alert("⚠️ 您選擇了指定時間，請選擇取餐時間！"); document.getElementById("pickup-time").focus(); return; }
-                pickupAddonText = ` (預訂: ${pickupDate} ${specificTime})`;
+                
+                const timeType = timeTypeNode.value;
+                if (timeType === "SPECIFIC") {
+                    const pickupDate = document.querySelector('input[name="pickupDate"]:checked').value;
+                    if (pickupDate === tomorrowMMDD) {
+                        const tmr = new Date(); tmr.setDate(tmr.getDate() + 1);
+                        orderDateBackend = `${tmr.getFullYear()}-${String(tmr.getMonth() + 1).padStart(2, '0')}-${String(tmr.getDate()).padStart(2, '0')}`;
+                    }
+                    const specificTime = document.getElementById("pickup-time").value;
+                    if (!specificTime) { alert("⚠️ 您選擇了指定時間，請從下拉選單選擇取餐時間！"); document.getElementById("pickup-time").focus(); return; }
+                    pickupAddonText = ` (預訂: ${pickupDate} ${specificTime})`;
+                }
             }
 
             const finalDiningType = baseDiningType + pickupAddonText;
