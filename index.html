@@ -82,7 +82,6 @@
         .modal-footer { margin-top: 20px; }
         .confirm-modal-btn { width: 100%; padding: 15px; background: #3498db; color: white; border: none; border-radius: 8px; font-size: 1.2em; font-weight: bold; cursor: pointer;}
 
-        /* 🌟 客服聊天 UI */
         .fab-btn { position: fixed; bottom: 20px; right: 20px; background: #8e44ad; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.8em; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 50; transition: transform 0.2s; }
         .fab-btn:active { transform: scale(0.9); }
         #chat-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 200; flex-direction: column; }
@@ -239,7 +238,15 @@
         
         let chatTimer = null;
         let isChatOpen = false;
-        let lastMsgCount = 0; // 🌟 用來追蹤訊息數量，防止重新整理清空打字中
+        let lastMsgCount = 0; 
+
+        // 🌟 日期轉換工具：產生 MM/DD 格式
+        function getMMDD(dateObj) {
+            return String(dateObj.getMonth() + 1).padStart(2, '0') + '/' + String(dateObj.getDate()).padStart(2, '0');
+        }
+
+        let todayMMDD = "";
+        let tomorrowMMDD = "";
 
         function fetchSettingsAndInit() {
             fetch(`${API_URL}?t=${new Date().getTime()}`).then(res => res.json()).then(data => {
@@ -325,7 +332,7 @@
             document.getElementById("chat-messages-area").style.display = "flex";
             document.getElementById("chat-input-area").style.display = "flex";
             
-            loadMsgs(true); // 🌟 強制首次載入
+            loadMsgs(true); 
             chatTimer = setInterval(() => loadMsgs(false), 5000); 
         }
 
@@ -336,7 +343,6 @@
             .then(res => res.json())
             .then(data => {
                 if(data.result === 'success') {
-                    // 🌟 只有當訊息數量改變，或強制載入時才重繪畫面，避免正在打字的字被洗掉
                     if (force || data.messages.length !== lastMsgCount) {
                         lastMsgCount = data.messages.length;
                         let box = document.getElementById("chat-messages-area");
@@ -408,12 +414,13 @@
             timeSelect.innerHTML = '<option value="" disabled selected>👉 請選擇取餐時間</option>';
             const [openHour, openMin] = shopSettings.openTime.split(":").map(Number);
             const [closeHour, closeMin] = shopSettings.closeTime.split(":").map(Number);
+            
             const selectedDateInput = document.querySelector('input[name="pickupDate"]:checked');
-            const selectedDate = selectedDateInput ? selectedDateInput.value : "今天";
+            const selectedDate = selectedDateInput ? selectedDateInput.value : todayMMDD;
             const now = new Date();
             let minAllowedHour = openHour; let minAllowedMin = openMin;
 
-            if (selectedDate === "今天") {
+            if (selectedDate === todayMMDD) {
                 const currentH = now.getHours(); const currentM = now.getMinutes();
                 if (currentH > openHour || (currentH === openHour && currentM > openMin)) {
                     minAllowedHour = currentH; minAllowedMin = currentM + 15;
@@ -472,7 +479,7 @@
                 pickupRadio.checked = true;
                 dineInRadio.parentElement.style.display = 'none';
                 takeoutRadio.parentElement.style.display = 'none';
-                document.getElementById("dining-title").innerHTML = `🍽️ 預訂明日餐點 (自取)`;
+                document.getElementById("dining-title").innerHTML = `🍽️ 預訂 ${tomorrowMMDD} 餐點 (自取)`;
             }
         }
 
@@ -482,27 +489,33 @@
             document.getElementById("customer-name").value = localStorage.getItem('savedCustomerName') || "";
             document.getElementById("customer-phone").value = localStorage.getItem('savedCustomerPhone') || "";
 
+            const todayObj = new Date();
+            const tomorrowObj = new Date(); tomorrowObj.setDate(tomorrowObj.getDate() + 1);
+            
+            // 🌟 自動計算 MM/DD
+            todayMMDD = getMMDD(todayObj);
+            tomorrowMMDD = getMMDD(tomorrowObj);
+            
             const todayOver = isTodayOver();
-            const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
-            const tomorrowClosed = isDayClosed(tomorrow);
+            const tomorrowClosed = isDayClosed(tomorrowObj);
             
             initUrlLocks(todayOver);
 
             const bannerContainer = document.getElementById("closed-banner-container");
             const menuEl = document.getElementById("menu"); const cartEl = document.getElementById("cart-section");
             
-            const todayObj = new Date();
             const isTodayClosedFlag = isDayClosed(todayObj);
 
+            // 🌟 公休提示全部改成明確的日期
             if (todayOver && tomorrowClosed) {
-                let msg = isTodayClosedFlag ? "🛑 今日與明日皆為公休日" : "🛑 今日營業已結束，且明日公休";
+                let msg = isTodayClosedFlag ? `🛑 ${todayMMDD} 與 ${tomorrowMMDD} 皆為公休日` : `🛑 今日營業已結束，且 ${tomorrowMMDD} 公休`;
                 bannerContainer.innerHTML = `<div class="closed-overlay">${msg}<br><span style="font-size:0.85em; font-weight:normal;">目前全面暫停線上點餐服務</span></div>`;
                 menuEl.style.display = "none"; cartEl.style.display = "none";
             } else if (todayOver) {
-                let msg = isTodayClosedFlag ? "⚠️ 本日公休" : "⚠️ 今日營業已結束";
-                bannerContainer.innerHTML = `<div class="closed-overlay" style="background:#f39c12;">${msg}<br><span style="font-size:0.85em; font-weight:normal;">(目前僅開放預訂「明日自取」餐點)</span></div>`;
+                let msg = isTodayClosedFlag ? `⚠️ ${todayMMDD} 公休` : "⚠️ 今日營業已結束";
+                bannerContainer.innerHTML = `<div class="closed-overlay" style="background:#f39c12;">${msg}<br><span style="font-size:0.85em; font-weight:normal;">(目前僅開放預訂「${tomorrowMMDD} 自取」餐點)</span></div>`;
             } else if (tomorrowClosed) {
-                bannerContainer.innerHTML = `<div class="closed-overlay" style="background:#f39c12;">⚠️ 明日公休<br><span style="font-size:0.85em; font-weight:normal;">(不開放預訂明日餐點)</span></div>`;
+                bannerContainer.innerHTML = `<div class="closed-overlay" style="background:#f39c12;">⚠️ ${tomorrowMMDD} 公休<br><span style="font-size:0.85em; font-weight:normal;">(不開放預訂 ${tomorrowMMDD} 餐點)</span></div>`;
             }
             
             renderPickupDateSelection(todayOver, tomorrowClosed);
@@ -530,10 +543,10 @@
 
         function renderPickupDateSelection(todayOver, tomorrowClosed) {
             const container = document.getElementById("date-selection"); let html = "";
-            if (!todayOver) html += `<label><input type="radio" name="pickupDate" value="今天" checked onchange="handleDateChange()"> 📅 今天</label>`; 
+            if (!todayOver) html += `<label><input type="radio" name="pickupDate" value="${todayMMDD}" checked onchange="handleDateChange()"> 📅 ${todayMMDD}</label>`; 
             if (!tomorrowClosed) {
                 const checkedStr = todayOver ? "checked" : "";
-                html += `<label><input type="radio" name="pickupDate" value="明天" ${checkedStr} onchange="handleDateChange()"> 📅 明天</label>`;
+                html += `<label><input type="radio" name="pickupDate" value="${tomorrowMMDD}" ${checkedStr} onchange="handleDateChange()"> 📅 ${tomorrowMMDD}</label>`;
             }
             container.innerHTML = html; 
             handleDateChange();
@@ -556,7 +569,8 @@
             const urlParams = new URLSearchParams(window.location.search);
             const tableParam = urlParams.get('table');
 
-            if (dateVal === "明天") { 
+            // 🌟 判斷是否選擇了明天
+            if (dateVal === tomorrowMMDD) { 
                 timeOptions.style.display = "none"; 
                 timeTypeSpecific.checked = true; 
                 dineInRadio.disabled = true; 
@@ -894,7 +908,15 @@
             const pickupDate = document.querySelector('input[name="pickupDate"]:checked').value;
             const timeType = document.querySelector('input[name="timeType"]:checked').value;
             let pickupAddonText = "";
+            
+            // 🌟 將要傳給後台的正確日期算出來
+            let orderDateBackend = getTodayDateString();
+            if (pickupDate === tomorrowMMDD) {
+                const tmr = new Date(); tmr.setDate(tmr.getDate() + 1);
+                orderDateBackend = `${tmr.getFullYear()}-${String(tmr.getMonth() + 1).padStart(2, '0')}-${String(tmr.getDate()).padStart(2, '0')}`;
+            }
 
+            // 🌟 這裡也改成精確的日期顯示
             if (timeType === "SPECIFIC" && baseDiningType === "自取") {
                 const specificTime = document.getElementById("pickup-time").value;
                 if (!specificTime) { alert("⚠️ 您選擇了指定時間，請選擇取餐時間！"); document.getElementById("pickup-time").focus(); return; }
@@ -938,7 +960,8 @@
                 detailsText += `📝 備註：${orderNotes}\n`;
             }
 
-            const backendData = { diningType: finalDiningType, tableNumber: tableNumber, customerName: customerName, customerPhone: customerPhone, detailsText: detailsText, totalAmount: finalTotal };
+            // 🌟 將精確的 orderDateBackend 傳給總部
+            const backendData = { diningType: finalDiningType, tableNumber: tableNumber, customerName: customerName, customerPhone: customerPhone, detailsText: detailsText, totalAmount: finalTotal, orderDate: orderDateBackend };
 
             document.getElementById("loading-screen").innerHTML = `<h2>🔄 訂單傳送中...</h2><p>正在為您抽取專屬號碼牌</p>`;
             document.getElementById("loading-screen").style.display = "flex";
@@ -966,7 +989,7 @@
 
                 if(data.result === "success") {
                     const orderNum = data.orderNumber; 
-                    const orderDate = data.orderDate || getTodayDateString();
+                    const orderDate = data.orderDate || orderDateBackend;
 
                     const newOrder = { 
                         id: Date.now(), orderNumber: orderNum, orderDate: orderDate, time: getFormattedTime(), diningType: finalDiningType, 
@@ -1106,17 +1129,14 @@
             for (let i = allOrders.length - 1; i >= 0; i--) {
                 let order = allOrders[i];
                 
-                // 🌟 更新狀態文案
                 let statusText = "⏳ 等待店家確認";
                 if (order.status === 'accepted') statusText = "👩‍🍳 店家已接單";
                 if (order.status === 'ready') statusText = "🎉 餐點製作完成";
                 if (order.status === 'cancelled') statusText = "❌ 店家已取消此單";
                 
-                // 🌟 清除聯絡人與多餘符號
-                let cleanDiningType = order.diningType.replace(" (盡快準備)", "");
+                let cleanDiningType = order.diningType.replace(" (盡快準備)", "").replace(/方式：|聯絡人：|🕒|🍽️|👤/g, "").trim();
                 let diningMetaText = `${cleanDiningType}` + (order.diningType.includes("內用") ? ` (第 ${order.tableNumber} 桌)` : "");
 
-                // 🌟 清除點餐時間字眼，只留日期時間，並改成周
                 let displayTime = order.time.replace("點餐時間 ", "").replace(/星期/g, "周");
 
                 let detailsText = "";
