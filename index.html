@@ -29,6 +29,7 @@
         .category-section { margin-bottom: 25px;}
         .category-title { background-color: #2c3e50; color: white; padding: 10px 15px; border-radius: 8px; margin: 15px 15px 10px 15px; font-weight: bold; font-size: 1.1em; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .menu-container { padding: 0; } 
+        .menu-side { width: 100%; padding-bottom: 120px; }
         .menu-item { background: #fff; padding: 15px; margin: 0 15px 12px 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .item-info h3 { margin: 0 0 5px 0; font-size: 1.1em; line-height: 1.3;}
         .item-price { color: #e74c3c; font-weight: bold; }
@@ -39,7 +40,7 @@
         .qty-number { font-weight: bold; font-size: 1.1em; width: 20px; text-align: center; }
         .item-badge { background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.8em; margin-left: 5px; vertical-align: top; }
         
-        .cart { background: #fff; padding: 20px; border-radius: 10px; margin: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .cart { background: #fff; padding: 20px; border-radius: 10px; margin: 15px 15px 120px 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
         .cart-item { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 12px; }
         .cart-item-main { display: flex; justify-content: space-between; align-items: center; }
         .cart-item-options { font-size: 0.9em; color: #7f8c8d; margin-top: 5px; } 
@@ -51,7 +52,7 @@
         .table-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 1.1em; margin-top: 10px; box-sizing: border-box; font-family: inherit;}
         .submit-btn { width: 100%; padding: 15px; background: #2ecc71; font-size: 1.2em; margin-top: 15px; border-radius: 8px; border: none; color: white; font-weight: bold; cursor: pointer;}
         
-        #order-status-view { display: none; padding: 20px; }
+        #order-status-view { display: none; padding: 20px; padding-bottom: 120px; }
         .order-card { background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; border-left: 6px solid #ccc; position: relative;}
         .order-card.pending { border-left-color: #f39c12; }
         .order-card.accepted { border-left-color: #27ae60; }
@@ -75,7 +76,7 @@
         .cancel-small-btn { background: #e74c3c; color: white; border: none; padding: 8px 12px; border-radius: 5px; font-size: 0.9em; margin-top: 15px; cursor: pointer; width: 100%; font-weight:bold;}
         .continue-btn { background: #f39c12; color: white; border: none; padding: 15px; font-size: 1.2em; border-radius: 8px; font-weight: bold; width: 100%; margin-bottom: 15px; cursor: pointer; }
         
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: flex; justify-content: center; align-items: flex-end; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; justify-content: center; align-items: flex-end; }
         .modal-content { background: #fff; width: 100%; max-width: 500px; border-radius: 20px 20px 0 0; padding: 20px; box-sizing: border-box; animation: slideUp 0.3s ease-out; max-height: 85vh; overflow-y: auto;}
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;}
@@ -114,7 +115,6 @@
 <body>
 
     <div class="app-container">
-        
         <div class="side-nav" id="side-nav"></div>
         
         <div class="main-content" id="main-content">
@@ -122,8 +122,9 @@
                 <div id="active-banner" class="active-orders-banner" onclick="showStatusView()" style="display:none;"></div>
                 <div id="closed-banner-container"></div>
                 
-                <div class="menu-container" id="menu"></div>
-                <div style="height: 80px; width: 100%;"></div>
+                <div class="menu-side">
+                    <div class="menu-container" id="menu"></div>
+                </div>
                 
                 <div class="cart" id="cart-section" style="display: none;">
                     <h2 style="margin-top: 0;">🛒 結帳與送出訂單</h2>
@@ -194,7 +195,7 @@
                     <button class="submit-btn" onclick="submitOrder()">送出訂單</button>
                 </div>
             </div>
-            
+
             <div id="order-status-view">
                 <h2 style="margin-top:0;">📝 點餐進度與號碼牌</h2>
                 <div id="orders-list"></div>
@@ -255,7 +256,7 @@
             <h2>🔄 正在與總部連線...</h2>
             <p style="color:#7f8c8d;">同步今日營業資訊中</p>
         </div>
-    </div>
+    </div> 
 
     <script>
         // ⚠️ 請填寫最新的 API 網址
@@ -283,7 +284,7 @@
                 if (data.settings) {
                     if (data.settings.openTime) shopSettings.openTime = data.settings.openTime;
                     if (data.settings.closeTime) shopSettings.closeTime = data.settings.closeTime;
-                    if (data.settings.closedDaysOfWeek) shopSettings.closedDaysOfWeek = data.settings.closedDaysOfWeek;
+                    if (data.settings.closedDaysOfWeek) shopSettings.closedDaysOfWeek = shopSettings.closedDaysOfWeek;
                     if (data.settings.closedDates) shopSettings.closedDates = data.settings.closedDates;
                     if (data.settings.minTable) shopSettings.minTable = data.settings.minTable;
                     if (data.settings.maxTable) shopSettings.maxTable = data.settings.maxTable;
@@ -769,22 +770,29 @@
         }
 
         function openModal(itemId) {
-            currentModalItem = menuData.find(i => i.id === itemId); document.getElementById("modal-item-name").innerText = currentModalItem.name; document.getElementById("modal-base-price").innerText = `$${currentModalItem.price}`;
+            currentModalItem = menuData.find(i => i.id === itemId); 
+            document.getElementById("modal-item-name").innerText = currentModalItem.name; 
+            document.getElementById("modal-base-price").innerText = `$${currentModalItem.price}`;
             let optionsHtml = "";
             currentModalItem.options.forEach((group, index) => {
-                optionsHtml += `<div class="option-group"><div class="option-group-title">${group.title}</div>`;
+                let badge = group.type === "required_radio" ? '<span style="color:#e74c3c; font-size:0.8em; margin-left:5px;">*必選</span>' : '';
+                optionsHtml += `<div class="option-group"><div class="option-group-title">${group.title}${badge}</div>`;
                 group.items.forEach((opt, optIdx) => {
                     let priceText = opt.price > 0 ? `<span class="option-price">+$${opt.price}</span>` : "";
-                    if (group.type === "radio") { 
-                        optionsHtml += `<div class="option-item"><label><input type="radio" name="group_${index}" value="${opt.name}" data-price="${opt.price}" onclick="toggleRadio(this)"> ${opt.name}</label>${priceText}</div>`; 
-                    } 
-                    else { 
+                    if (group.type === "checkbox") { 
                         optionsHtml += `<div class="option-item"><label><input type="checkbox" class="modal-checkbox" value="${opt.name}" data-price="${opt.price}" onchange="calcModalPrice()"> ${opt.name}</label>${priceText}</div>`; 
+                    } else if (group.type === "required_radio") {
+                        let checkedAttr = optIdx === 0 ? "checked" : "";
+                        optionsHtml += `<div class="option-item"><label><input type="radio" name="group_${index}" value="${opt.name}" data-price="${opt.price}" onchange="calcModalPrice()" ${checkedAttr}> ${opt.name}</label>${priceText}</div>`;
+                    } else { 
+                        optionsHtml += `<div class="option-item"><label><input type="radio" name="group_${index}" value="${opt.name}" data-price="${opt.price}" onclick="toggleRadio(this)"> ${opt.name}</label>${priceText}</div>`; 
                     }
                 });
                 optionsHtml += `</div>`;
             });
-            document.getElementById("modal-options-container").innerHTML = optionsHtml; document.getElementById("option-modal").style.display = "flex"; calcModalPrice(); 
+            document.getElementById("modal-options-container").innerHTML = optionsHtml; 
+            document.getElementById("option-modal").style.display = "flex"; 
+            calcModalPrice(); 
         }
 
         function closeModal() { document.getElementById("option-modal").style.display = "none"; currentModalItem = null; }
@@ -1103,10 +1111,9 @@
                     const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
                     renderPickupDateSelection(todayOver, isDayClosed(tomorrow)); 
                     
-                    updateCartUI(); 
-                    
-                    // 🌟 核心修復：訂單送出後強制大掃除，把菜單上的數字標籤刷乾淨！
+                    // 🌟 核心修復：強制大掃除，把畫面上所有的紅色數字標籤洗掉
                     renderMenu(); 
+                    updateCartUI(); 
                     
                     document.getElementById("loading-screen").innerHTML = `<h2>🔄 正在與總部連線...</h2><p>同步今日營業資訊中</p>`;
                     showStatusView();
