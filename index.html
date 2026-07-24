@@ -42,7 +42,7 @@
         
         .cart { background: #fff; padding: 20px; border-radius: 10px; margin: 15px 15px 120px 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
         .cart-item { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 12px; }
-        .cart-item-main { display: flex; justify-content: space-between; align-items: center; }
+        .cart-item-main { display: flex; justify-content: space-between; align-items: flex-start; flex-direction: column; gap: 10px;}
         .cart-item-options { font-size: 0.9em; color: #7f8c8d; margin-top: 5px; } 
         .total { font-size: 1.3em; font-weight: bold; text-align: right; margin-top: 15px; color: #2c3e50; }
         .checkout-options { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px solid #e9ecef;}
@@ -76,7 +76,7 @@
         .cancel-small-btn { background: #e74c3c; color: white; border: none; padding: 8px 12px; border-radius: 5px; font-size: 0.9em; margin-top: 15px; cursor: pointer; width: 100%; font-weight:bold;}
         .continue-btn { background: #f39c12; color: white; border: none; padding: 15px; font-size: 1.2em; border-radius: 8px; font-weight: bold; width: 100%; margin-bottom: 15px; cursor: pointer; }
         
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; justify-content: center; align-items: flex-end; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: flex; justify-content: center; align-items: flex-end; }
         .modal-content { background: #fff; width: 100%; max-width: 500px; border-radius: 20px 20px 0 0; padding: 20px; box-sizing: border-box; animation: slideUp 0.3s ease-out; max-height: 85vh; overflow-y: auto;}
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;}
@@ -115,8 +115,10 @@
 <body>
 
     <div class="app-container">
+        <!-- 左側分類導航 -->
         <div class="side-nav" id="side-nav"></div>
         
+        <!-- 右側主內容區 -->
         <div class="main-content" id="main-content">
             <div id="menu-view" style="display:none;">
                 <div id="active-banner" class="active-orders-banner" onclick="showStatusView()" style="display:none;"></div>
@@ -195,7 +197,7 @@
                     <button class="submit-btn" onclick="submitOrder()">送出訂單</button>
                 </div>
             </div>
-
+            
             <div id="order-status-view">
                 <h2 style="margin-top:0;">📝 點餐進度與號碼牌</h2>
                 <div id="orders-list"></div>
@@ -284,7 +286,7 @@
                 if (data.settings) {
                     if (data.settings.openTime) shopSettings.openTime = data.settings.openTime;
                     if (data.settings.closeTime) shopSettings.closeTime = data.settings.closeTime;
-                    if (data.settings.closedDaysOfWeek) shopSettings.closedDaysOfWeek = shopSettings.closedDaysOfWeek;
+                    if (data.settings.closedDaysOfWeek) shopSettings.closedDaysOfWeek = data.settings.closedDaysOfWeek;
                     if (data.settings.closedDates) shopSettings.closedDates = data.settings.closedDates;
                     if (data.settings.minTable) shopSettings.minTable = data.settings.minTable;
                     if (data.settings.maxTable) shopSettings.maxTable = data.settings.maxTable;
@@ -910,7 +912,11 @@
             checkoutOptions.style.display = "block"; cartDiv.innerHTML = ""; let subtotal = 0;
             for (let cartKey in cart) {
                 let item = cart[cartKey]; let itemTotal = item.price * item.qty; subtotal += itemTotal;
-                let optHtml = item.optionsText ? `<div class="cart-item-options">📝 ${item.optionsText}</div>` : '';
+                
+                // 🌟 把購物車裡面的文字選項，拆成漂亮的標籤
+                let badges = item.optionsText ? item.optionsText.split(',').map(o => `<span style="display:inline-block; background:#fff; color:#7f8c8d; border: 1px solid #ccc; padding:4px 8px; border-radius:15px; margin:4px 6px 0 0; font-size:0.85em; font-weight:bold;">${o.trim()}</span>`).join('') : '';
+                let optHtml = badges ? `<div class="cart-item-options" style="margin-top: 5px; line-height:1.6;">${badges}</div>` : '';
+                
                 cartDiv.innerHTML += `<div class="cart-item"><div class="cart-item-main"><div style="flex:1;"><strong>${item.name}</strong>${optHtml}</div><div class="qty-control" style="transform: scale(0.9);"><button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '${item.name}', ${item.price}, '${item.optionsText}', -1)">-</button><span class="qty-number">${item.qty}</span><button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '${item.name}', ${item.price}, '${item.optionsText}', 1)">+</button></div><div style="width: 50px; text-align: right; font-weight: bold; font-size: 1.1em;">$${itemTotal}</div></div></div>`;
             }
             
@@ -1111,8 +1117,8 @@
                     const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
                     renderPickupDateSelection(todayOver, isDayClosed(tomorrow)); 
                     
-                    // 🌟 核心修復：強制大掃除，把畫面上所有的紅色數字標籤洗掉
-                    renderMenu(); 
+                    // 🌟 訂單送出後，強制更新選單畫面，把舊有的紅點洗掉
+                    renderMenu();
                     updateCartUI(); 
                     
                     document.getElementById("loading-screen").innerHTML = `<h2>🔄 正在與總部連線...</h2><p>同步今日營業資訊中</p>`;
@@ -1238,8 +1244,17 @@
 
                 let detailsText = "";
                 for (let k in order.cartData) {
-                    let item = order.cartData[k]; detailsText += `<div class="order-item-row"><strong>${item.name}</strong> x ${item.qty}`;
-                    if(item.optionsText) detailsText += `<div class="order-item-opts">└ ${item.optionsText}</div>`; detailsText += `</div>`;
+                    let item = order.cartData[k]; 
+                    
+                    // 🌟 訂單進度畫面的標籤化顯示
+                    let badges = item.optionsText ? item.optionsText.split(',').map(o => `<span style="display:inline-block; background:#e8f4f8; color:#2980b9; padding:4px 10px; border-radius:15px; border:1px solid #bce0fd; margin:4px 6px 0 0; font-size:0.85em; font-weight:bold;">${o.trim()}</span>`).join('') : '';
+                    
+                    detailsText += `<div class="order-item-row" style="margin-bottom:15px; background: #fafafa; padding: 12px; border-radius: 10px; border: 1px solid #eee;">
+                                        <div style="font-size:1.15em; color:#2c3e50; font-weight:bold; display: flex; justify-content: space-between;">
+                                            <span>${item.name}</span> <span style="color:#e74c3c;">x ${item.qty}</span>
+                                        </div>`;
+                    if(badges) detailsText += `<div class="order-item-opts" style="padding-left:0; margin-top:8px; line-height:1.6;">${badges}</div>`;
+                    detailsText += `</div>`;
                 }
 
                 if (order.needCutlery) {
