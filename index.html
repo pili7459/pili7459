@@ -153,7 +153,8 @@
                     <h3 style="margin-top:5px; border-bottom: none; padding-bottom: 0;">⏰ 預訂取餐時間</h3>
                     <div class="radio-group" id="date-selection"></div>
                     <div class="radio-group" id="time-selection" style="margin-top: 15px;">
-                        <label><input type="radio" name="timeType" value="ASAP" checked onchange="toggleTimeInput()"> 盡快準備</label>
+                        <!-- 🌟 改為立即 -->
+                        <label><input type="radio" name="timeType" value="ASAP" checked onchange="toggleTimeInput()"> 立即</label>
                         <label><input type="radio" name="timeType" value="SPECIFIC" onchange="toggleTimeInput()"> 指定時間</label>
                     </div>
                     <div id="specific-time-container" style="display:none; margin-top: 10px;">
@@ -240,7 +241,6 @@
         let isChatOpen = false;
         let lastMsgCount = 0; 
 
-        // 🌟 日期轉換工具：產生 MM/DD 格式
         function getMMDD(dateObj) {
             return String(dateObj.getMonth() + 1).padStart(2, '0') + '/' + String(dateObj.getDate()).padStart(2, '0');
         }
@@ -492,7 +492,6 @@
             const todayObj = new Date();
             const tomorrowObj = new Date(); tomorrowObj.setDate(tomorrowObj.getDate() + 1);
             
-            // 🌟 自動計算 MM/DD
             todayMMDD = getMMDD(todayObj);
             tomorrowMMDD = getMMDD(tomorrowObj);
             
@@ -506,7 +505,6 @@
             
             const isTodayClosedFlag = isDayClosed(todayObj);
 
-            // 🌟 公休提示全部改成明確的日期
             if (todayOver && tomorrowClosed) {
                 let msg = isTodayClosedFlag ? `🛑 ${todayMMDD} 與 ${tomorrowMMDD} 皆為公休日` : `🛑 今日營業已結束，且 ${tomorrowMMDD} 公休`;
                 bannerContainer.innerHTML = `<div class="closed-overlay">${msg}<br><span style="font-size:0.85em; font-weight:normal;">目前全面暫停線上點餐服務</span></div>`;
@@ -569,7 +567,6 @@
             const urlParams = new URLSearchParams(window.location.search);
             const tableParam = urlParams.get('table');
 
-            // 🌟 判斷是否選擇了明天
             if (dateVal === tomorrowMMDD) { 
                 timeOptions.style.display = "none"; 
                 timeTypeSpecific.checked = true; 
@@ -585,7 +582,7 @@
                 dineInRadio.disabled = false; 
                 takeoutRadio.disabled = false;
                 dineInRadio.parentElement.style.color = "#555"; 
-                takeoutRadio.parentElement.style.color = "#555";
+                dineInRadio.parentElement.style.color = "#555";
                 
                 if (tableParam) {
                     dineInRadio.checked = true;
@@ -909,20 +906,19 @@
             const timeType = document.querySelector('input[name="timeType"]:checked').value;
             let pickupAddonText = "";
             
-            // 🌟 將要傳給後台的正確日期算出來
             let orderDateBackend = getTodayDateString();
             if (pickupDate === tomorrowMMDD) {
                 const tmr = new Date(); tmr.setDate(tmr.getDate() + 1);
                 orderDateBackend = `${tmr.getFullYear()}-${String(tmr.getMonth() + 1).padStart(2, '0')}-${String(tmr.getDate()).padStart(2, '0')}`;
             }
 
-            // 🌟 這裡也改成精確的日期顯示
             if (timeType === "SPECIFIC" && baseDiningType === "自取") {
                 const specificTime = document.getElementById("pickup-time").value;
                 if (!specificTime) { alert("⚠️ 您選擇了指定時間，請選擇取餐時間！"); document.getElementById("pickup-time").focus(); return; }
                 pickupAddonText = ` (預訂: ${pickupDate} ${specificTime})`;
             } else {
-                pickupAddonText = ` (盡快準備)`;
+                // 🌟 盡快準備改為「立即」
+                pickupAddonText = ` (立即)`;
             }
 
             const finalDiningType = baseDiningType + pickupAddonText;
@@ -960,7 +956,6 @@
                 detailsText += `📝 備註：${orderNotes}\n`;
             }
 
-            // 🌟 將精確的 orderDateBackend 傳給總部
             const backendData = { diningType: finalDiningType, tableNumber: tableNumber, customerName: customerName, customerPhone: customerPhone, detailsText: detailsText, totalAmount: finalTotal, orderDate: orderDateBackend };
 
             document.getElementById("loading-screen").innerHTML = `<h2>🔄 訂單傳送中...</h2><p>正在為您抽取專屬號碼牌</p>`;
@@ -1093,7 +1088,8 @@
                             newStatus = 'cancelled'; 
                         } else if (sheetText.includes("完成") || sheetText.includes("取餐")) { 
                             newStatus = 'ready'; 
-                        } else if (sheetText !== "⏳ 新訂單" && sheetText !== "找不到訂單" && sheetText !== "") { 
+                        // 🌟 容錯相容：把可能回傳的「已接單」也視為製作中
+                        } else if (sheetText.includes("接單") || sheetText.includes("製作中")) { 
                             newStatus = 'accepted'; 
                         }
 
@@ -1134,7 +1130,8 @@
                 if (order.status === 'ready') statusText = "🎉 餐點製作完成";
                 if (order.status === 'cancelled') statusText = "❌ 店家已取消此單";
                 
-                let cleanDiningType = order.diningType.replace(" (盡快準備)", "").replace(/方式：|聯絡人：|🕒|🍽️|👤/g, "").trim();
+                // 🌟 把 (立即) 的字眼直接刪掉，保持極簡
+                let cleanDiningType = order.diningType.replace(" (立即)", "").trim();
                 let diningMetaText = `${cleanDiningType}` + (order.diningType.includes("內用") ? ` (第 ${order.tableNumber} 桌)` : "");
 
                 let displayTime = order.time.replace("點餐時間 ", "").replace(/星期/g, "周");
