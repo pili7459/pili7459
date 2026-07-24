@@ -15,9 +15,7 @@
         
         .nav-btn { background-color: transparent; border: none; padding: 15px 5px; font-weight: bold; color: #7f8c8d; cursor: pointer; transition: all 0.2s ease; font-size: 1em; white-space: nowrap; border-left: 4px solid transparent; text-align: center; border-bottom: 1px solid #f0f0f0; position: relative; width: 100%; }
         .nav-btn.active { background-color: #f4f8fb; color: #3498db; border-left: 4px solid #3498db; }
-        .item-badge { position: absolute; top: 5px; right: 5px; background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7em; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-
-        /* 🌟 致命修復：調整右側內容區的高度計算，底部加入 padding 留白防卡死 */
+        
         .main-content { flex: 1; height: 100vh; overflow-y: auto; scroll-behavior: smooth; position: relative; padding-bottom: 120px; }
 
         .active-orders-banner { background-color: #f39c12; color: white; text-align: center; padding: 12px; font-weight: bold; position: sticky; top: 0; z-index: 15; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); animation: pulse 2s infinite; }
@@ -94,9 +92,13 @@
         .modal-footer { margin-top: 20px; }
         .confirm-modal-btn { width: 100%; padding: 15px; background: #3498db; color: white; border: none; border-radius: 8px; font-size: 1.2em; font-weight: bold; cursor: pointer;}
 
-        .fab-btn { position: fixed; bottom: 20px; right: 20px; background: #8e44ad; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.8em; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 50; transition: transform 0.2s; }
+        /* 🌟 雙浮動按鈕：客服在右，購物車在左 */
+        .fab-btn { position: fixed; bottom: 20px; background: #8e44ad; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.8em; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 50; transition: transform 0.2s; }
         .fab-btn:active { transform: scale(0.9); }
-        .fab-badge { position: absolute; top: -3px; right: -3px; background: #e74c3c; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 0.7em; display: none; justify-content: center; align-items: center; font-weight: bold; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .fab-chat { right: 20px; }
+        .fab-cart { left: 20px; background: #e67e22; display: none; } /* 預設隱藏，有東西才出現 */
+        
+        .fab-badge { position: absolute; top: -3px; right: -3px; background: #e74c3c; color: white; border-radius: 50%; width: 24px; height: 24px; font-size: 0.6em; display: flex; justify-content: center; align-items: center; font-weight: bold; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         
         #chat-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 1000; flex-direction: column; }
         .chat-header { background: #8e44ad; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 1.2em; }
@@ -104,8 +106,8 @@
         .chat-bubble { max-width: 80%; padding: 10px 15px; border-radius: 15px; line-height: 1.4; word-wrap: break-word; position: relative; }
         .chat-customer { background: #3498db; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
         .chat-owner { background: #e0e0e0; color: #333; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .chat-time { font-size: 0.7em; color: #999; margin-top: 5px; text-align: left; }
-        .chat-owner .chat-time { color: #f1f1f1; text-align: right; }
+        .chat-time { font-size: 0.7em; color: #999; margin-top: 5px; text-align: right; }
+        .chat-owner .chat-time { text-align: left; }
         .chat-footer { background: #fff; padding: 10px; border-top: 1px solid #ddd; display: flex; gap: 10px; align-items: center; }
         .chat-input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 20px; font-size: 1em; outline: none; }
         .chat-send-btn { background: #8e44ad; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 1.2em; cursor: pointer; display: flex; justify-content: center; align-items: center; }
@@ -121,14 +123,23 @@
             .menu-item { margin: 0 !important; height: 100%; }
             .category-title { margin: 15px 0 10px 0; }
             .cart { margin: 0 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 12px;}
+            /* 電腦版不需要浮動購物車，因為右邊本來就有了 */
+            .fab-cart { display: none !important; }
         }
     </style>
 </head>
 <body>
 
-    <div class="fab-btn" onclick="openChat()">
+    <!-- 🌟 客服浮動按鈕 -->
+    <div class="fab-btn fab-chat" onclick="openChat()">
         💬
-        <span class="fab-badge" id="fab-badge">N</span>
+        <span class="fab-badge" id="fab-badge" style="display:none;">N</span>
+    </div>
+    
+    <!-- 🌟 全新獨立購物車浮動按鈕 -->
+    <div class="fab-btn fab-cart" id="fab-cart" onclick="filterCategory('購物車')">
+        🛒
+        <span class="fab-badge" id="cart-badge">0</span>
     </div>
 
     <div id="chat-modal">
@@ -155,6 +166,7 @@
 
     <div class="app-container">
         <div class="side-nav" id="side-nav">
+            <!-- 導航列由 JS 生成 -->
         </div>
         
         <div class="main-content" id="main-content">
@@ -615,8 +627,12 @@
                 rSpec.checked = true;
             } else {
                 labelAsap.style.display = "block";
-                rAsap.checked = false;
-                rSpec.checked = false;
+                
+                // 🌟 修復防呆邏輯：確保防呆生效
+                if (document.querySelector('input[name="diningType"]:checked').value === "自取") {
+                    rAsap.checked = false;
+                    rSpec.checked = false;
+                }
             }
             
             toggleTimeInput(); 
@@ -691,6 +707,7 @@
         
         function updateBanner() { const banner = document.getElementById("active-banner"); if (allOrders.length > 0) { banner.style.display = "block"; if (allOrders.some(order => order.status === 'ready')) { banner.className = "active-orders-banner ready"; banner.innerHTML = "🎉 您有餐點已完成，點此查看取餐號碼！"; } else { banner.className = "active-orders-banner"; banner.innerHTML = "🛒 您有進行中的訂單，點此查看進度"; } } else { banner.style.display = "none"; } }
         
+        // 🌟 移除多餘的導航購物車選項，只保留左側分類
         function renderNavBar() { 
             const navDiv = document.getElementById("side-nav"); 
             let html = `<button class="nav-btn ${currentCategoryFilter === '全部' ? 'active' : ''}" onclick="filterCategory('全部')">全部</button>`;
@@ -700,14 +717,6 @@
                     html += `<button class="nav-btn ${currentCategoryFilter === category ? 'active' : ''}" onclick="filterCategory('${category}')">${category}</button>`;
                 }
             }); 
-
-            let cartQty = 0;
-            for(let key in cart) { cartQty += cart[key].qty; }
-            let badgeHtml = cartQty > 0 ? `<span class="item-badge">${cartQty}</span>` : '';
-
-            let cartBtnStyle = currentCategoryFilter === '購物車' ? 'color:#e67e22; border-left-color:#e67e22; background-color:#fcf3cf;' : 'color:#d35400;';
-            html += `<button class="nav-btn ${currentCategoryFilter === '購物車' ? 'active' : ''}" style="${cartBtnStyle} font-size: 1.6em; padding: 12px 0;" onclick="filterCategory('購物車')">🛒${badgeHtml}</button>`;
-
             navDiv.innerHTML = html;
         }
         
@@ -723,6 +732,7 @@
                 document.getElementById("cart-section").style.display = "none";
                 const grids = document.querySelectorAll(".category-section");
                 grids.forEach(g => {
+                    // 🌟 核心修復：使用 is 隱藏/顯示，而不是整個刪除，防卡死
                     if (categoryName === '全部' || g.id === `section-${categoryName}`) {
                         g.style.display = "block";
                     } else {
@@ -857,11 +867,26 @@
                 renderMenu(); 
             }
             updateCartUI();
-            renderNavBar(); 
         }
 
         function updateCartUI() {
-            const cartDiv = document.getElementById("cart-items"); const checkoutOptions = document.getElementById("checkout-options"); const totalSpan = document.getElementById("total-price");
+            const cartDiv = document.getElementById("cart-items"); 
+            const checkoutOptions = document.getElementById("checkout-options"); 
+            const totalSpan = document.getElementById("total-price");
+            
+            // 🌟 浮動購物車圖示控制與數量更新
+            let cartQty = 0;
+            for(let key in cart) { cartQty += cart[key].qty; }
+            const fabCart = document.getElementById("fab-cart");
+            const cartBadge = document.getElementById("cart-badge");
+            
+            if (cartQty > 0) {
+                fabCart.style.display = "flex";
+                cartBadge.innerText = cartQty;
+            } else {
+                fabCart.style.display = "none";
+            }
+            
             if (Object.keys(cart).length === 0) { 
                 cartDiv.innerHTML = '<p style="text-align:center; color:#999;">目前購物車是空的喔！</p>'; 
                 totalSpan.innerText = "0"; checkoutOptions.style.display = "none"; 
@@ -1075,7 +1100,6 @@
                     renderPickupDateSelection(todayOver, isDayClosed(tomorrow)); 
                     
                     updateCartUI(); 
-                    renderNavBar(); 
                     
                     document.getElementById("loading-screen").innerHTML = `<h2>🔄 正在與總部連線...</h2><p>同步今日營業資訊中</p>`;
                     showStatusView();
