@@ -82,7 +82,6 @@
         .modal-footer { margin-top: 20px; }
         .confirm-modal-btn { width: 100%; padding: 15px; background: #3498db; color: white; border: none; border-radius: 8px; font-size: 1.2em; font-weight: bold; cursor: pointer;}
 
-        /* 🌟 客服聊天 UI */
         .fab-btn { position: fixed; bottom: 20px; right: 20px; background: #8e44ad; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.8em; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 50; transition: transform 0.2s; }
         .fab-btn:active { transform: scale(0.9); }
         #chat-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 200; flex-direction: column; }
@@ -101,17 +100,14 @@
 </head>
 <body>
 
-    <!-- 🌟 客服浮動按鈕 -->
     <div class="fab-btn" onclick="openChat()">💬</div>
 
-    <!-- 🌟 客服聊天視窗 -->
     <div id="chat-modal">
         <div class="chat-header">
             <span>💬 聯絡店家</span>
             <span onclick="closeChat()" style="cursor:pointer; font-size:1.5em; line-height:1;">×</span>
         </div>
         
-        <!-- 登入區 (如果沒留過電話姓名) -->
         <div id="chat-login-area" class="chat-login">
             <h3 style="text-align:center; color:#2c3e50;">請先輸入聯絡資訊</h3>
             <p style="color:#7f8c8d; font-size:0.9em; text-align:center;">我們將會回覆您的訊息</p>
@@ -120,7 +116,6 @@
             <button class="submit-btn" style="background:#8e44ad;" onclick="startChat()">開始對話</button>
         </div>
 
-        <!-- 聊天區 -->
         <div id="chat-messages-area" class="chat-body" style="display:none;"></div>
         
         <div id="chat-input-area" class="chat-footer" style="display:none;">
@@ -129,7 +124,6 @@
         </div>
     </div>
 
-    <!-- 原有菜單與購物車 -->
     <div id="menu-view" style="display:none;">
         <div class="top-nav" id="top-nav"></div>
         <div id="active-banner" class="active-orders-banner" onclick="showStatusView()" style="display:none;"></div>
@@ -233,7 +227,7 @@
     </div>
 
     <script>
-        // ⚠️ 請填入最新的 Google Apps Script 網址
+        // ⚠️ 請填寫最新的 API 網址
         const API_URL = "https://script.google.com/macros/s/AKfycbxTGrRGwx5aNc6LDKOkevrQVRN4Q_n8ERZqzUgi59cuALgED4pIjkcNMFDOIdQIrkcm/exec";
 
         let shopSettings = { closedDaysOfWeek: [], closedDates: [], openTime: "06:00", closeTime: "13:00", minTable: 1, maxTable: 20, promoDiscountCode: "", promoDiscountRate: 1, promoDeductCode: "", promoDeductAmount: 0 };
@@ -244,6 +238,7 @@
         
         let chatTimer = null;
         let isChatOpen = false;
+        let lastMsgCount = 0; // 🌟 用來追蹤訊息數量，防止重新整理清空打字中
 
         function fetchSettingsAndInit() {
             fetch(`${API_URL}?t=${new Date().getTime()}`).then(res => res.json()).then(data => {
@@ -290,19 +285,18 @@
             return `${year}/${month}/${day} ${weekday} ${hours}:${minutes}:${seconds}`;
         }
 
-        // 🌟 客服聊天功能區
+        // 🌟 客服聊天功能 (防洗掉打字優化)
         function openChat() {
             isChatOpen = true;
             document.getElementById("chat-modal").style.display = "flex";
             
-            // 從購物車輸入框 或 LocalStorage 抓取
             let name = document.getElementById("customer-name").value.trim() || localStorage.getItem('savedCustomerName') || "";
             let phone = document.getElementById("customer-phone").value.trim() || localStorage.getItem('savedCustomerPhone') || "";
             
             if (name && phone) {
                 document.getElementById("chat-name").value = name;
                 document.getElementById("chat-phone").value = phone;
-                startChat(); // 自動登入
+                startChat(); 
             } else {
                 document.getElementById("chat-login-area").style.display = "flex";
                 document.getElementById("chat-messages-area").style.display = "none";
@@ -322,7 +316,6 @@
             if (!name || !phone) { alert("請填寫姓名與電話！"); return; }
             if (phone.length < 8) { alert("電話格式錯誤！"); return; }
             
-            // 寫回 LocalStorage 與 購物車欄位
             localStorage.setItem('savedCustomerName', name);
             localStorage.setItem('savedCustomerPhone', phone);
             document.getElementById("customer-name").value = name;
@@ -332,33 +325,38 @@
             document.getElementById("chat-messages-area").style.display = "flex";
             document.getElementById("chat-input-area").style.display = "flex";
             
-            loadMsgs();
-            chatTimer = setInterval(loadMsgs, 5000); // 開啟聊天時每 5 秒刷新
+            loadMsgs(true); // 強制首次載入
+            chatTimer = setInterval(() => loadMsgs(false), 5000); 
         }
 
-        function loadMsgs() {
+        function loadMsgs(force = false) {
             if(!isChatOpen) return;
             let phone = localStorage.getItem('savedCustomerPhone');
             fetch(`${API_URL}?action=getCustomerMsgs&phone=${phone}&t=${new Date().getTime()}`)
             .then(res => res.json())
             .then(data => {
                 if(data.result === 'success') {
-                    let box = document.getElementById("chat-messages-area");
-                    let wasAtBottom = box.scrollHeight - box.scrollTop <= box.clientHeight + 50;
-                    
-                    box.innerHTML = data.messages.length === 0 ? '<p style="text-align:center; color:#999; margin-top:20px;">歡迎傳送訊息聯絡我們！</p>' : '';
-                    data.messages.forEach(m => {
-                        let isMe = m.sender === 'customer';
-                        let cssClass = isMe ? 'chat-customer' : 'chat-owner';
-                        box.innerHTML += `
-                            <div class="chat-bubble ${cssClass}">
-                                ${m.content}
-                                <div class="chat-time">${m.time.split(' ')[2]}</div>
-                            </div>
-                        `;
-                    });
-                    
-                    if (wasAtBottom) box.scrollTop = box.scrollHeight;
+                    // 🌟 只有當訊息數量改變，或強制載入時才重繪畫面，避免正在打字的字被洗掉
+                    if (force || data.messages.length !== lastMsgCount) {
+                        lastMsgCount = data.messages.length;
+                        let box = document.getElementById("chat-messages-area");
+                        let wasAtBottom = box.scrollHeight - box.scrollTop <= box.clientHeight + 50;
+                        
+                        box.innerHTML = data.messages.length === 0 ? '<p style="text-align:center; color:#999; margin-top:20px;">歡迎傳送訊息聯絡我們！</p>' : '';
+                        data.messages.forEach(m => {
+                            let isMe = m.sender === 'customer';
+                            let cssClass = isMe ? 'chat-customer' : 'chat-owner';
+                            let timePart = m.time ? m.time.split(' ')[2] : '';
+                            box.innerHTML += `
+                                <div class="chat-bubble ${cssClass}">
+                                    ${m.content}
+                                    <div class="chat-time">${timePart}</div>
+                                </div>
+                            `;
+                        });
+                        
+                        if (wasAtBottom || force) box.scrollTop = box.scrollHeight;
+                    }
                 }
             }).catch(e => console.log("聊天更新中..."));
         }
@@ -370,9 +368,9 @@
             let name = localStorage.getItem('savedCustomerName');
             let phone = localStorage.getItem('savedCustomerPhone');
 
-            // 樂觀顯示
             let box = document.getElementById("chat-messages-area");
-            let timeStr = new Date().toLocaleTimeString('en-GB');
+            if (box.innerHTML.includes("歡迎傳送訊息")) box.innerHTML = "";
+
             box.innerHTML += `
                 <div class="chat-bubble chat-customer" style="opacity:0.6;">
                     ${text}
@@ -384,10 +382,9 @@
             fetch(API_URL, {
                 method: "POST",
                 body: JSON.stringify({ action: "sendMsg", customerName: name, customerPhone: phone, sender: "customer", content: text })
-            }).then(() => loadMsgs());
+            }).then(() => loadMsgs(true));
         }
 
-        // --- 原本的點餐邏輯 ---
         function isDayClosed(dateObj) {
             const dayOfWeek = dateObj.getDay();
             const dateString = `${dateObj.getFullYear()}/${String(dateObj.getMonth()+1).padStart(2,'0')}/${String(dateObj.getDate()).padStart(2,'0')}`;
@@ -477,6 +474,58 @@
                 takeoutRadio.parentElement.style.display = 'none';
                 document.getElementById("dining-title").innerHTML = `🍽️ 預訂明日餐點 (自取)`;
             }
+        }
+
+        function initApp() {
+            document.getElementById("menu-view").style.display = "block"; 
+            
+            document.getElementById("customer-name").value = localStorage.getItem('savedCustomerName') || "";
+            document.getElementById("customer-phone").value = localStorage.getItem('savedCustomerPhone') || "";
+
+            const todayOver = isTodayOver();
+            const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowClosed = isDayClosed(tomorrow);
+            
+            initUrlLocks(todayOver);
+
+            const bannerContainer = document.getElementById("closed-banner-container");
+            const menuEl = document.getElementById("menu"); const cartEl = document.getElementById("cart-section");
+            
+            const todayObj = new Date();
+            const isTodayClosedFlag = isDayClosed(todayObj);
+
+            if (todayOver && tomorrowClosed) {
+                let msg = isTodayClosedFlag ? "🛑 今日與明日皆為公休日" : "🛑 今日營業已結束，且明日公休";
+                bannerContainer.innerHTML = `<div class="closed-overlay">${msg}<br><span style="font-size:0.85em; font-weight:normal;">目前全面暫停線上點餐服務</span></div>`;
+                menuEl.style.display = "none"; cartEl.style.display = "none";
+            } else if (todayOver) {
+                let msg = isTodayClosedFlag ? "⚠️ 本日公休" : "⚠️ 今日營業已結束";
+                bannerContainer.innerHTML = `<div class="closed-overlay" style="background:#f39c12;">${msg}<br><span style="font-size:0.85em; font-weight:normal;">(目前僅開放預訂「明日自取」餐點)</span></div>`;
+            } else if (tomorrowClosed) {
+                bannerContainer.innerHTML = `<div class="closed-overlay" style="background:#f39c12;">⚠️ 明日公休<br><span style="font-size:0.85em; font-weight:normal;">(不開放預訂明日餐點)</span></div>`;
+            }
+            
+            renderPickupDateSelection(todayOver, tomorrowClosed);
+            document.getElementById("shop-hours-text").innerText = `※ 營業時間：${shopSettings.openTime} ~ ${shopSettings.closeTime}`;
+            
+            const savedCart = localStorage.getItem('myBreakfastCart');
+            const savedCartExpiry = localStorage.getItem('myBreakfastCartExpiry');
+            if (savedCart && savedCartExpiry) {
+                if (new Date().getTime() < parseInt(savedCartExpiry)) {
+                    cart = JSON.parse(savedCart);
+                } else {
+                    localStorage.removeItem('myBreakfastCart');
+                    localStorage.removeItem('myBreakfastCartExpiry');
+                }
+            }
+
+            renderNavBar(); 
+            renderMenu();
+            updateCartUI(); 
+
+            const savedOrders = localStorage.getItem('myBreakfastOrders');
+            if (savedOrders) allOrders = JSON.parse(savedOrders);
+            if (allOrders.length > 0) showStatusView(); else showMenuView();   
         }
 
         function renderPickupDateSelection(todayOver, tomorrowClosed) {
@@ -774,7 +823,7 @@
             if (appliedPromo && subtotal > 0) {
                 if (appliedPromo.type === 'discount') {
                     discountAmt = Math.round(subtotal * (1 - appliedPromo.rate));
-                } else {
+                } else if (appliedPromo.type === 'deduct') {
                     discountAmt = appliedPromo.amount > subtotal ? subtotal : appliedPromo.amount;
                 }
                 finalTotal = subtotal - discountAmt;
@@ -839,7 +888,7 @@
                 }
                 
                 localStorage.setItem('savedCustomerName', customerName);
-                localStorage.setItem('savedCustomerPhone', customerPhone); // 這裡修正一下存的格式
+                localStorage.setItem('savedCustomerPhone', customerPhone);
             }
 
             const pickupDate = document.querySelector('input[name="pickupDate"]:checked').value;
@@ -849,7 +898,7 @@
             if (timeType === "SPECIFIC" && baseDiningType === "自取") {
                 const specificTime = document.getElementById("pickup-time").value;
                 if (!specificTime) { alert("⚠️ 您選擇了指定時間，請選擇取餐時間！"); document.getElementById("pickup-time").focus(); return; }
-                pickupAddonText = ` (預訂: ${pickupDate} ${specificTime})`;
+                pickupAddonText = ` (${pickupDate} ${specificTime})`;
             } else {
                 pickupAddonText = ` (盡快準備)`;
             }
@@ -1057,17 +1106,18 @@
             for (let i = allOrders.length - 1; i >= 0; i--) {
                 let order = allOrders[i];
                 
-                // 🌟 優化狀態文案
+                // 🌟 文案精簡：「店家已接單」、「餐點製作完成」
                 let statusText = "⏳ 等待店家確認";
                 if (order.status === 'accepted') statusText = "👩‍🍳 店家已接單";
                 if (order.status === 'ready') statusText = "🎉 餐點製作完成";
                 if (order.status === 'cancelled') statusText = "❌ 店家已取消此單";
                 
-                // 🌟 極簡化排版：拿掉所有多餘資訊
-                let cleanDiningType = order.diningType.replace(" (盡快準備)", "");
+                // 🌟 徹底清除方式、聯絡人與 🕒 符號
+                let cleanDiningType = order.diningType.replace(" (盡快準備)", "").replace(/方式：|聯絡人：|🕒|🍽️|👤/g, "").trim();
                 let diningMetaText = `${cleanDiningType}` + (order.diningType.includes("內用") ? ` (第 ${order.tableNumber} 桌)` : "");
 
-                let displayTime = order.time.split(" ")[0]; // 只留日期
+                // 🌟 星期改為周，不顯示多餘的「點餐時間」文字
+                let displayTime = order.time.replace("點餐時間 ", "").replace(/星期/g, "周");
 
                 let detailsText = "";
                 for (let k in order.cartData) {
@@ -1084,7 +1134,8 @@
 
                 let readyTimeHtml = "";
                 if (order.status === 'ready' && order.readyTime) {
-                    readyTimeHtml = `<div class="ready-time-tag">✅ 本單已於 ${order.readyTime.split(" ")[2]} 製作完成！</div>`;
+                    let cleanReadyTime = order.readyTime.replace(/星期/g, "周");
+                    readyTimeHtml = `<div class="ready-time-tag">✅ 本單已於 ${cleanReadyTime} 製作完成！</div>`;
                 } else if (order.status === 'cancelled') {
                     readyTimeHtml = `<div class="cancelled-time-tag">⚠️ 很抱歉，店家因故無法出餐，已為您取消此訂單。</div>`;
                 }
