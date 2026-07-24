@@ -153,7 +153,6 @@
                     <h3 style="margin-top:5px; border-bottom: none; padding-bottom: 0;">⏰ 預訂取餐時間</h3>
                     <div class="radio-group" id="date-selection"></div>
                     <div class="radio-group" id="time-selection" style="margin-top: 15px;">
-                        <!-- 🌟 改為立即 -->
                         <label><input type="radio" name="timeType" value="ASAP" checked onchange="toggleTimeInput()"> 立即</label>
                         <label><input type="radio" name="timeType" value="SPECIFIC" onchange="toggleTimeInput()"> 指定時間</label>
                     </div>
@@ -170,9 +169,10 @@
                 </div>
 
                 <div id="contact-info-container" style="display: none; margin-top: 15px;">
-                    <input type="text" id="customer-name" placeholder="👉 請輸入姓名 (外帶/自取必填)" class="table-input">
+                    <!-- 🌟 必填提示改為僅自取 -->
+                    <input type="text" id="customer-name" placeholder="👉 請輸入姓名 (自取必填)" class="table-input">
                     <div style="font-size:0.8em; color:#7f8c8d; margin-top:3px; margin-left:5px;">※ 姓名最多 5 個中文字或 10 個英文字母</div>
-                    <input type="tel" id="customer-phone" placeholder="👉 請輸入手機號碼 (外帶/自取必填)" class="table-input" style="margin-top: 10px;">
+                    <input type="tel" id="customer-phone" placeholder="👉 請輸入手機號碼 (自取必填)" class="table-input" style="margin-top: 10px;">
                 </div>
 
                 <h3 style="margin-top:25px;">🎟️ 優惠碼</h3>
@@ -284,13 +284,14 @@
             return `${year}-${month}-${day}`;
         }
 
+        // 🌟 獲取精簡版時間 MM/dd HH:mm (拿掉年、星期、秒)
         function getFormattedTime() {
             const now = new Date();
-            const year = now.getFullYear(); const month = String(now.getMonth() + 1).padStart(2, '0'); const day = String(now.getDate()).padStart(2, '0');
-            const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-            const weekday = weekdays[now.getDay()];
-            const hours = String(now.getHours()).padStart(2, '0'); const minutes = String(now.getMinutes()).padStart(2, '0'); const seconds = String(now.getSeconds()).padStart(2, '0');
-            return `${year}/${month}/${day} ${weekday} ${hours}:${minutes}:${seconds}`;
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return `${month}/${day} ${hours}:${minutes}`;
         }
 
         function openChat() {
@@ -352,7 +353,8 @@
                         data.messages.forEach(m => {
                             let isMe = m.sender === 'customer';
                             let cssClass = isMe ? 'chat-customer' : 'chat-owner';
-                            let timePart = m.time ? m.time.split(' ')[2] : '';
+                            // 🌟 從資料庫直接讀出短時間格式
+                            let timePart = m.time || '';
                             box.innerHTML += `
                                 <div class="chat-bubble ${cssClass}">
                                     ${m.content}
@@ -600,6 +602,7 @@
             else { timeContainer.style.display = "none"; document.getElementById("pickup-time").value = ""; }
         }
 
+        // 🌟 重寫版面切換邏輯：外帶不顯示姓名/電話/時間
         function toggleCheckoutInputs() {
             const type = document.querySelector('input[name="diningType"]:checked').value;
             const tableContainer = document.getElementById("table-input-container");
@@ -610,30 +613,27 @@
             const urlParams = new URLSearchParams(window.location.search);
             const tableParam = urlParams.get('table');
 
-            if (type === "自取") {
-                datetimeContainer.style.display = "block";
-                toggleTimeInput(); 
-            } else {
-                datetimeContainer.style.display = "none";
-                const asapRadio = document.querySelector('input[name="timeType"][value="ASAP"]');
-                if(asapRadio) asapRadio.checked = true;
-                toggleTimeInput();
-            }
+            // 預設全部隱藏
+            tableContainer.style.display = "none";
+            contactContainer.style.display = "none";
+            datetimeContainer.style.display = "none";
+            cutleryContainer.style.display = "none";
 
             if (type === "內用") {
-                tableContainer.style.display = "block"; 
-                contactContainer.style.display = "none";
-                cutleryContainer.style.display = "none"; 
+                tableContainer.style.display = "block";
                 if (!tableParam) {
                     document.getElementById("table-number").placeholder = `👉 請輸入桌號 (${shopSettings.minTable} ~ ${shopSettings.maxTable}號)`;
                     document.getElementById("table-number").readOnly = false;
                     document.getElementById("table-number").style.backgroundColor = "#fff";
                 }
-            } else {
-                tableContainer.style.display = "none"; 
-                document.getElementById("table-number").value = ""; 
+            } else if (type === "自取") {
+                datetimeContainer.style.display = "block";
                 contactContainer.style.display = "block";
-                cutleryContainer.style.display = "block"; 
+                cutleryContainer.style.display = "block";
+                toggleTimeInput(); 
+            } else if (type === "外帶") {
+                cutleryContainer.style.display = "block";
+                // 外帶不需要時間與聯絡人
             }
         }
 
@@ -856,6 +856,7 @@
             let baseDiningType = document.querySelector('input[name="diningType"]:checked').value;
             let tableNumber = ""; let customerName = ""; let customerPhone = "";
 
+            // 🌟 修正必填邏輯：只有內用需桌號，只有自取需姓名電話，外帶什麼都不用
             if (baseDiningType === "內用") {
                 let rawTable = document.getElementById("table-number").value.trim();
                 if (!rawTable) { alert("⚠️ 選擇「內用」請務必填寫桌號！"); document.getElementById("table-number").focus(); return; }
@@ -866,7 +867,7 @@
                     document.getElementById("table-number").focus(); return;
                 }
                 tableNumber = parsedTable.toString();
-            } else {
+            } else if (baseDiningType === "自取") {
                 customerName = document.getElementById("customer-name").value.trim();
                 let rawPhone = document.getElementById("customer-phone").value.trim().replace(/\D/g, ''); 
                 
@@ -900,6 +901,10 @@
                 
                 localStorage.setItem('savedCustomerName', customerName);
                 localStorage.setItem('savedCustomerPhone', customerPhone); 
+            } else if (baseDiningType === "外帶") {
+                // 外帶不檢查姓名電話
+                customerName = "";
+                customerPhone = "";
             }
 
             const pickupDate = document.querySelector('input[name="pickupDate"]:checked').value;
@@ -912,13 +917,15 @@
                 orderDateBackend = `${tmr.getFullYear()}-${String(tmr.getMonth() + 1).padStart(2, '0')}-${String(tmr.getDate()).padStart(2, '0')}`;
             }
 
-            if (timeType === "SPECIFIC" && baseDiningType === "自取") {
-                const specificTime = document.getElementById("pickup-time").value;
-                if (!specificTime) { alert("⚠️ 您選擇了指定時間，請選擇取餐時間！"); document.getElementById("pickup-time").focus(); return; }
-                pickupAddonText = ` (預訂: ${pickupDate} ${specificTime})`;
-            } else {
-                // 🌟 盡快準備改為「立即」
-                pickupAddonText = ` (立即)`;
+            // 🌟 只有自取需要在後面加上 (立即) 或 (預訂時間)，內用外帶都不用
+            if (baseDiningType === "自取") {
+                if (timeType === "SPECIFIC") {
+                    const specificTime = document.getElementById("pickup-time").value;
+                    if (!specificTime) { alert("⚠️ 您選擇了指定時間，請選擇取餐時間！"); document.getElementById("pickup-time").focus(); return; }
+                    pickupAddonText = ` (預訂: ${pickupDate} ${specificTime})`;
+                } else {
+                    pickupAddonText = ` (立即)`;
+                }
             }
 
             const finalDiningType = baseDiningType + pickupAddonText;
@@ -1088,7 +1095,6 @@
                             newStatus = 'cancelled'; 
                         } else if (sheetText.includes("完成") || sheetText.includes("取餐")) { 
                             newStatus = 'ready'; 
-                        // 🌟 容錯相容：把可能回傳的「已接單」也視為製作中
                         } else if (sheetText.includes("接單") || sheetText.includes("製作中")) { 
                             newStatus = 'accepted'; 
                         }
@@ -1130,11 +1136,11 @@
                 if (order.status === 'ready') statusText = "🎉 餐點製作完成";
                 if (order.status === 'cancelled') statusText = "❌ 店家已取消此單";
                 
-                // 🌟 把 (立即) 的字眼直接刪掉，保持極簡
-                let cleanDiningType = order.diningType.replace(" (立即)", "").trim();
+                let cleanDiningType = order.diningType;
                 let diningMetaText = `${cleanDiningType}` + (order.diningType.includes("內用") ? ` (第 ${order.tableNumber} 桌)` : "");
 
-                let displayTime = order.time.replace("點餐時間 ", "").replace(/星期/g, "周");
+                // 🌟 現在 order.time 已經是純粹的 MM/DD HH:mm
+                let displayTime = order.time;
 
                 let detailsText = "";
                 for (let k in order.cartData) {
@@ -1151,8 +1157,7 @@
 
                 let readyTimeHtml = "";
                 if (order.status === 'ready' && order.readyTime) {
-                    let cleanReadyTime = order.readyTime.replace(/星期/g, "周");
-                    readyTimeHtml = `<div class="ready-time-tag">✅ 本單已於 ${cleanReadyTime} 製作完成！</div>`;
+                    readyTimeHtml = `<div class="ready-time-tag">✅ 本單已於 ${order.readyTime} 製作完成！</div>`;
                 } else if (order.status === 'cancelled') {
                     readyTimeHtml = `<div class="cancelled-time-tag">⚠️ 很抱歉，店家因故無法出餐，已為您取消此訂單。</div>`;
                 }
