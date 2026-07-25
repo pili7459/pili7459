@@ -143,7 +143,6 @@
                         <div class="radio-group" id="dining-radios">
                             <label><input type="radio" name="diningType" value="外帶" onchange="toggleCheckoutInputs()"> 外帶</label>
                             <label><input type="radio" name="diningType" value="自取" onchange="toggleCheckoutInputs()"> 自取</label>
-                            <!-- 🌟 新增外送選項，預設隱藏 -->
                             <label id="label-delivery-radio" style="display:none;"><input type="radio" name="diningType" value="外送" onchange="toggleCheckoutInputs()"> 外送</label>
                             <label><input type="radio" name="diningType" value="內用" checked onchange="toggleCheckoutInputs()"> 內用</label>
                         </div>
@@ -175,7 +174,6 @@
                             <input type="tel" id="customer-phone" placeholder="👉 請輸入手機號碼" class="table-input" style="margin-top: 10px;">
                         </div>
                         
-                        <!-- 🌟 新增外送地址區塊 -->
                         <div id="address-container" style="display: none; margin-top: 15px;">
                             <input type="text" id="customer-address" placeholder="👉 請輸入外送地址 (含樓層/備註)" class="table-input">
                             <div style="font-size:0.8em; color:#e74c3c; margin-top:3px; margin-left:5px;">※ 外送僅限今日或立即，無法預訂明日</div>
@@ -285,32 +283,50 @@
         let isChatOpen = false;
         let lastMsgCount = parseInt(localStorage.getItem('customerMsgCount')) || 0; 
 
+        // 🌟 核心升級 1：精準排除「熱狗」，並將「加購」判定為淡紅色塊
         function buildBadgesHtml(optionsText, itemName) {
             if (!optionsText) return '';
             let opts = optionsText.split(',').map(o => o.trim());
             let normalGroup = [];
+            let addonGroup = [];
             let drinkGroup = [];
 
             let isItemDrink = /(茶|奶|咖啡|拿鐵|豆漿|冬瓜|飲)/.test(itemName) && !/(餐|麵|堡|吐司|蛋餅|捲餅|厚片|飯糰)/.test(itemName);
 
             opts.forEach(opt => {
                 let baseOpt = opt.split('+')[0].trim(); 
-                let isModifier = /^(冰|溫|熱|常溫|去冰|微冰|少冰|正常冰|無糖|微糖|半糖|少糖|全糖|有糖|正常糖)$/.test(baseOpt) || /(冰|溫|熱|糖)/.test(baseOpt);
+                // 排除熱狗，只抓冰溫熱糖
+                let isDrinkModifier = /^(冰|溫|熱(?!狗)|常溫|去冰|微冰|少冰|正常冰|無糖|微糖|半糖|少糖|全糖|有糖|正常糖|固定)$/.test(baseOpt);
                 let isBeverage = /(紅茶|綠茶|青茶|烏龍|奶茶|鮮奶茶|拿鐵|咖啡|豆漿|米漿|冬瓜|可樂|雪碧|果汁)/.test(baseOpt);
 
-                if (isModifier || (!isItemDrink && isBeverage)) {
+                if (isDrinkModifier || (!isItemDrink && isBeverage)) {
                     drinkGroup.push(opt.replace('+', ' +')); 
                 } else {
-                    normalGroup.push(opt);
+                    // 如果是用客製化字眼開頭的，歸類為一般灰色標籤。否則歸為淡紅色加購標籤。
+                    let isCustomization = /^(不|加|少|多|去|半|微|全|正常|焦|烤|切|醬|胡麻|千島|和風|煉乳|胡椒|鹽)/.test(baseOpt);
+                    if (isCustomization) {
+                        normalGroup.push(opt);
+                    } else {
+                        addonGroup.push(opt);
+                    }
                 }
             });
 
             let html = '';
+            // 灰色標籤 (不要焦, 加起司...)
             if (normalGroup.length > 0) {
                 html += normalGroup.map(o => `<span style="display:inline-block; background:#eef2f5; color:#34495e; border:1px solid #dcdde1; padding:4px 10px; border-radius:15px; margin:4px 6px 0 0; font-size:0.9em; font-weight:bold;">${o}</span>`).join('');
             }
+            // 淡紅色標籤 (獨立單行，專屬加購小點)
+            if (addonGroup.length > 0) {
+                let mt = (normalGroup.length > 0) ? '8px' : '0px';
+                html += `<div style="display:flex; flex-direction:column; gap:6px; margin-top: ${mt};">` + 
+                        addonGroup.map(o => `<span style="display:inline-block; background:#fdf2f2; color:#c0392b; border:1px solid #fadbd8; padding:6px 12px; border-radius:8px; font-size:0.95em; font-weight:bold; align-self:flex-start;">➕ ${o.replace('+', ' +')}</span>`).join('') + 
+                        `</div>`;
+            }
+            // 藍色標籤 (飲料與冰塊甜度)
             if (drinkGroup.length > 0) {
-                let mt = normalGroup.length > 0 ? '8px' : '0px';
+                let mt = (normalGroup.length > 0 || addonGroup.length > 0) ? '8px' : '0px';
                 html += `<div style="display:block; width:100%; margin-top: ${mt};"><span style="display:inline-block; background:#e8f4f8; color:#2980b9; border:1px solid #bce0fd; padding:6px 12px; border-radius:8px; font-size:0.95em; font-weight:bold;">🥤 ${drinkGroup.join(' | ')}</span></div>`;
             }
             return html;
@@ -337,8 +353,6 @@
                     if (data.settings.promoDiscountRate !== undefined) shopSettings.promoDiscountRate = data.settings.promoDiscountRate;
                     if (data.settings.promoDeductCode !== undefined) shopSettings.promoDeductCode = data.settings.promoDeductCode;
                     if (data.settings.promoDeductAmount !== undefined) shopSettings.promoDeductAmount = data.settings.promoDeductAmount;
-                    
-                    // 🌟 讀取外送服務設定
                     if (data.settings.enableDelivery !== undefined) shopSettings.enableDelivery = data.settings.enableDelivery;
                 }
                 if (data.menu && data.menu.length > 0) {
@@ -612,7 +626,6 @@
             
             initUrlLocks(todayOver);
 
-            // 🌟 判斷外送服務是否開啟，且今日未結束才顯示
             const urlParams = new URLSearchParams(window.location.search);
             if (!urlParams.get('table') && !urlParams.get('type')) {
                 if (shopSettings.enableDelivery && !todayOver) {
@@ -666,7 +679,6 @@
             setInterval(() => loadMsgs(false), 5000); 
         }
 
-        // 🌟 更新時間日期選單：如果是外送，強制只能選今天！
         function renderPickupDateSelection(todayOver, tomorrowClosed) {
             const container = document.getElementById("date-selection"); 
             const diningType = document.querySelector('input[name="diningType"]:checked');
@@ -676,7 +688,7 @@
             if (!todayOver) {
                 html += `<label><input type="radio" name="pickupDate" value="${todayMMDD}" checked onchange="handleDateChange()"> 📅 ${todayMMDD}</label>`; 
             }
-            if (!tomorrowClosed && !isDelivery) { // 外送隱藏明日選項
+            if (!tomorrowClosed && !isDelivery) { 
                 const checkedStr = todayOver ? "checked" : "";
                 html += `<label><input type="radio" name="pickupDate" value="${tomorrowMMDD}" ${checkedStr} onchange="handleDateChange()"> 📅 ${tomorrowMMDD}</label>`;
             }
@@ -756,7 +768,6 @@
                     rSpec.checked = false;
                 }
                 
-                // 重繪日期選單以隱藏或顯示明日選項
                 const tomorrowClosed = isDayClosed(new Date(new Date().getTime() + 86400000));
                 renderPickupDateSelection(todayOver, tomorrowClosed);
                 
@@ -1089,7 +1100,6 @@
                 localStorage.setItem('savedCustomerName', customerName);
                 localStorage.setItem('savedCustomerPhone', customerPhone); 
                 
-                // 🌟 外送地址驗證
                 if (baseDiningType === "外送") {
                     deliveryAddr = document.getElementById("customer-address").value.trim();
                     if (!deliveryAddr) { alert("⚠️ 選擇「外送」請務必填寫外送地址！"); document.getElementById("customer-address").focus(); return; }
@@ -1104,7 +1114,6 @@
             let pickupAddonText = "";
             let orderDateBackend = getTodayDateString();
             
-            // 🌟 組合外送與自取的字眼
             if (baseDiningType === "外送") {
                 pickupAddonText = ` (送至: ${deliveryAddr})`;
             }
