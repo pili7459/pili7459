@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>專屬線上點餐</title>
     <style>
+        /* 修改：把 max-width 變成 100%，讓電腦版可以全螢幕填滿 */
         body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: #f4f4f9; margin: 0; padding: 0; color: #333; height: 100dvh; display: flex; }
-
+        
         .app-container { background-color: #f4f4f9; max-width: 100%; width: 100%; height: 100dvh; position: relative; display: flex; overflow: hidden; }
         
         h1, h2 { text-align: center; color: #2c3e50; margin-top: 15px; }
@@ -110,13 +111,33 @@
         .chat-input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 20px; font-size: 1em; outline: none; }
         .chat-send-btn { background: #8e44ad; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 1.2em; cursor: pointer; display: flex; justify-content: center; align-items: center; }
         .chat-login { padding: 20px; display: flex; flex-direction: column; gap: 15px; margin-top: 50px; }
-        /* 讓套餐名稱保留 Google Sheets 的換行分段顯示 */
+
+        /* 新增：讓套餐名稱保留 Google Sheets 的換行分段顯示 */
         .item-info h3, 
         .cart-item-main strong, 
         #modal-item-name, 
         .order-item-row span {
             white-space: pre-wrap;
             line-height: 1.4;
+        }
+
+        /* 新增：專門針對電腦大螢幕的滿版網格排版優化 */
+        @media (min-width: 768px) {
+            .category-items-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+                gap: 15px;
+                padding: 0 15px;
+            }
+            .menu-item {
+                margin: 0 !important;
+                height: 100%;
+            }
+            .cart, .order-card {
+                max-width: 800px;
+                margin-left: auto !important;
+                margin-right: auto !important;
+            }
         }
     </style>
 </head>
@@ -278,7 +299,7 @@
     </div> 
 
     <script>
-        // ⚠️ 請填寫最新的 API 網址
+        // ⚠️ API 網址維持不變，已經幫您放好了
         const API_URL = "https://script.google.com/macros/s/AKfycbxTGrRGwx5aNc6LDKOkevrQVRN4Q_n8ERZqzUgi59cuALgED4pIjkcNMFDOIdQIrkcm/exec";
 
         let shopSettings = { closedDaysOfWeek: [], closedDates: [], openTime: "06:00", closeTime: "13:00", minTable: 1, maxTable: 20, promoDiscountCode: "", promoDiscountRate: 1, promoDeductCode: "", promoDeductAmount: 0, enableDelivery: false };
@@ -291,7 +312,6 @@
         let isChatOpen = false;
         let lastMsgCount = parseInt(localStorage.getItem('customerMsgCount')) || 0; 
 
-        // 🌟 核心升級 1：精準排除「熱狗」，並將「加購」判定為淡紅色塊
         function buildBadgesHtml(optionsText, itemName) {
             if (!optionsText) return '';
             let opts = optionsText.split(',').map(o => o.trim());
@@ -303,14 +323,12 @@
 
             opts.forEach(opt => {
                 let baseOpt = opt.split('+')[0].trim(); 
-                // 排除熱狗，只抓冰溫熱糖
                 let isDrinkModifier = /^(冰|溫|熱(?!狗)|常溫|去冰|微冰|少冰|正常冰|無糖|微糖|半糖|少糖|全糖|有糖|正常糖|固定)$/.test(baseOpt);
                 let isBeverage = /(紅茶|綠茶|青茶|烏龍|奶茶|鮮奶茶|拿鐵|咖啡|豆漿|米漿|冬瓜|可樂|雪碧|果汁)/.test(baseOpt);
 
                 if (isDrinkModifier || (!isItemDrink && isBeverage)) {
                     drinkGroup.push(opt.replace('+', ' +')); 
                 } else {
-                    // 如果是用客製化字眼開頭的，歸類為一般灰色標籤。否則歸為淡紅色加購標籤。
                     let isCustomization = /^(不|加|少|多|去|半|微|全|正常|焦|烤|切|醬|胡麻|千島|和風|煉乳|胡椒|鹽)/.test(baseOpt);
                     if (isCustomization) {
                         normalGroup.push(opt);
@@ -321,18 +339,15 @@
             });
 
             let html = '';
-            // 灰色標籤 (不要焦, 加起司...)
             if (normalGroup.length > 0) {
                 html += normalGroup.map(o => `<span style="display:inline-block; background:#eef2f5; color:#34495e; border:1px solid #dcdde1; padding:4px 10px; border-radius:15px; margin:4px 6px 0 0; font-size:0.9em; font-weight:bold;">${o}</span>`).join('');
             }
-            // 淡紅色標籤 (獨立單行，專屬加購小點)
             if (addonGroup.length > 0) {
                 let mt = (normalGroup.length > 0) ? '8px' : '0px';
                 html += `<div style="display:flex; flex-direction:column; gap:6px; margin-top: ${mt};">` + 
                         addonGroup.map(o => `<span style="display:inline-block; background:#fdf2f2; color:#c0392b; border:1px solid #fadbd8; padding:6px 12px; border-radius:8px; font-size:0.95em; font-weight:bold; align-self:flex-start;">➕ ${o.replace('+', ' +')}</span>`).join('') + 
                         `</div>`;
             }
-            // 藍色標籤 (飲料與冰塊甜度)
             if (drinkGroup.length > 0) {
                 let mt = (normalGroup.length > 0 || addonGroup.length > 0) ? '8px' : '0px';
                 html += `<div style="display:block; width:100%; margin-top: ${mt};"><span style="display:inline-block; background:#e8f4f8; color:#2980b9; border:1px solid #bce0fd; padding:6px 12px; border-radius:8px; font-size:0.95em; font-weight:bold;">🥤 ${drinkGroup.join(' | ')}</span></div>`;
@@ -792,14 +807,14 @@
             updateBanner(); 
         }
         
+        /* 🔧 修改：新增自動置頂語法，修復往上滑卡住的問題 */
         function showStatusView() { 
-    document.getElementById("menu-view").style.display = "none"; 
-    document.getElementById("order-status-view").style.display = "block"; 
-    document.getElementById("side-nav").style.display = "none"; 
-    renderOrdersList(); 
-    // ⬇️ 新增這行：確保切換到號碼牌頁面時，捲軸自動回到最上方
-    document.getElementById("main-content").scrollTop = 0;
-}
+            document.getElementById("menu-view").style.display = "none"; 
+            document.getElementById("order-status-view").style.display = "block"; 
+            document.getElementById("side-nav").style.display = "none"; 
+            renderOrdersList();
+            document.getElementById("main-content").scrollTop = 0; 
+        }
         
         function continueOrdering() { 
             currentCategoryFilter = '全部';
@@ -1058,6 +1073,7 @@
             totalSpan.innerText = finalTotal;
         }
 
+        /* 🔧 修改：保護 POS 出單機解析引擎的替換程式碼 */
         function submitOrder() {
             if (Object.keys(cart).length === 0) { alert("購物車是空的喔！"); return; }
             
@@ -1155,7 +1171,7 @@
             for (let k in cart) {
                 let item = cart[k]; total += item.price * item.qty;
                 
-                // 將品名中的換行轉為空白，確保 POS 出單機能正確解析整段套餐名
+                // 這裡就是您剛才加入的替換程式碼，確保出單機不漏單！
                 let safeName = item.name.replace(/\n/g, ' '); 
                 detailsText += `${safeName} x ${item.qty}\n`;
                 
@@ -1439,28 +1455,7 @@
             }
             updateBanner();
         }
-/* 專門針對電腦大螢幕的排版優化 */
-        @media (min-width: 768px) {
-            /* 餐點自動變成兩排或三排的卡片並列 */
-            .category-items-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-                gap: 15px;
-                padding: 0 15px;
-            }
-            .menu-item {
-                margin: 0 !important; /* 取消原本的邊距，交給排版引擎處理 */
-                height: 100%; /* 讓卡片高度一致 */
-            }
-            
-            /* 讓購物車與號碼牌區塊在電腦上置中且不要無限拉長 */
-            .cart, .order-card {
-                max-width: 800px;
-                margin-left: auto !important;
-                margin-right: auto !important;
-            }
-        }
-        
+
     </script>
 </body>
 </html>
