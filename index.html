@@ -837,7 +837,7 @@
             navDiv.innerHTML = html;
         }
         
-        function filterCategory(categoryName) {
+       function filterCategory(categoryName) {
             currentCategoryFilter = categoryName;
             renderNavBar(); 
             
@@ -849,17 +849,23 @@
             } else {
                 document.getElementById("cart-section").style.display = "none";
                 const grids = document.querySelectorAll(".category-section");
-                grids.forEach(g => {
-                    g.style.display = "block"; 
-                });
                 
                 if (categoryName === '全部') {
+                    // 點擊「全部」時：顯示所有分類區塊
+                    grids.forEach(g => {
+                        g.style.display = "block"; 
+                    });
                     document.getElementById("main-content").scrollTo({ top: 0, behavior: 'smooth' }); 
                 } else {
-                    let target = document.getElementById(`section-${categoryName}`);
-                    if (target) {
-                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
+                    // 點擊特定分類 (例如「蛋餅」) 時：只顯示該分類，其他全部隱藏
+                    grids.forEach(g => {
+                        if (g.id === `section-${categoryName}`) {
+                            g.style.display = "block";
+                        } else {
+                            g.style.display = "none";
+                        }
+                    });
+                    document.getElementById("main-content").scrollTo({ top: 0, behavior: 'smooth' });
                 }
             }
         }
