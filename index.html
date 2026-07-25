@@ -43,7 +43,7 @@
         .cart { background: #fff; padding: 20px; border-radius: 10px; margin: 15px 15px 120px 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
         .cart-item { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 12px; }
         .cart-item-main { display: flex; justify-content: space-between; align-items: flex-start; flex-direction: column; gap: 10px;}
-        .cart-item-options { font-size: 0.9em; color: #7f8c8d; margin-top: 5px; } 
+        .cart-item-options { font-size: 0.9em; color: #7f8c8d; margin-top: 5px; width: 100%;} 
         .total { font-size: 1.3em; font-weight: bold; text-align: right; margin-top: 15px; color: #2c3e50; }
         .checkout-options { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px solid #e9ecef;}
         .checkout-options h3 { margin: 0 0 10px 0; font-size: 1.1em; color: #2c3e50; border-bottom: 2px solid #ccc; padding-bottom: 5px;}
@@ -104,7 +104,7 @@
         .chat-bubble { max-width: 80%; padding: 10px 15px; border-radius: 15px; line-height: 1.4; word-wrap: break-word; position: relative; }
         .chat-customer { background: #3498db; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
         .chat-owner { background: #e0e0e0; color: #333; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .chat-time { font-size: 0.7em; color: #999; margin-top: 5px; text-align: right; }
+        .chat-time { font-size: 0.7em; color: #999; margin-top: 5px; text-align: left; }
         .chat-owner .chat-time { text-align: left; }
         .chat-footer { background: #fff; padding: 10px; border-top: 1px solid #ddd; display: flex; gap: 10px; align-items: center; }
         .chat-input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 20px; font-size: 1em; outline: none; }
@@ -197,7 +197,8 @@
                     <button class="submit-btn" onclick="submitOrder()">送出訂單</button>
                 </div>
             </div>
-            
+
+            <!-- 🌟 訂單進度頁面 -->
             <div id="order-status-view">
                 <h2 style="margin-top:0;">📝 點餐進度與號碼牌</h2>
                 <div id="orders-list"></div>
@@ -205,6 +206,7 @@
             </div>
         </div>
 
+        <!-- 🌟 右下角雙子星 FAB 浮動按鈕 -->
         <div class="fab-container">
             <div class="fab-btn fab-cart" id="fab-cart" onclick="filterCategory('購物車')">
                 🛒
@@ -216,10 +218,15 @@
             </div>
         </div>
 
+        <!-- 內部對話框 -->
         <div id="chat-modal">
             <div class="chat-header">
                 <span>💬 聯絡店家</span>
-                <span onclick="closeChat()" style="cursor:pointer; font-size:1.5em; line-height:1;">×</span>
+                <!-- 🌟 加入切換帳號按鈕 -->
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <span onclick="logoutChat()" style="cursor:pointer; font-size:0.8em; background:rgba(255,255,255,0.2); padding:4px 10px; border-radius:15px;">切換帳號</span>
+                    <span onclick="closeChat()" style="cursor:pointer; font-size:1.5em; line-height:1;">×</span>
+                </div>
             </div>
             
             <div id="chat-login-area" class="chat-login">
@@ -273,6 +280,38 @@
         let chatTimer = null;
         let isChatOpen = false;
         let lastMsgCount = parseInt(localStorage.getItem('customerMsgCount')) || 0; 
+
+        // 🌟 智慧判斷並組合標籤的 HTML
+        function buildBadgesHtml(optionsText, itemName) {
+            if (!optionsText) return '';
+            let opts = optionsText.split(',').map(o => o.trim());
+            let normalGroup = [];
+            let drinkGroup = [];
+
+            let isItemDrink = /(茶|奶|咖啡|拿鐵|豆漿|冬瓜|飲)/.test(itemName) && !/(餐|麵|堡|吐司|蛋餅|捲餅|厚片|飯糰)/.test(itemName);
+
+            opts.forEach(opt => {
+                let baseOpt = opt.split('+')[0].trim(); 
+                let isModifier = /^(冰|溫|熱|常溫|去冰|微冰|少冰|正常冰|無糖|微糖|半糖|少糖|全糖|有糖|正常糖)$/.test(baseOpt) || /(冰|溫|熱|糖)/.test(baseOpt);
+                let isBeverage = /(紅茶|綠茶|青茶|烏龍|奶茶|鮮奶茶|拿鐵|咖啡|豆漿|米漿|冬瓜|可樂|雪碧|果汁)/.test(baseOpt);
+
+                if (isModifier || (!isItemDrink && isBeverage)) {
+                    drinkGroup.push(opt.replace('+', ' +')); 
+                } else {
+                    normalGroup.push(opt);
+                }
+            });
+
+            let html = '';
+            if (normalGroup.length > 0) {
+                html += normalGroup.map(o => `<span style="display:inline-block; background:#eef2f5; color:#34495e; border:1px solid #dcdde1; padding:4px 10px; border-radius:15px; margin:4px 6px 0 0; font-size:0.9em; font-weight:bold;">${o}</span>`).join('');
+            }
+            if (drinkGroup.length > 0) {
+                let mt = normalGroup.length > 0 ? '8px' : '0px';
+                html += `<div style="display:block; width:100%; margin-top: ${mt};"><span style="display:inline-block; background:#e8f4f8; color:#2980b9; border:1px solid #bce0fd; padding:6px 12px; border-radius:8px; font-size:0.95em; font-weight:bold;">🥤 ${drinkGroup.join(' | ')}</span></div>`;
+            }
+            return html;
+        }
 
         function getMMDD(dateObj) {
             return String(dateObj.getMonth() + 1).padStart(2, '0') + '/' + String(dateObj.getDate()).padStart(2, '0');
@@ -348,6 +387,22 @@
         function closeChat() {
             isChatOpen = false;
             document.getElementById("chat-modal").style.display = "none";
+        }
+        
+        // 🌟 新增登出/清除資料功能
+        function logoutChat() {
+            if(confirm("確定要清除目前記住的聯絡資訊嗎？\n(清除後可模擬全新客人的狀態)")) {
+                localStorage.removeItem('savedCustomerName');
+                localStorage.removeItem('savedCustomerPhone');
+                document.getElementById("chat-name").value = "";
+                document.getElementById("chat-phone").value = "";
+                document.getElementById("customer-name").value = "";
+                document.getElementById("customer-phone").value = "";
+                
+                document.getElementById("chat-login-area").style.display = "flex";
+                document.getElementById("chat-messages-area").style.display = "none";
+                document.getElementById("chat-input-area").style.display = "none";
+            }
         }
 
         function startChat() {
@@ -913,9 +968,8 @@
             for (let cartKey in cart) {
                 let item = cart[cartKey]; let itemTotal = item.price * item.qty; subtotal += itemTotal;
                 
-                // 🌟 把購物車裡面的文字選項，拆成漂亮的標籤
-                let badges = item.optionsText ? item.optionsText.split(',').map(o => `<span style="display:inline-block; background:#fff; color:#7f8c8d; border: 1px solid #ccc; padding:4px 8px; border-radius:15px; margin:4px 6px 0 0; font-size:0.85em; font-weight:bold;">${o.trim()}</span>`).join('') : '';
-                let optHtml = badges ? `<div class="cart-item-options" style="margin-top: 5px; line-height:1.6;">${badges}</div>` : '';
+                let optHtml = item.optionsText ? buildBadgesHtml(item.optionsText, item.name) : '';
+                optHtml = optHtml ? `<div class="cart-item-options" style="margin-top: 5px; width: 100%;">${optHtml}</div>` : '';
                 
                 cartDiv.innerHTML += `<div class="cart-item"><div class="cart-item-main"><div style="flex:1;"><strong>${item.name}</strong>${optHtml}</div><div class="qty-control" style="transform: scale(0.9);"><button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '${item.name}', ${item.price}, '${item.optionsText}', -1)">-</button><span class="qty-number">${item.qty}</span><button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '${item.name}', ${item.price}, '${item.optionsText}', 1)">+</button></div><div style="width: 50px; text-align: right; font-weight: bold; font-size: 1.1em;">$${itemTotal}</div></div></div>`;
             }
@@ -1117,8 +1171,7 @@
                     const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
                     renderPickupDateSelection(todayOver, isDayClosed(tomorrow)); 
                     
-                    // 🌟 訂單送出後，強制更新選單畫面，把舊有的紅點洗掉
-                    renderMenu();
+                    renderMenu(); 
                     updateCartUI(); 
                     
                     document.getElementById("loading-screen").innerHTML = `<h2>🔄 正在與總部連線...</h2><p>同步今日營業資訊中</p>`;
@@ -1246,14 +1299,13 @@
                 for (let k in order.cartData) {
                     let item = order.cartData[k]; 
                     
-                    // 🌟 訂單進度畫面的標籤化顯示
-                    let badges = item.optionsText ? item.optionsText.split(',').map(o => `<span style="display:inline-block; background:#e8f4f8; color:#2980b9; padding:4px 10px; border-radius:15px; border:1px solid #bce0fd; margin:4px 6px 0 0; font-size:0.85em; font-weight:bold;">${o.trim()}</span>`).join('') : '';
+                    let badgesHtml = item.optionsText ? buildBadgesHtml(item.optionsText, item.name) : '';
                     
                     detailsText += `<div class="order-item-row" style="margin-bottom:15px; background: #fafafa; padding: 12px; border-radius: 10px; border: 1px solid #eee;">
                                         <div style="font-size:1.15em; color:#2c3e50; font-weight:bold; display: flex; justify-content: space-between;">
                                             <span>${item.name}</span> <span style="color:#e74c3c;">x ${item.qty}</span>
                                         </div>`;
-                    if(badges) detailsText += `<div class="order-item-opts" style="padding-left:0; margin-top:8px; line-height:1.6;">${badges}</div>`;
+                    if(badgesHtml) detailsText += `<div class="order-item-opts" style="padding-left:0; margin-top:8px; line-height:1.6;">${badgesHtml}</div>`;
                     detailsText += `</div>`;
                 }
 
