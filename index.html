@@ -5,25 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>專屬線上點餐</title>
     <style>
-        body { 
-    font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: #333; margin: 0; padding: 0; color: #333; height: 100dvh; display: flex; justify-content: center; 
-    align-items: center; /* 新增：讓電腦版畫面垂直置中 */
-}
+        body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: #f4f4f9; margin: 0; padding: 0; color: #333; height: 100dvh; display: flex; }
 
-.app-container { 
-    background-color: #f4f4f9; 
-    max-width: 430px; /* 從 500px 縮小至 430px，讓比例更貼近真實手機 */ 
-    width: 100%; height: 100dvh; position: relative; display: flex; box-shadow: 0 0 30px rgba(0,0,0,0.6); overflow: hidden; 
-}
-
-/* 新增：專門針對電腦螢幕 (寬度大於 500px) 的優化 */
-@media (min-width: 500px) {
-    .app-container {
-        height: 90vh; /* 上下保留一點空間 */
-        max-height: 850px; /* 限制最大高度 */
-        border-radius: 20px; /* 加上圓角，看起來像手機螢幕 */
-    }
-}
+        .app-container { background-color: #f4f4f9; max-width: 100%; width: 100%; height: 100dvh; position: relative; display: flex; overflow: hidden; }
         
         h1, h2 { text-align: center; color: #2c3e50; margin-top: 15px; }
         
@@ -1455,7 +1439,28 @@
             }
             updateBanner();
         }
-
+/* 專門針對電腦大螢幕的排版優化 */
+        @media (min-width: 768px) {
+            /* 餐點自動變成兩排或三排的卡片並列 */
+            .category-items-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+                gap: 15px;
+                padding: 0 15px;
+            }
+            .menu-item {
+                margin: 0 !important; /* 取消原本的邊距，交給排版引擎處理 */
+                height: 100%; /* 讓卡片高度一致 */
+            }
+            
+            /* 讓購物車與號碼牌區塊在電腦上置中且不要無限拉長 */
+            .cart, .order-card {
+                max-width: 800px;
+                margin-left: auto !important;
+                margin-right: auto !important;
+            }
+        }
+        
     </script>
 </body>
 </html>
