@@ -5,9 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>專屬線上點餐</title>
     <style>
-        body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: #333; margin: 0; padding: 0; color: #333; height: 100dvh; display: flex; justify-content: center; }
-        
-        .app-container { background-color: #f4f4f9; max-width: 500px; width: 100%; height: 100dvh; position: relative; display: flex; box-shadow: 0 0 20px rgba(0,0,0,0.5); overflow: hidden; }
+        body { 
+    font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: #333; margin: 0; padding: 0; color: #333; height: 100dvh; display: flex; justify-content: center; 
+    align-items: center; /* 新增：讓電腦版畫面垂直置中 */
+}
+
+.app-container { 
+    background-color: #f4f4f9; 
+    max-width: 430px; /* 從 500px 縮小至 430px，讓比例更貼近真實手機 */ 
+    width: 100%; height: 100dvh; position: relative; display: flex; box-shadow: 0 0 30px rgba(0,0,0,0.6); overflow: hidden; 
+}
+
+/* 新增：專門針對電腦螢幕 (寬度大於 500px) 的優化 */
+@media (min-width: 500px) {
+    .app-container {
+        height: 90vh; /* 上下保留一點空間 */
+        max-height: 850px; /* 限制最大高度 */
+        border-radius: 20px; /* 加上圓角，看起來像手機螢幕 */
+    }
+}
         
         h1, h2 { text-align: center; color: #2c3e50; margin-top: 15px; }
         
@@ -793,11 +809,13 @@
         }
         
         function showStatusView() { 
-            document.getElementById("menu-view").style.display = "none"; 
-            document.getElementById("order-status-view").style.display = "block"; 
-            document.getElementById("side-nav").style.display = "none"; 
-            renderOrdersList(); 
-        }
+    document.getElementById("menu-view").style.display = "none"; 
+    document.getElementById("order-status-view").style.display = "block"; 
+    document.getElementById("side-nav").style.display = "none"; 
+    renderOrdersList(); 
+    // ⬇️ 新增這行：確保切換到號碼牌頁面時，捲軸自動回到最上方
+    document.getElementById("main-content").scrollTop = 0;
+}
         
         function continueOrdering() { 
             currentCategoryFilter = '全部';
