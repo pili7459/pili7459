@@ -110,6 +110,14 @@
         .chat-input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 20px; font-size: 1em; outline: none; }
         .chat-send-btn { background: #8e44ad; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 1.2em; cursor: pointer; display: flex; justify-content: center; align-items: center; }
         .chat-login { padding: 20px; display: flex; flex-direction: column; gap: 15px; margin-top: 50px; }
+        /* 讓套餐名稱保留 Google Sheets 的換行分段顯示 */
+        .item-info h3, 
+        .cart-item-main strong, 
+        #modal-item-name, 
+        .order-item-row span {
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
@@ -1144,7 +1152,11 @@
             let total = 0; let detailsText = ""; 
             for (let k in cart) {
                 let item = cart[k]; total += item.price * item.qty;
-                detailsText += `${item.name} x ${item.qty}\n`;
+                
+                // 將品名中的換行轉為空白，確保 POS 出單機能正確解析整段套餐名
+                let safeName = item.name.replace(/\n/g, ' '); 
+                detailsText += `${safeName} x ${item.qty}\n`;
+                
                 if(item.optionsText) detailsText += `  └ ${item.optionsText}\n`;
             }
             
