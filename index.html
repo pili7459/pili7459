@@ -76,7 +76,7 @@
         .cancel-small-btn { background: #e74c3c; color: white; border: none; padding: 8px 12px; border-radius: 5px; font-size: 0.9em; margin-top: 15px; cursor: pointer; width: 100%; font-weight:bold;}
         .continue-btn { background: #f39c12; color: white; border: none; padding: 15px; font-size: 1.2em; border-radius: 8px; font-weight: bold; width: 100%; margin-bottom: 15px; cursor: pointer; }
         
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: flex; justify-content: center; align-items: flex-end; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; justify-content: center; align-items: flex-end; }
         .modal-content { background: #fff; width: 100%; max-width: 500px; border-radius: 20px 20px 0 0; padding: 20px; box-sizing: border-box; animation: slideUp 0.3s ease-out; max-height: 85vh; overflow-y: auto;}
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;}
@@ -104,7 +104,7 @@
         .chat-bubble { max-width: 80%; padding: 10px 15px; border-radius: 15px; line-height: 1.4; word-wrap: break-word; position: relative; }
         .chat-customer { background: #3498db; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
         .chat-owner { background: #e0e0e0; color: #333; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .chat-time { font-size: 0.7em; color: #999; margin-top: 5px; text-align: left; }
+        .chat-time { font-size: 0.7em; color: #999; margin-top: 5px; text-align: right; }
         .chat-owner .chat-time { text-align: left; }
         .chat-footer { background: #fff; padding: 10px; border-top: 1px solid #ddd; display: flex; gap: 10px; align-items: center; }
         .chat-input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 20px; font-size: 1em; outline: none; }
@@ -143,6 +143,8 @@
                         <div class="radio-group" id="dining-radios">
                             <label><input type="radio" name="diningType" value="外帶" onchange="toggleCheckoutInputs()"> 外帶</label>
                             <label><input type="radio" name="diningType" value="自取" onchange="toggleCheckoutInputs()"> 自取</label>
+                            <!-- 🌟 新增外送選項，預設隱藏 -->
+                            <label id="label-delivery-radio" style="display:none;"><input type="radio" name="diningType" value="外送" onchange="toggleCheckoutInputs()"> 外送</label>
                             <label><input type="radio" name="diningType" value="內用" checked onchange="toggleCheckoutInputs()"> 內用</label>
                         </div>
                         
@@ -157,7 +159,7 @@
                             <div id="specific-time-container" style="display:none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #eee;">
                                 <div class="radio-group" id="date-selection" style="margin-top: 0; margin-bottom: 15px;"></div>
                                 <select id="pickup-time" class="table-input">
-                                    <option value="" disabled selected>👉 請選擇取餐時間</option>
+                                    <option value="" disabled selected>👉 請選擇時間</option>
                                 </select>
                                 <div style="font-size:0.85em; color:#e74c3c; margin-top:5px;" id="shop-hours-text"></div>
                             </div>
@@ -168,9 +170,15 @@
                         </div>
 
                         <div id="contact-info-container" style="display: none; margin-top: 15px;">
-                            <input type="text" id="customer-name" placeholder="👉 請輸入姓名 (自取必填)" class="table-input">
+                            <input type="text" id="customer-name" placeholder="👉 請輸入姓名" class="table-input">
                             <div style="font-size:0.8em; color:#7f8c8d; margin-top:3px; margin-left:5px;">※ 姓名最多 5 個中文字或 10 個英文字母</div>
-                            <input type="tel" id="customer-phone" placeholder="👉 請輸入手機號碼 (自取必填)" class="table-input" style="margin-top: 10px;">
+                            <input type="tel" id="customer-phone" placeholder="👉 請輸入手機號碼" class="table-input" style="margin-top: 10px;">
+                        </div>
+                        
+                        <!-- 🌟 新增外送地址區塊 -->
+                        <div id="address-container" style="display: none; margin-top: 15px;">
+                            <input type="text" id="customer-address" placeholder="👉 請輸入外送地址 (含樓層/備註)" class="table-input">
+                            <div style="font-size:0.8em; color:#e74c3c; margin-top:3px; margin-left:5px;">※ 外送僅限今日或立即，無法預訂明日</div>
                         </div>
 
                         <h3 style="margin-top:25px;">🎟️ 優惠碼</h3>
@@ -198,7 +206,6 @@
                 </div>
             </div>
 
-            <!-- 🌟 訂單進度頁面 -->
             <div id="order-status-view">
                 <h2 style="margin-top:0;">📝 點餐進度與號碼牌</h2>
                 <div id="orders-list"></div>
@@ -206,7 +213,6 @@
             </div>
         </div>
 
-        <!-- 🌟 右下角雙子星 FAB 浮動按鈕 -->
         <div class="fab-container">
             <div class="fab-btn fab-cart" id="fab-cart" onclick="filterCategory('購物車')">
                 🛒
@@ -218,11 +224,9 @@
             </div>
         </div>
 
-        <!-- 內部對話框 -->
         <div id="chat-modal">
             <div class="chat-header">
                 <span>💬 聯絡店家</span>
-                <!-- 🌟 加入切換帳號按鈕 -->
                 <div style="display:flex; align-items:center; gap:15px;">
                     <span onclick="logoutChat()" style="cursor:pointer; font-size:0.8em; background:rgba(255,255,255,0.2); padding:4px 10px; border-radius:15px;">切換帳號</span>
                     <span onclick="closeChat()" style="cursor:pointer; font-size:1.5em; line-height:1;">×</span>
@@ -271,7 +275,7 @@
         // ⚠️ 請填寫最新的 API 網址
         const API_URL = "https://script.google.com/macros/s/AKfycbxTGrRGwx5aNc6LDKOkevrQVRN4Q_n8ERZqzUgi59cuALgED4pIjkcNMFDOIdQIrkcm/exec";
 
-        let shopSettings = { closedDaysOfWeek: [], closedDates: [], openTime: "06:00", closeTime: "13:00", minTable: 1, maxTable: 20, promoDiscountCode: "", promoDiscountRate: 1, promoDeductCode: "", promoDeductAmount: 0 };
+        let shopSettings = { closedDaysOfWeek: [], closedDates: [], openTime: "06:00", closeTime: "13:00", minTable: 1, maxTable: 20, promoDiscountCode: "", promoDiscountRate: 1, promoDeductCode: "", promoDeductAmount: 0, enableDelivery: false };
         let menuData = []; let categories = [];
         let cart = {}; let allOrders = []; let currentModalItem = null; 
         let currentCategoryFilter = '全部';
@@ -281,7 +285,6 @@
         let isChatOpen = false;
         let lastMsgCount = parseInt(localStorage.getItem('customerMsgCount')) || 0; 
 
-        // 🌟 智慧判斷並組合標籤的 HTML
         function buildBadgesHtml(optionsText, itemName) {
             if (!optionsText) return '';
             let opts = optionsText.split(',').map(o => o.trim());
@@ -334,6 +337,9 @@
                     if (data.settings.promoDiscountRate !== undefined) shopSettings.promoDiscountRate = data.settings.promoDiscountRate;
                     if (data.settings.promoDeductCode !== undefined) shopSettings.promoDeductCode = data.settings.promoDeductCode;
                     if (data.settings.promoDeductAmount !== undefined) shopSettings.promoDeductAmount = data.settings.promoDeductAmount;
+                    
+                    // 🌟 讀取外送服務設定
+                    if (data.settings.enableDelivery !== undefined) shopSettings.enableDelivery = data.settings.enableDelivery;
                 }
                 if (data.menu && data.menu.length > 0) {
                     menuData = data.menu;
@@ -389,15 +395,16 @@
             document.getElementById("chat-modal").style.display = "none";
         }
         
-        // 🌟 新增登出/清除資料功能
         function logoutChat() {
             if(confirm("確定要清除目前記住的聯絡資訊嗎？\n(清除後可模擬全新客人的狀態)")) {
                 localStorage.removeItem('savedCustomerName');
                 localStorage.removeItem('savedCustomerPhone');
+                localStorage.removeItem('savedCustomerAddress');
                 document.getElementById("chat-name").value = "";
                 document.getElementById("chat-phone").value = "";
                 document.getElementById("customer-name").value = "";
                 document.getElementById("customer-phone").value = "";
+                document.getElementById("customer-address").value = "";
                 
                 document.getElementById("chat-login-area").style.display = "flex";
                 document.getElementById("chat-messages-area").style.display = "none";
@@ -511,7 +518,7 @@
 
         function generateTimeOptions() {
             const timeSelect = document.getElementById("pickup-time");
-            timeSelect.innerHTML = '<option value="" disabled selected>👉 請選擇取餐時間</option>';
+            timeSelect.innerHTML = '<option value="" disabled selected>👉 請選擇時間</option>';
             const [openHour, openMin] = shopSettings.openTime.split(":").map(Number);
             const [closeHour, closeMin] = shopSettings.closeTime.split(":").map(Number);
             
@@ -559,6 +566,7 @@
                     dineInRadio.checked = true;
                     takeoutRadio.parentElement.style.display = 'none';
                     pickupRadio.parentElement.style.display = 'none';
+                    document.getElementById("label-delivery-radio").style.display = 'none';
                     document.getElementById("dining-title").innerHTML = `🍽️ 內用點餐 (第 ${tableParam} 桌)`;
                     const tableInput = document.getElementById("table-number");
                     tableInput.value = tableParam;
@@ -568,17 +576,20 @@
                     takeoutRadio.checked = true;
                     dineInRadio.parentElement.style.display = 'none';
                     pickupRadio.parentElement.style.display = 'none';
+                    document.getElementById("label-delivery-radio").style.display = 'none';
                     document.getElementById("dining-title").innerHTML = `🍽️ 外帶點餐`;
                 } else if (typeParam === 'pickup') {
                     pickupRadio.checked = true;
                     dineInRadio.parentElement.style.display = 'none';
                     takeoutRadio.parentElement.style.display = 'none';
+                    document.getElementById("label-delivery-radio").style.display = 'none';
                     document.getElementById("dining-title").innerHTML = `🍽️ 自取預訂`;
                 }
             } else {
                 pickupRadio.checked = true;
                 dineInRadio.parentElement.style.display = 'none';
                 takeoutRadio.parentElement.style.display = 'none';
+                document.getElementById("label-delivery-radio").style.display = 'none';
                 document.getElementById("dining-title").innerHTML = `🍽️ 預訂 ${tomorrowMMDD} 餐點 (自取)`;
             }
         }
@@ -588,6 +599,7 @@
             
             document.getElementById("customer-name").value = localStorage.getItem('savedCustomerName') || "";
             document.getElementById("customer-phone").value = localStorage.getItem('savedCustomerPhone') || "";
+            document.getElementById("customer-address").value = localStorage.getItem('savedCustomerAddress') || "";
 
             const todayObj = new Date();
             const tomorrowObj = new Date(); tomorrowObj.setDate(tomorrowObj.getDate() + 1);
@@ -599,6 +611,16 @@
             const tomorrowClosed = isDayClosed(tomorrowObj);
             
             initUrlLocks(todayOver);
+
+            // 🌟 判斷外送服務是否開啟，且今日未結束才顯示
+            const urlParams = new URLSearchParams(window.location.search);
+            if (!urlParams.get('table') && !urlParams.get('type')) {
+                if (shopSettings.enableDelivery && !todayOver) {
+                    document.getElementById("label-delivery-radio").style.display = 'inline-flex';
+                } else {
+                    document.getElementById("label-delivery-radio").style.display = 'none';
+                }
+            }
 
             const bannerContainer = document.getElementById("closed-banner-container");
             const menuEl = document.getElementById("menu"); const cartEl = document.getElementById("cart-section");
@@ -644,11 +666,17 @@
             setInterval(() => loadMsgs(false), 5000); 
         }
 
+        // 🌟 更新時間日期選單：如果是外送，強制只能選今天！
         function renderPickupDateSelection(todayOver, tomorrowClosed) {
             const container = document.getElementById("date-selection"); 
+            const diningType = document.querySelector('input[name="diningType"]:checked');
+            const isDelivery = diningType && diningType.value === "外送";
+
             let html = "";
-            if (!todayOver) html += `<label><input type="radio" name="pickupDate" value="${todayMMDD}" checked onchange="handleDateChange()"> 📅 ${todayMMDD}</label>`; 
-            if (!tomorrowClosed) {
+            if (!todayOver) {
+                html += `<label><input type="radio" name="pickupDate" value="${todayMMDD}" checked onchange="handleDateChange()"> 📅 ${todayMMDD}</label>`; 
+            }
+            if (!tomorrowClosed && !isDelivery) { // 外送隱藏明日選項
                 const checkedStr = todayOver ? "checked" : "";
                 html += `<label><input type="radio" name="pickupDate" value="${tomorrowMMDD}" ${checkedStr} onchange="handleDateChange()"> 📅 ${tomorrowMMDD}</label>`;
             }
@@ -659,7 +687,7 @@
             
             if (todayOver) {
                 labelAsap.style.display = "none";
-                rSpec.checked = true;
+                if (rSpec) rSpec.checked = true;
             } else {
                 labelAsap.style.display = "block";
             }
@@ -690,6 +718,7 @@
             const contactContainer = document.getElementById("contact-info-container");
             const datetimeContainer = document.getElementById("datetime-container");
             const cutleryContainer = document.getElementById("cutlery-container");
+            const addressContainer = document.getElementById("address-container");
             
             const urlParams = new URLSearchParams(window.location.search);
             const tableParam = urlParams.get('table');
@@ -698,6 +727,7 @@
             contactContainer.style.display = "none";
             datetimeContainer.style.display = "none";
             cutleryContainer.style.display = "none";
+            addressContainer.style.display = "none";
 
             if (type === "內用") {
                 tableContainer.style.display = "block";
@@ -706,10 +736,17 @@
                     document.getElementById("table-number").readOnly = false;
                     document.getElementById("table-number").style.backgroundColor = "#fff";
                 }
-            } else if (type === "自取") {
+            } else if (type === "自取" || type === "外送") {
                 datetimeContainer.style.display = "block";
                 contactContainer.style.display = "block";
                 cutleryContainer.style.display = "block";
+                
+                if (type === "外送") {
+                    addressContainer.style.display = "block";
+                    document.getElementById("dining-title").innerHTML = `🛵 外送預訂`;
+                } else {
+                    document.getElementById("dining-title").innerHTML = `🍽️ 自取預訂`;
+                }
                 
                 const todayOver = isTodayOver();
                 let rAsap = document.querySelector('input[name="timeType"][value="ASAP"]');
@@ -718,6 +755,11 @@
                     rAsap.checked = false;
                     rSpec.checked = false;
                 }
+                
+                // 重繪日期選單以隱藏或顯示明日選項
+                const tomorrowClosed = isDayClosed(new Date(new Date().getTime() + 86400000));
+                renderPickupDateSelection(todayOver, tomorrowClosed);
+                
                 toggleTimeInput(); 
             } else if (type === "外帶") {
                 cutleryContainer.style.display = "block";
@@ -1000,6 +1042,7 @@
             
             let baseDiningType = document.querySelector('input[name="diningType"]:checked').value;
             let tableNumber = ""; let customerName = ""; let customerPhone = "";
+            let deliveryAddr = "";
 
             if (baseDiningType === "內用") {
                 let rawTable = document.getElementById("table-number").value.trim();
@@ -1011,7 +1054,7 @@
                     document.getElementById("table-number").focus(); return;
                 }
                 tableNumber = parsedTable.toString();
-            } else if (baseDiningType === "自取") {
+            } else if (baseDiningType === "自取" || baseDiningType === "外送") {
                 customerName = document.getElementById("customer-name").value.trim();
                 let rawPhone = document.getElementById("customer-phone").value.trim().replace(/\D/g, ''); 
                 
@@ -1045,6 +1088,13 @@
                 
                 localStorage.setItem('savedCustomerName', customerName);
                 localStorage.setItem('savedCustomerPhone', customerPhone); 
+                
+                // 🌟 外送地址驗證
+                if (baseDiningType === "外送") {
+                    deliveryAddr = document.getElementById("customer-address").value.trim();
+                    if (!deliveryAddr) { alert("⚠️ 選擇「外送」請務必填寫外送地址！"); document.getElementById("customer-address").focus(); return; }
+                    localStorage.setItem('savedCustomerAddress', deliveryAddr);
+                }
             } else if (baseDiningType === "外帶") {
                 customerName = "";
                 customerPhone = "";
@@ -1054,9 +1104,14 @@
             let pickupAddonText = "";
             let orderDateBackend = getTodayDateString();
             
-            if (baseDiningType === "自取") {
+            // 🌟 組合外送與自取的字眼
+            if (baseDiningType === "外送") {
+                pickupAddonText = ` (送至: ${deliveryAddr})`;
+            }
+
+            if (baseDiningType === "自取" || baseDiningType === "外送") {
                 if (!timeTypeNode) {
-                    alert("⚠️ 請先選擇「取餐時間」是要「立即」還是「指定時間」！"); 
+                    alert("⚠️ 請先選擇「時間」是要「立即」還是「指定時間」！"); 
                     return; 
                 }
                 
@@ -1068,8 +1123,10 @@
                         orderDateBackend = `${tmr.getFullYear()}-${String(tmr.getMonth() + 1).padStart(2, '0')}-${String(tmr.getDate()).padStart(2, '0')}`;
                     }
                     const specificTime = document.getElementById("pickup-time").value;
-                    if (!specificTime) { alert("⚠️ 您選擇了指定時間，請從下拉選單選擇取餐時間！"); document.getElementById("pickup-time").focus(); return; }
-                    pickupAddonText = ` (預訂: ${pickupDate} ${specificTime})`;
+                    if (!specificTime) { alert("⚠️ 您選擇了指定時間，請從下拉選單選擇時間！"); document.getElementById("pickup-time").focus(); return; }
+                    pickupAddonText += ` (預訂: ${pickupDate} ${specificTime})`;
+                } else {
+                    pickupAddonText += ` (盡快)`;
                 }
             }
 
