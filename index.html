@@ -837,7 +837,7 @@
             navDiv.innerHTML = html;
         }
         
-       function filterCategory(categoryName) {
+function filterCategory(categoryName) {
             currentCategoryFilter = categoryName;
             renderNavBar(); 
             
@@ -845,28 +845,26 @@
                 document.getElementById("cart-section").style.display = "block";
                 const grids = document.querySelectorAll(".category-section");
                 grids.forEach(g => g.style.display = "none");
-                document.getElementById("main-content").scrollTo({ top: 0, behavior: 'smooth' }); 
+                document.getElementById("main-content").scrollTop = 0; 
             } else {
                 document.getElementById("cart-section").style.display = "none";
                 const grids = document.querySelectorAll(".category-section");
                 
-                if (categoryName === '全部') {
-                    // 點擊「全部」時：顯示所有分類區塊
-                    grids.forEach(g => {
+                grids.forEach(g => {
+                    if (categoryName === '全部') {
+                        // 點選「全部」時，顯示所有餐點區塊
                         g.style.display = "block"; 
-                    });
-                    document.getElementById("main-content").scrollTo({ top: 0, behavior: 'smooth' }); 
-                } else {
-                    // 點擊特定分類 (例如「蛋餅」) 時：只顯示該分類，其他全部隱藏
-                    grids.forEach(g => {
+                    } else {
+                        // 點選特定分類時 (例如捲餅)，只顯示該分類，其他的加上 display: none 隱藏
                         if (g.id === `section-${categoryName}`) {
                             g.style.display = "block";
                         } else {
                             g.style.display = "none";
                         }
-                    });
-                    document.getElementById("main-content").scrollTo({ top: 0, behavior: 'smooth' });
-                }
+                    }
+                });
+                // 切換分類後，讓畫面瞬間回到最上方，不會卡在底端
+                document.getElementById("main-content").scrollTop = 0; 
             }
         }
 
