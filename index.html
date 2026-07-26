@@ -619,8 +619,14 @@
                     pickupRadio.checked = true;
                     dineInRadio.parentElement.style.display = 'none';
                     takeoutRadio.parentElement.style.display = 'none';
-                    document.getElementById("label-delivery-radio").style.display = 'none';
-                    document.getElementById("dining-title").innerHTML = `🍽️ 自取預訂`;
+                   // 根據後台設定判斷是否顯示「外送」
+                    if (shopSettings.enableDelivery) {
+                        document.getElementById("label-delivery-radio").style.display = 'inline-flex';
+                        document.getElementById("dining-title").innerHTML = `🍽️ 自取 / 外送預訂`;
+                    } else {
+                        document.getElementById("label-delivery-radio").style.display = 'none';
+                        document.getElementById("dining-title").innerHTML = `🍽️ 自取預訂`;
+                    }
                 }
             } else {
                 pickupRadio.checked = true;
