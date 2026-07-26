@@ -142,6 +142,23 @@
     </style>
 </head>
 <body>
+    <!-- 💡 線上點餐頁面的頂部公告欄 -->
+<div id="customer-announcement-banner" style="display:none; width: 100%; background: #ef4444; color: #ffffff; text-align: center; padding: 15px; font-size: 1.2em; font-weight: 900; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); z-index: 9999; letter-spacing: 1px;">
+    📢 最新公告：<span id="customer-announcement-text"></span>
+</div>
+
+<script>
+    // 在你的顧客端頁面加上這段 JS，讓它去抓取公告
+    // 記得把裡面的 API_URL 換成你的 Google Apps Script 網址喔！
+    fetch("你的_API_URL_放在這裡")
+      .then(res => res.json())
+      .then(data => {
+          if(data.announcement && data.announcement.trim() !== "") {
+              document.getElementById("customer-announcement-banner").style.display = "block";
+              document.getElementById("customer-announcement-text").innerText = data.announcement;
+          }
+      });
+</script>
 
     <div class="app-container">
         <!-- 左側分類導航 -->
