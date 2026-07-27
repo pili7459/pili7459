@@ -1,25 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <!-- 💡 線上點餐頁面的頂部公告欄 -->
-<div id="customer-announcement-banner" style="display:none; width: 100%; background: #ef4444; color: #ffffff; text-align: center; padding: 15px; font-size: 1.2em; font-weight: 900; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); z-index: 9999; letter-spacing: 1px;">
-    📢 最新公告：<span id="customer-announcement-text"></span>
-</div>
-
-<script>
-    // 在你的顧客端頁面加上這段 JS，讓它去抓取公告
-    // ⚠️ 請把下面這串換成你自己的 Google Apps Script 網址！！
-    const CUST_API_URL = "https://script.google.com/macros/s/AKfycbxTGrRGwx5aNc6LDKOkevrQVRN4Q_n8ERZqzUgi59cuALgED4pIjkcNMFDOIdQIrkcm/exec";
-
-    fetch(`${CUST_API_URL}?t=${new Date().getTime()}`)
-      .then(res => res.json())
-      .then(data => {
-          if(data.announcement && data.announcement.trim() !== "") {
-              document.getElementById("customer-announcement-banner").style.display = "block";
-              document.getElementById("customer-announcement-text").innerText = data.announcement;
-          }
-      });
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>專屬線上點餐</title>
@@ -58,7 +39,7 @@
         .qty-control { display: flex; align-items: center; gap: 10px; }
         .qty-btn { background: #f0f0f0; border: none; width: 30px; height: 30px; border-radius: 5px; font-size: 1.2em; font-weight: bold; cursor: pointer;}
         .qty-number { font-weight: bold; font-size: 1.1em; width: 20px; text-align: center; }
-        .item-badge { background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.8em; margin-left: 5px; vertical-align: top; }
+        .item-badge { background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.85em; margin-left: 5px; vertical-align: top; }
         
         .cart { background: #fff; padding: 20px; border-radius: 10px; margin: 15px 15px 120px 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
         .cart-item { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 12px; }
@@ -170,6 +151,12 @@
         <div class="main-content" id="main-content">
             <div id="menu-view" style="display:none;">
                 <div id="active-banner" class="active-orders-banner" onclick="showStatusView()" style="display:none;"></div>
+                
+                <!-- 💡 最新修改：店鋪公告被移到了右邊的內容區最頂端！ -->
+                <div id="customer-announcement-banner" style="display:none; width: auto; background: #ef4444; color: #ffffff; text-align: center; padding: 12px; font-size: 1.1em; font-weight: 900; border-radius: 8px; margin: 15px 15px 0 15px; box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3); letter-spacing: 1px;">
+                    📢 最新公告：<span id="customer-announcement-text"></span>
+                </div>
+
                 <div id="closed-banner-container"></div>
                 
                 <div class="menu-side">
@@ -318,7 +305,7 @@
     </div> 
 
     <script>
-        // ⚠️ API 網址維持不變，已經幫您放好了
+        // ⚠️ API 網址請記得更換成您自己的！
         const API_URL = "https://script.google.com/macros/s/AKfycbxTGrRGwx5aNc6LDKOkevrQVRN4Q_n8ERZqzUgi59cuALgED4pIjkcNMFDOIdQIrkcm/exec";
 
         let shopSettings = { closedDaysOfWeek: [], closedDates: [], openTime: "06:00", closeTime: "13:00", minTable: 1, maxTable: 20, promoDiscountCode: "", promoDiscountRate: 1, promoDeductCode: "", promoDeductAmount: 0, enableDelivery: false };
@@ -397,6 +384,13 @@
                     if (data.settings.promoDeductAmount !== undefined) shopSettings.promoDeductAmount = data.settings.promoDeductAmount;
                     if (data.settings.enableDelivery !== undefined) shopSettings.enableDelivery = data.settings.enableDelivery;
                 }
+                
+                // 💡 在這裡將後台的最新公告顯示出來！
+                if(data.announcement && data.announcement.trim() !== "") {
+                    document.getElementById("customer-announcement-banner").style.display = "block";
+                    document.getElementById("customer-announcement-text").innerText = data.announcement;
+                }
+
                 if (data.menu && data.menu.length > 0) {
                     menuData = data.menu;
                     categories = [...new Set(menuData.map(item => item.category))];
