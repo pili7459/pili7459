@@ -1,212 +1,141 @@
 const express = require('express');
 const http = require('http');
-const WebSocket = require('ws');
 const path = require('path');
-const cors = require('cors');
-const db = require('./database');
-const printerService = require('./services/printerService');
-const invoiceService = require('./services/invoiceService');
+const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
 
-app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.urlencoded({ extended: true }));
 
-function broadcast(eventType, data) {
-  const payload = JSON.stringify({ type: eventType, data });
-  wss.clients.forEach(client => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(payload);
-    }
-  });
+const publicPath = path.join(__dirname, 'public');
+if (fs.existsSync(publicPath)) {
+  app.use(express.static(publicPath));
 }
 
-wss.on('connection', ws => {
-  ws.send(JSON.stringify({ type: 'CONNECTED', message: 'WebSocket 即時連線就緒' }));
-});
+// 資料庫檔案路徑
+const DB_FILE = path.join(__dirname, 'data.json');
 
-// ================= 桌況與訂單 API =================
-app.get('/api/tables', (req, res) => {
-  res.json(db.getTablesWithOrders());
-});
+// 初始預設菜單與桌位資料
+const initialData = {
+  categories: ['經典粉漿蛋餅', '吐司與漢堡', '研磨咖啡與飲品', '點心拼盤'],
+  tables: [
+    { id: '1', name: '內用 1 桌', status: 'idle' },
+    { id: '2', name: '內用 2 桌', status: 'idle' },
+    { id: '3', name: '內用 3 桌', status: 'idle' },
+    { id: '5', name: '內用 5 桌', status: 'idle' },
+    { id: '外帶', name: '外帶單', status: 'idle' }
+  ],
+  menu: [
+    { id: 'm1', name: '招牌原味粉漿蛋餅', price: 35, category: '經典粉漿蛋餅', spec: ['原味'] },
+    { id: 'm2', name: '玉米起司粉漿蛋餅', price: 50, category: '經典粉漿蛋餅', spec: ['加辣', '不辣'] },
+    { id: 'm3', name: '特製鮪魚粉漿蛋餅', price: 55, category: '經典粉漿蛋餅', spec: ['加辣', '不辣'] },
+    { id: 'm4', name: '里肌豬排蛋吐司', price: 60, category: '吐司與漢堡', spec: ['去邊', '正常'] },
+    { id: 'm5', name: '咔啦雞腿經典漢堡', price: 75, category: '吐司與漢堡', spec: ['原味', '辣味'] },
+    { id: 'm6', name: '古早味特調紅茶', price: 25, category: '研磨咖啡與飲品', spec: ['冰', '溫', '熱'] },
+    { id: 'm7', name: '特調鮮奶茶', price: 40, category: '研磨咖啡與飲品', spec: ['冰', '溫', '熱'] },
+    { id: 'm8', name: '黃金脆薯', price: 40, category: '點心拼盤', spec: ['番茄醬', '胡椒'] }
+  ],
+  orders: []
+};
 
-app.post('/api/tables', (req, res) => {
-  const tables = db.saveTable(req.body);
-  broadcast('TABLE_UPDATED', {});
-  res.json({ success: true, tables });
-});
-
-app.delete('/api/tables/:id', (req, res) => {
-  const tables = db.deleteTable(req.params.id);
-  broadcast('TABLE_UPDATED', {});
-  res.json({ success: true, tables });
-});
-
-app.get('/api/orders/:id', (req, res) => {
-  const order = db.getOrder(req.params.id);
-  if (!order) return res.status(404).json({ error: '找不到該訂單' });
-  res.json(order);
-});
-
-app.post('/api/orders', (req, res) => {
-  const { table_id, order_type, items, discount_amount = 0 } = req.body;
-  if (!items || items.length === 0) {
-    return res.status(400).json({ error: '訂單品項不可為空' });
+// 讀取資料
+function loadDB() {
+  try {
+    if (!fs.existsSync(DB_FILE)) {
+      fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), 'utf-8');
+      return initialData;
+    }
+    const content = fs.readFileSync(DB_FILE, 'utf-8');
+    return JSON.parse(content);
+  } catch (err) {
+    console.error('讀取資料庫失敗，載入預設資料:', err);
+    return initialData;
   }
+}
 
-  const result = db.createOrAppendOrder({
-    table_id,
-    order_type,
-    items,
-    discount_amount
-  });
+// 儲存資料
+function saveDB(data) {
+  try {
+    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+    return true;
+  } catch (err) {
+    console.error('儲存資料庫失敗:', err);
+    return false;
+  }
+}
 
-  const fullOrder = result.fullOrder;
+// 初始化資料檔
+loadDB();
 
-  const kitchenItems = result.newItems.filter(i => i.station === 'KITCHEN');
-  const barItems = result.newItems.filter(i => i.station === 'BAR');
-  printerService.printKitchenTicket(fullOrder, kitchenItems, result.isAppend);
-  printerService.printBarStickers(fullOrder, barItems);
+// ==================== 核心 API 路由 ====================
 
-  broadcast('ORDER_CREATED', { order: fullOrder, newItems: result.newItems, isAppend: result.isAppend });
-  broadcast('TABLE_UPDATED', {});
-
-  res.json({
-    success: true,
-    orderId: result.orderId,
-    orderNumber: result.orderNumber,
-    finalAmount: result.finalAmount,
-    isAppend: result.isAppend,
-    fullOrder: fullOrder
-  });
+// 取得所有設定 (菜單、桌位、分類)
+app.get('/api/data', (req, res) => {
+  res.json(loadDB());
 });
 
-app.post('/api/orders/:id/cancel', (req, res) => {
-  db.cancelOrder(req.params.id);
-  broadcast('TABLE_UPDATED', {});
-  broadcast('KDS_UPDATED', {});
-  res.json({ success: true });
-});
-
-app.post('/api/orders/:id/pay', async (req, res) => {
-  const orderId = req.params.id;
-  const { payment_method, invoice_carrier } = req.body;
-
-  const order = db.getOrder(orderId);
-  if (!order) return res.status(404).json({ error: '找不到該訂單' });
-
-  const invoiceResult = await invoiceService.issueB2CInvoice({ ...order, invoice_carrier });
-  const paidOrder = db.payOrder(orderId, payment_method, invoice_carrier);
-  const printPreview = printerService.printReceipt(paidOrder, paidOrder.items);
-
-  broadcast('TABLE_UPDATED', {});
-  broadcast('KDS_UPDATED', {});
-
-  res.json({
-    success: true,
-    message: '結帳完成',
-    invoice: invoiceResult,
-    order: paidOrder,
-    printPreview: printPreview.preview
-  });
-});
-
-// ================= 菜單 API =================
+// 相容個別端點
 app.get('/api/menu', (req, res) => {
-  res.json(db.getMenu());
+  res.json(loadDB().menu);
 });
 
-app.get('/api/admin/menu', (req, res) => {
-  res.json(db.getAdminProducts());
+app.get('/api/tables', (req, res) => {
+  res.json(loadDB().tables);
 });
 
-app.post('/api/admin/category', (req, res) => {
-  const categories = db.saveCategory(req.body);
-  broadcast('MENU_UPDATED', {});
-  res.json({ success: true, categories });
+// 更新/新增菜單
+app.post('/api/menu', (req, res) => {
+  const db = loadDB();
+  db.menu = req.body;
+  saveDB(db);
+  res.json({ success: true, menu: db.menu });
 });
 
-app.post('/api/admin/product', (req, res) => {
-  const products = db.saveProduct(req.body);
-  broadcast('MENU_UPDATED', {});
-  res.json({ success: true, products });
+// 更新桌位
+app.post('/api/tables', (req, res) => {
+  const db = loadDB();
+  db.tables = req.body;
+  saveDB(db);
+  res.json({ success: true, tables: db.tables });
 });
 
-app.delete('/api/admin/product/:id', (req, res) => {
-  db.deleteProduct(req.params.id);
-  broadcast('MENU_UPDATED', {});
-  res.json({ success: true });
+// 客人或前台送出訂單
+app.post('/api/orders', (req, res) => {
+  const db = loadDB();
+  const newOrder = {
+    id: 'OD-' + Date.now().toString().slice(-6),
+    createdAt: new Date().toISOString(),
+    status: 'pending', // pending, cooking, completed, paid
+    ...req.body
+  };
+  db.orders.unshift(newOrder);
+  saveDB(db);
+  res.json({ success: true, order: newOrder });
 });
 
-// ================= 規格與加料客製 API (Modifiers) =================
-app.get('/api/admin/modifiers', (req, res) => {
-  res.json(db.getAdminModifiers());
+app.get('/api/orders', (req, res) => {
+  const db = loadDB();
+  res.json(db.orders || []);
 });
 
-app.post('/api/admin/modifiers/group', (req, res) => {
-  db.saveModifierGroup(req.body);
-  broadcast('MENU_UPDATED', {});
-  res.json({ success: true });
+// 重設為預設資料 (供後台或除錯使用)
+app.post('/api/reset', (req, res) => {
+  saveDB(initialData);
+  res.json({ success: true, message: '已重設回預設菜單與桌位' });
 });
 
-app.delete('/api/admin/modifiers/group/:id', (req, res) => {
-  db.deleteModifierGroup(req.params.id);
-  broadcast('MENU_UPDATED', {});
-  res.json({ success: true });
-});
+// 根目錄與健康檢查
+app.get('/health', (req, res) => res.status(200).send('OK'));
 
-app.post('/api/admin/modifiers/option', (req, res) => {
-  db.saveModifierOption(req.body);
-  broadcast('MENU_UPDATED', {});
-  res.json({ success: true });
-});
-
-app.delete('/api/admin/modifiers/option/:id', (req, res) => {
-  db.deleteModifierOption(req.params.id);
-  broadcast('MENU_UPDATED', {});
-  res.json({ success: true });
-});
-
-app.post('/api/admin/modifiers/apply-template', (req, res) => {
-  const { product_id, template_type } = req.body;
-  db.applyModifierTemplate(product_id, template_type);
-  broadcast('MENU_UPDATED', {});
-  res.json({ success: true });
-});
-
-// ================= KDS 廚房看板 API =================
-app.get('/api/kds/orders', (req, res) => {
-  res.json(db.getKdsOrders());
-});
-
-app.post('/api/kds/update-status', (req, res) => {
-  const { order_id, item_id, status } = req.body;
-  db.updateKdsStatus({ order_id, item_id, status });
-  broadcast('KDS_UPDATED', { order_id, item_id, status });
-  res.json({ success: true });
-});
-
-// ================= 報表與日結封存 API =================
-app.get('/api/admin/reports', (req, res) => {
-  const queryDate = req.query.date;
-  res.json(db.getReportsByDate(queryDate));
-});
-
-app.post('/api/admin/settle', (req, res) => {
-  const settlement = db.closeDaySettlement(req.body);
-  res.json({ success: true, settlement });
-});
-
-app.get('/api/admin/settlements', (req, res) => {
-  res.json(db.getSettlements());
+app.get('/', (req, res) => {
+  const file = path.join(publicPath, 'pos.html');
+  if (fs.existsSync(file)) res.sendFile(file);
+  else res.send('POS 服務運行正常');
 });
 
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`====================================================`);
-  console.log(`[POS 系統運行中] 服務端口: ${PORT}`);
-  console.log(`====================================================`);
+  console.log(`[POS 系統已啟動] 服務端口: ${PORT}`);
 });
