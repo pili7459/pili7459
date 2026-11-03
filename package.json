@@ -1,0 +1,15 @@
+{
+  "name": "dudooeat-style-pos",
+  "version": "2.1.0",
+  "description": "Full-stack POS system modeled after Dudooeat: Visual Tables, Dine-in/Takeout, Add-ons Visual Admin, KDS, and Persistent Daily Settlement",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "ws": "^8.17.0"
+  }
+}

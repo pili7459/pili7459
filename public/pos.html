@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>收銀前台 (POS) - 肚肚風格</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 h-screen flex flex-col font-sans overflow-hidden select-none">
+  <!-- 頂部資訊列 -->
+  <header class="bg-white border-b border-slate-200 px-6 py-3 flex justify-between items-center shrink-0">
+    <div class="flex items-center gap-3">
+      <span class="bg-emerald-600 text-white font-black px-2.5 py-1 rounded-lg text-lg">POS</span>
+      <h1 class="text-lg font-bold text-slate-800">小森食光坊 · 收銀端</h1>
+      <span id="wsStatus" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span> 即時連線
+      </span>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="/kds.html" target="_blank" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-300 font-semibold">🍳 廚房看板 (KDS)</a>
+      <a href="/admin.html" target="_blank" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-300 font-semibold">⚙️ 菜單/桌位/日結 (Admin)</a>
+      <div id="currentTime" class="text-xs font-mono text-slate-500 font-bold">--:--:--</div>
+    </div>
+  </header>
+
+  <!-- 主體區域 -->
+  <div class="flex-1 flex overflow-hidden">
+    <!-- 左側主要區域 (桌況 或 菜單選購) -->
+    <div class="flex-1 flex flex-col border-r border-slate-200 bg-white overflow-hidden">
+      <!-- 頂部 Tab 切換 -->
+      <div class="flex border-b border-slate-200 bg-slate-50 px-4 pt-3 gap-2 shrink-0 items-center">
+        <button id="tabTablesBtn" onclick="switchView('TABLES')" class="px-5 py-2.5 font-bold text-sm rounded-t-xl bg-white border-t-2 border-emerald-600 text-emerald-700 shadow-sm">
+          🪑 桌況配置地圖
+        </button>
+        <button id="tabMenuBtn" onclick="switchView('MENU')" class="px-5 py-2.5 font-bold text-sm rounded-t-xl text-slate-600 hover:text-slate-900">
+          📋 點餐菜單
+        </button>
+        <button onclick="startTakeoutOrder()" class="px-4 py-2 font-bold text-xs rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-300 ml-2">
+          🥡 外帶直接點餐
+        </button>
+        
+        <div id="activeContextBanner" class="ml-auto my-auto text-xs px-3 py-1 rounded-md font-bold hidden">
+          <!-- 當前模式狀態 -->
+        </div>
+      </div>
+
+      <!-- 視圖 1: 桌位地圖 -->
+      <div id="viewTables" class="flex-1 p-6 overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h2 class="font-bold text-slate-800 text-base">店內桌況一覽</h2>
+            <p class="text-xs text-slate-400 mt-0.5">點擊「空桌」開始點餐，點擊「用餐中」可檢視訂單、結帳或加點</p>
+          </div>
+          <div class="flex items-center gap-4 text-xs font-medium text-slate-500">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500"></span> 空桌</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500"></span> 用餐中</span>
+          </div>
+        </div>
+        <div id="tablesGrid" class="grid grid-cols-3 gap-5">
+          <!-- 桌位卡片動態渲染 -->
+        </div>
+      </div>
+
+      <!-- 視圖 2: 點餐菜單 (分類 + 商品) -->
+      <div id="viewMenu" class="flex-1 flex flex-col overflow-hidden hidden">
+        <div id="categoryTabs" class="flex gap-2 p-3 bg-slate-50 border-b border-slate-200 overflow-x-auto shrink-0"></div>
+        <div id="productsGrid" class="flex-1 p-4 grid grid-cols-3 gap-4 overflow-y-auto content-start"></div>
+      </div>
+    </div>
+
+    <!-- 右側：訂單明細與結帳控制台 (380px) -->
+    <div class="w-96 flex flex-col bg-slate-50 shrink-0 border-l border-slate-200">
+      <div class="p-4 border-b border-slate-200 bg-white flex justify-between items-center">
+        <div>
+          <h2 class="font-bold text-slate-800 text-base" id="panelTitle">點餐收銀明細</h2>
+          <p class="text-xs text-slate-400" id="panelSubtitle">尚未選擇桌位或外帶</p>
+        </div>
+        <div class="flex gap-2">
+          <button id="btnCancelOrder" onclick="cancelCurrentOrder()" class="text-xs text-rose-600 hover:text-rose-800 font-bold hidden">作廢</button>
+          <button onclick="resetCartOrOrder()" class="text-xs text-slate-500 hover:text-slate-800 font-medium">重置</button>
+        </div>
+      </div>
+
+      <!-- 明細清單容器 -->
+      <div id="itemsContainer" class="flex-1 p-4 overflow-y-auto space-y-3">
+        <div class="text-center text-slate-400 text-sm mt-16">
+          請在左側點選桌位<br>或點擊「外帶直接點餐」
+        </div>
+      </div>
+
+      <!-- 金額與功能按鈕區 -->
+      <div class="p-4 bg-white border-t border-slate-200 space-y-3 shrink-0">
+        <div class="space-y-1.5 text-xs text-slate-600">
+          <div class="flex justify-between"><span>合計小計</span><span id="txtSubtotal">NT$ 0</span></div>
+          <div class="flex justify-between"><span>折扣折讓</span><span id="txtDiscount" class="text-rose-600">- NT$ 0</span></div>
+          <div class="flex justify-between text-base font-black text-slate-900 pt-1 border-t border-slate-100">
+            <span>應收總額</span><span id="txtFinal" class="text-emerald-700 text-lg">NT$ 0</span>
+          </div>
+        </div>
+
+        <!-- 操作按鈕切換組 -->
+        <div id="actionButtons" class="pt-2">
+          <!-- 根據當前是「新點餐」、「用餐中」動態調整按鈕 -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 彈窗: 加料客製規格選擇 -->
+  <div id="modalModifier" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+      <div class="flex justify-between items-start border-b border-slate-100 pb-3">
+        <div>
+          <h3 id="modalProductName" class="text-lg font-bold text-slate-900">商品規格</h3>
+          <p id="modalProductPrice" class="text-emerald-600 font-bold text-sm">NT$ 0</p>
+        </div>
+        <button onclick="closeModifierModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <div id="modalModifierContent" class="py-4 space-y-4 max-h-80 overflow-y-auto"></div>
+      <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
+        <button onclick="closeModifierModal()" class="px-4 py-2 rounded-lg text-slate-600 text-sm hover:bg-slate-100">取消</button>
+        <button onclick="confirmAddToCart()" class="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold shadow">加入明細</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 彈窗: 結帳收款 -->
+  <div id="modalPay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="text-xl font-bold text-slate-900">結帳收款與出單</h3>
+        <button onclick="closePayModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      
+      <div class="bg-slate-50 p-4 rounded-xl mb-4 border border-slate-200">
+        <div class="flex justify-between items-center">
+          <span class="text-xs text-slate-500" id="payOrderInfo">單號: --</span>
+          <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold" id="payTableBadge">內用</span>
+        </div>
+        <div class="text-3xl font-black text-emerald-700 mt-2" id="payFinalAmount">NT$ 0</div>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">付款方式</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" onclick="selectPayMethod('CASH')" id="pmCash" class="pay-btn border-2 border-emerald-600 bg-emerald-50 text-emerald-800 font-bold py-2.5 rounded-xl text-xs">💵 現金</button>
+            <button type="button" onclick="selectPayMethod('LINE_PAY')" id="pmLine" class="pay-btn border border-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs">💚 LINE Pay</button>
+            <button type="button" onclick="selectPayMethod('CREDIT_CARD')" id="pmCard" class="pay-btn border border-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs">💳 信用卡</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">電子發票載具條碼 (選填)</label>
+          <input type="text" id="invoiceCarrierInput" placeholder="/開頭的手機載具條碼 或 留空列印紙本" class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-600 font-mono">
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end gap-3">
+        <button onclick="closePayModal()" class="px-4 py-2.5 rounded-xl text-slate-600 text-sm hover:bg-slate-100">取消</button>
+        <button onclick="executePayment()" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow">確認收款並出單</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentTable = null;        // 當前選中的桌位對象
+    let currentDiningOrder = null; // 當前正在檢視的已點單對象 (若桌位用餐中)
+    let cart = [];                 // 本次點餐暫存 (新單或加點)
+    let menuData = [];
+    let pendingProduct = null;
+    let selectedPayMethod = 'CASH';
+
+    setInterval(() => {
+      document.getElementById('currentTime').innerText = new Date().toLocaleTimeString('zh-TW');
+    }, 1000);
+
+    const ws = new WebSocket(`ws://${location.host}`);
+    ws.onmessage = (event) => {
+      const msg = JSON.parse(event.data);
+      if (msg.type === 'TABLE_UPDATED' || msg.type === 'ORDER_CREATED') {
+        loadTables();
+      }
+    };
+
+    async function init() {
+      await loadTables();
+      await loadMenu();
+      renderRightPanel();
+    }
+
+    async function loadTables() {
+      const res = await fetch('/api/tables');
+      const tables = await res.json();
+      const grid = document.getElementById('tablesGrid');
+      grid.innerHTML = '';
+
+      tables.forEach(t => {
+        const isDining = t.status === 'DINING' && t.current_order_id;
+        const card = document.createElement('div');
+        card.className = `p-4 rounded-2xl border-2 transition cursor-pointer flex flex-col justify-between h-36 ${
+          isDining ? 'bg-amber-50/80 border-amber-300 shadow-sm hover:border-amber-400' : 'bg-slate-50 border-slate-200 hover:border-emerald-500'
+        }`;
+        card.onclick = () => onSelectTable(t);
+
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <span class="text-base font-black text-slate-800">${t.table_name}</span>
+            <span class="px-2 py-0.5 rounded-md text-xs font-bold ${isDining ? 'bg-amber-200 text-amber-900' : 'bg-emerald-100 text-emerald-800'}">
+              ${isDining ? '用餐中' : '空桌'}
+            </span>
+          </div>
+          <div class="text-xs text-slate-500 space-y-0.5">
+            ${isDining ? `
+              <div class="font-mono text-slate-600">單號: ${t.order_number}</div>
+              <div class="font-bold text-amber-700">金額: NT$ ${t.final_amount} (${t.order_items_count}品項)</div>
+            ` : `
+              <div>容納: ${t.capacity} 人</div>
+              <div class="text-slate-400">點擊開桌點餐</div>
+            `}
+          </div>
+          <div class="text-[11px] font-bold ${isDining ? 'text-amber-700' : 'text-emerald-600'} text-right">
+            ${isDining ? '檢視/結帳/加點 &rarr;' : '點選開桌 &rarr;'}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // 點擊桌位處理
+    async function onSelectTable(table) {
+      currentTable = table;
+      cart = []; // 清空新點購物車
+
+      if (table.status === 'DINING' && table.current_order_id) {
+        // 載入該桌已有點單
+        const res = await fetch(`/api/orders/${table.current_order_id}`);
+        currentDiningOrder = await res.json();
+      } else {
+        currentDiningOrder = null;
+        switchView('MENU'); // 空桌直接切到菜單
+      }
+      renderRightPanel();
+    }
+
+    // 外帶直接點餐
+    function startTakeoutOrder() {
+      currentTable = null;
+      currentDiningOrder = null;
+      cart = [];
+      switchView('MENU');
+      renderRightPanel();
+    }
+
+    async function loadMenu() {
+      const res = await fetch('/api/menu');
+      menuData = await res.json();
+      renderCategories();
+    }
+
+    function renderCategories() {
+      const tabs = document.getElementById('categoryTabs');
+      tabs.innerHTML = '';
+      menuData.forEach((cat, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition ${
+          idx === 0 ? 'bg-slate-800 text-white shadow' : 'bg-white text-slate-600 hover:bg-slate-200 border border-slate-200'
+        }`;
+        btn.innerText = cat.name;
+        btn.onclick = () => {
+          document.querySelectorAll('#categoryTabs button').forEach(b => {
+            b.className = 'px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap bg-white text-slate-600 hover:bg-slate-200 border border-slate-200';
+          });
+          btn.className = 'px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap bg-slate-800 text-white shadow';
+          renderProducts(cat.products);
+        };
+        tabs.appendChild(btn);
+      });
+      if (menuData.length > 0) renderProducts(menuData[0].products);
+    }
+
+    function renderProducts(products) {
+      const grid = document.getElementById('productsGrid');
+      grid.innerHTML = '';
+      products.forEach(p => {
+        const item = document.createElement('div');
+        item.className = 'p-3.5 bg-white rounded-2xl border border-slate-200 hover:border-emerald-500 cursor-pointer shadow-sm flex flex-col justify-between h-32 hover:shadow transition';
+        item.onclick = () => onProductClick(p);
+        item.innerHTML = `
+          <div>
+            <div class="font-bold text-sm text-slate-800 leading-tight">${p.name}</div>
+          </div>
+          <div class="flex justify-between items-center mt-2 pt-2 border-t border-slate-50">
+            <span class="text-emerald-600 font-black text-base">NT$ ${p.price}</span>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded ${p.station === 'KITCHEN' ? 'bg-orange-100 text-orange-800' : 'bg-cyan-100 text-cyan-800'}">
+              ${p.station === 'KITCHEN' ? '熟食' : '飲品'}
+            </span>
+          </div>
+        `;
+        grid.appendChild(item);
+      });
+    }
+
+    function onProductClick(product) {
+      if (product.modifier_groups && product.modifier_groups.length > 0) {
+        pendingProduct = { ...product, selectedModifiers: [] };
+        openModifierModal(product);
+      } else {
+        addToCart({
+          product_id: product.id,
+          name: product.name,
+          price: product.price,
+          station: product.station,
+          quantity: 1,
+          modifiers_text: '',
+          modifiers_price: 0
+        });
+      }
+    }
+
+    function openModifierModal(prod) {
+      document.getElementById('modalProductName').innerText = prod.name;
+      document.getElementById('modalProductPrice').innerText = `NT$ ${prod.price}`;
+      const container = document.getElementById('modalModifierContent');
+      container.innerHTML = '';
+
+      prod.modifier_groups.forEach(grp => {
+        const gDiv = document.createElement('div');
+        gDiv.innerHTML = `<h4 class="text-xs font-bold text-slate-600 mb-2">${grp.name} (${grp.is_multiple ? '可多選' : '單選'})</h4>`;
+        const optRow = document.createElement('div');
+        optRow.className = 'flex flex-wrap gap-2';
+
+        grp.options.forEach(opt => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `mod-opt-btn px-3 py-1.5 rounded-lg border text-xs font-medium border-slate-200 text-slate-700 hover:border-emerald-500`;
+          btn.innerText = `${opt.name} ${opt.extra_price > 0 ? '(+' + opt.extra_price + ')' : ''}`;
+          btn.onclick = () => {
+            if (!grp.is_multiple) {
+              optRow.querySelectorAll('.mod-opt-btn').forEach(b => b.classList.remove('border-emerald-600', 'bg-emerald-50', 'text-emerald-700', 'font-bold'));
+            }
+            btn.classList.toggle('border-emerald-600');
+            btn.classList.toggle('bg-emerald-50');
+            btn.classList.toggle('text-emerald-700');
+            btn.classList.toggle('font-bold');
+            toggleModifier(grp, opt, grp.is_multiple);
+          };
+          optRow.appendChild(btn);
+        });
+
+        gDiv.appendChild(optRow);
+        container.appendChild(gDiv);
+      });
+
+      document.getElementById('modalModifier').classList.remove('hidden');
+    }
+
+    function toggleModifier(group, opt, isMultiple) {
+      if (!isMultiple) {
+        pendingProduct.selectedModifiers = pendingProduct.selectedModifiers.filter(m => m.groupId !== group.id);
+      }
+      const existingIdx = pendingProduct.selectedModifiers.findIndex(m => m.id === opt.id);
+      if (existingIdx > -1) {
+        pendingProduct.selectedModifiers.splice(existingIdx, 1);
+      } else {
+        pendingProduct.selectedModifiers.push({ ...opt, groupId: group.id });
+      }
+    }
+
+    function confirmAddToCart() {
+      const modText = pendingProduct.selectedModifiers.map(m => m.name + (m.extra_price > 0 ? `(+${m.extra_price})` : '')).join(', ');
+      const modPrice = pendingProduct.selectedModifiers.reduce((acc, m) => acc + m.extra_price, 0);
+
+      addToCart({
+        product_id: pendingProduct.id,
+        name: pendingProduct.name,
+        price: pendingProduct.price,
+        station: pendingProduct.station,
+        quantity: 1,
+        modifiers_text: modText,
+        modifiers_price: modPrice
+      });
+      closeModifierModal();
+    }
+
+    function closeModifierModal() {
+      document.getElementById('modalModifier').classList.add('hidden');
+      pendingProduct = null;
+    }
+
+    function addToCart(item) {
+      const exist = cart.find(c => c.product_id === item.product_id && c.modifiers_text === item.modifiers_text);
+      if (exist) {
+        exist.quantity += 1;
+      } else {
+        cart.push(item);
+      }
+      renderRightPanel();
+    }
+
+    function changeCartQty(idx, delta) {
+      cart[idx].quantity += delta;
+      if (cart[idx].quantity <= 0) {
+        cart.splice(idx, 1);
+      }
+      renderRightPanel();
+    }
+
+    function resetCartOrOrder() {
+      currentTable = null;
+      currentDiningOrder = null;
+      cart = [];
+      renderRightPanel();
+      loadTables();
+      switchView('TABLES');
+    }
+
+    // 核心渲染：右側結帳與明細看板
+    function renderRightPanel() {
+      const container = document.getElementById('itemsContainer');
+      const banner = document.getElementById('activeContextBanner');
+      const btnCancel = document.getElementById('btnCancelOrder');
+      const actionBtns = document.getElementById('actionButtons');
+
+      // 1. 頂部標題與狀態指示
+      if (currentTable) {
+        document.getElementById('panelTitle').innerText = `${currentTable.table_name}`;
+        if (currentDiningOrder) {
+          document.getElementById('panelSubtitle').innerText = `用餐中 · 單號: ${currentDiningOrder.order_number}`;
+          banner.className = 'ml-auto my-auto text-xs px-3 py-1 rounded-md font-bold bg-amber-100 text-amber-800 border border-amber-300';
+          banner.innerText = `${currentTable.table_name} (用餐中)`;
+          banner.classList.remove('hidden');
+          btnCancel.classList.remove('hidden');
+        } else {
+          document.getElementById('panelSubtitle').innerText = `開桌點餐中`;
+          banner.className = 'ml-auto my-auto text-xs px-3 py-1 rounded-md font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
+          banner.innerText = `${currentTable.table_name} (新開桌)`;
+          banner.classList.remove('hidden');
+          btnCancel.classList.add('hidden');
+        }
+      } else {
+        document.getElementById('panelTitle').innerText = `外帶自取 / 現場點餐`;
+        document.getElementById('panelSubtitle').innerText = `隨點即結或送出製作`;
+        banner.className = 'ml-auto my-auto text-xs px-3 py-1 rounded-md font-bold bg-blue-100 text-blue-800 border border-blue-300';
+        banner.innerText = `外帶模式`;
+        banner.classList.remove('hidden');
+        btnCancel.classList.add('hidden');
+      }
+
+      // 2. 清單內容組裝
+      let html = '';
+      let subtotal = 0;
+
+      // 若有用餐中已點餐點
+      if (currentDiningOrder && currentDiningOrder.items) {
+        html += `<div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">已送出製作餐點</div>`;
+        currentDiningOrder.items.forEach(it => {
+          subtotal += it.subtotal;
+          html += `
+            <div class="bg-amber-50/50 p-2.5 rounded-xl border border-amber-200/80 mb-2">
+              <div class="flex justify-between items-start">
+                <span class="font-bold text-xs text-slate-800">${it.product_name}</span>
+                <span class="text-xs font-bold text-slate-900">NT$ ${it.subtotal}</span>
+              </div>
+              ${it.modifiers_text ? `<div class="text-[11px] text-amber-700 font-medium">${it.modifiers_text}</div>` : ''}
+              <div class="flex justify-between items-center text-[10px] text-slate-400 mt-1">
+                <span>單價 $${it.price + (it.modifiers_price || 0)} × ${it.quantity}</span>
+                <span class="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">製作中</span>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      // 若有本次待送單 (加點或新點)
+      if (cart.length > 0) {
+        if (currentDiningOrder) {
+          html += `<div class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider my-2">本次追加加點項目</div>`;
+        }
+        cart.forEach((it, idx) => {
+          const itemTotal = (it.price + it.modifiers_price) * it.quantity;
+          subtotal += itemTotal;
+          html += `
+            <div class="bg-white p-2.5 rounded-xl border border-emerald-300 shadow-sm mb-2">
+              <div class="flex justify-between items-start">
+                <span class="font-bold text-xs text-slate-800">${it.name}</span>
+                <span class="text-xs font-bold text-emerald-700">NT$ ${itemTotal}</span>
+              </div>
+              ${it.modifiers_text ? `<div class="text-[11px] text-amber-600 font-medium">${it.modifiers_text}</div>` : ''}
+              <div class="flex justify-between items-center mt-2 pt-1 border-t border-slate-50">
+                <span class="text-[11px] text-slate-400">單價 $${it.price + it.modifiers_price}</span>
+                <div class="flex items-center gap-2">
+                  <button onclick="changeCartQty(${idx}, -1)" class="w-5 h-5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-xs">-</button>
+                  <span class="text-xs font-bold px-1">${it.quantity}</span>
+                  <button onclick="changeCartQty(${idx}, 1)" class="w-5 h-5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-xs">+</button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      if (!html) {
+        container.innerHTML = `<div class="text-center text-slate-400 text-sm mt-16">請在左側點選菜單加入品項</div>`;
+      } else {
+        container.innerHTML = html;
+      }
+
+      // 3. 金額更新
+      document.getElementById('txtSubtotal').innerText = `NT$ ${subtotal}`;
+      document.getElementById('txtFinal').innerText = `NT$ ${subtotal}`;
+
+      // 4. 按鈕依情境渲染
+      if (currentDiningOrder) {
+        // 用餐中桌位：可「追加送單」或「結帳收款」
+        actionBtns.innerHTML = `
+          <div class="space-y-2">
+            ${cart.length > 0 ? `
+              <button onclick="submitOrder(true)" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded-xl text-xs shadow flex items-center justify-center gap-1.5">
+                🔥 送出追加加點至廚房 (追加 ${cart.length} 項)
+              </button>
+            ` : ''}
+            <button onclick="openPayModalForDining()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-sm shadow flex items-center justify-center gap-2">
+              💳 結帳收款 (NT$ ${subtotal}) & 清桌
+            </button>
+          </div>
+        `;
+      } else {
+        // 全新點餐 (內用空桌或外帶)
+        actionBtns.innerHTML = `
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="submitOrder(false)" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl text-xs shadow">
+              🛎️ 送單至廚房
+            </button>
+            <button onclick="openPayModalForNew()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs shadow">
+              💳 即時結帳付款
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    // 送單至廚房
+    async function submitOrder(isAppend = false) {
+      if (cart.length === 0) return alert('尚未選取品項！');
+
+      const payload = {
+        table_id: currentTable ? currentTable.id : null,
+        order_type: currentTable ? 'DINE_IN' : 'TAKE_OUT',
+        items: cart
+      };
+
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(isAppend ? `追加餐點已送出廚房看板！` : `訂單送出成功！單號: ${data.orderNumber}\n已指派至廚房看板 (KDS)`);
+        cart = [];
+        await loadTables();
+        if (currentTable) {
+          // 重新載入已點單
+          const ordRes = await fetch(`/api/orders/${data.orderId}`);
+          currentDiningOrder = await ordRes.json();
+          renderRightPanel();
+        } else {
+          resetCartOrOrder();
+        }
+      }
+    }
+
+    // 為用餐中桌位開啟結帳彈窗
+    function openPayModalForDining() {
+      if (!currentDiningOrder) return;
+      document.getElementById('payOrderInfo').innerText = `單號: ${currentDiningOrder.order_number}`;
+      document.getElementById('payTableBadge').innerText = currentTable ? currentTable.table_name : '內用';
+      document.getElementById('payFinalAmount').innerText = document.getElementById('txtFinal').innerText;
+      document.getElementById('modalPay').classList.remove('hidden');
+    }
+
+    // 新單直接結帳 (先結後出/快結)
+    async function openPayModalForNew() {
+      if (cart.length === 0) return alert('購物車內尚無品項！');
+      // 先建立訂單
+      const payload = {
+        table_id: currentTable ? currentTable.id : null,
+        order_type: currentTable ? 'DINE_IN' : 'TAKE_OUT',
+        items: cart
+      };
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        currentDiningOrder = data.fullOrder;
+        cart = [];
+        openPayModalForDining();
+      }
+    }
+
+    function closePayModal() {
+      document.getElementById('modalPay').classList.add('hidden');
+    }
+
+    function selectPayMethod(method) {
+      selectedPayMethod = method;
+      document.querySelectorAll('.pay-btn').forEach(btn => {
+        btn.className = 'pay-btn border border-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs';
+      });
+      const map = { 'CASH': 'pmCash', 'LINE_PAY': 'pmLine', 'CREDIT_CARD': 'pmCard' };
+      document.getElementById(map[method]).className = 'pay-btn border-2 border-emerald-600 bg-emerald-50 text-emerald-800 font-bold py-2.5 rounded-xl text-xs';
+    }
+
+    // 執行結帳
+    async function executePayment() {
+      if (!currentDiningOrder) return alert('找不到訂單資訊！');
+
+      const carrier = document.getElementById('invoiceCarrierInput').value.trim();
+      const res = await fetch(`/api/orders/${currentDiningOrder.id}/pay`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          payment_method: selectedPayMethod,
+          invoice_carrier: carrier
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        closePayModal();
+        alert(`結帳成功！\n發票號碼: ${data.invoice.invoiceNumber}\n實收金額: NT$ ${data.order.final_amount}\n桌位已自動釋放為空桌！`);
+        resetCartOrOrder();
+      }
+    }
+
+    // 作廢當前訂單
+    async function cancelCurrentOrder() {
+      if (!currentDiningOrder) return;
+      if (!confirm(`確定要作廢 ${currentDiningOrder.order_number} 這筆訂單並清桌嗎？`)) return;
+
+      const res = await fetch(`/api/orders/${currentDiningOrder.id}/cancel`, { method: 'POST' });
+      if (res.ok) {
+        alert('訂單已作廢，桌位已清空！');
+        resetCartOrOrder();
+      }
+    }
+
+    function switchView(view) {
+      if (view === 'TABLES') {
+        document.getElementById('viewTables').classList.remove('hidden');
+        document.getElementById('viewMenu').classList.add('hidden');
+        document.getElementById('tabTablesBtn').className = 'px-5 py-2.5 font-bold text-sm rounded-t-xl bg-white border-t-2 border-emerald-600 text-emerald-700 shadow-sm';
+        document.getElementById('tabMenuBtn').className = 'px-5 py-2.5 font-bold text-sm rounded-t-xl text-slate-600 hover:text-slate-900';
+      } else {
+        document.getElementById('viewTables').classList.add('hidden');
+        document.getElementById('viewMenu').classList.remove('hidden');
+        document.getElementById('tabMenuBtn').className = 'px-5 py-2.5 font-bold text-sm rounded-t-xl bg-white border-t-2 border-emerald-600 text-emerald-700 shadow-sm';
+        document.getElementById('tabTablesBtn').className = 'px-5 py-2.5 font-bold text-sm rounded-t-xl text-slate-600 hover:text-slate-900';
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

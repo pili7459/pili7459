@@ -1,0 +1,372 @@
+{
+  "store_info": {
+    "name": "小森食光坊",
+    "phone": "04-24920000",
+    "address": "台中市大里區中湖路6-3號",
+    "tax_id": "80069119"
+  },
+  "tables": [
+    {
+      "id": 1,
+      "table_code": "T01",
+      "table_name": "桌號 1",
+      "capacity": 2,
+      "status": "IDLE",
+      "current_order_id": null
+    },
+    {
+      "id": 2,
+      "table_code": "T02",
+      "table_name": "桌號 2",
+      "capacity": 4,
+      "status": "IDLE",
+      "current_order_id": null
+    },
+    {
+      "id": 3,
+      "table_code": "T03",
+      "table_name": "桌號 3",
+      "capacity": 4,
+      "status": "IDLE",
+      "current_order_id": null
+    },
+    {
+      "id": 4,
+      "table_code": "T04",
+      "table_name": "桌號 4",
+      "capacity": 4,
+      "status": "IDLE",
+      "current_order_id": null
+    },
+    {
+      "id": 5,
+      "table_code": "T05",
+      "table_name": "桌號 5",
+      "capacity": 6,
+      "status": "IDLE",
+      "current_order_id": null
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "手作粉漿蛋餅",
+      "sort_order": 1
+    },
+    {
+      "id": 2,
+      "name": "經典漢堡 / 吐司",
+      "sort_order": 2
+    },
+    {
+      "id": 3,
+      "name": "飲品茶飲",
+      "sort_order": 3
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "category_id": 1,
+      "name": "原味粉漿蛋餅",
+      "price": 35,
+      "station": "KITCHEN",
+      "is_active": 1
+    },
+    {
+      "id": 2,
+      "category_id": 1,
+      "name": "起司粉漿蛋餅",
+      "price": 45,
+      "station": "KITCHEN",
+      "is_active": 1
+    },
+    {
+      "id": 3,
+      "category_id": 1,
+      "name": "蔥花九層塔蛋餅",
+      "price": 50,
+      "station": "KITCHEN",
+      "is_active": 1
+    },
+    {
+      "id": 4,
+      "category_id": 2,
+      "name": "特製里肌豬排蛋堡",
+      "price": 65,
+      "station": "KITCHEN",
+      "is_active": 1
+    },
+    {
+      "id": 5,
+      "category_id": 2,
+      "name": "咔啦雞腿蛋吐司",
+      "price": 75,
+      "station": "KITCHEN",
+      "is_active": 1
+    },
+    {
+      "id": 6,
+      "category_id": 3,
+      "name": "南非國寶茶 (無糖)",
+      "price": 30,
+      "station": "BAR",
+      "is_active": 1
+    },
+    {
+      "id": 7,
+      "category_id": 3,
+      "name": "小森經典鮮奶茶",
+      "price": 45,
+      "station": "BAR",
+      "is_active": 1
+    },
+    {
+      "id": 8,
+      "category_id": 3,
+      "name": "特調冷萃咖啡",
+      "price": 50,
+      "station": "BAR",
+      "is_active": 1
+    }
+  ],
+  "modifier_groups": [
+    {
+      "id": 1,
+      "product_id": 1,
+      "name": "加料客製",
+      "is_multiple": 1
+    },
+    {
+      "id": 2,
+      "product_id": 2,
+      "name": "加料客製",
+      "is_multiple": 1
+    },
+    {
+      "id": 3,
+      "product_id": 3,
+      "name": "加料客製",
+      "is_multiple": 1
+    },
+    {
+      "id": 4,
+      "product_id": 6,
+      "name": "冰量選擇",
+      "is_multiple": 0
+    },
+    {
+      "id": 5,
+      "product_id": 6,
+      "name": "甜度選擇",
+      "is_multiple": 0
+    },
+    {
+      "id": 6,
+      "product_id": 7,
+      "name": "冰量選擇",
+      "is_multiple": 0
+    },
+    {
+      "id": 7,
+      "product_id": 7,
+      "name": "甜度選擇",
+      "is_multiple": 0
+    },
+    {
+      "id": 8,
+      "product_id": 8,
+      "name": "冰量選擇",
+      "is_multiple": 0
+    },
+    {
+      "id": 9,
+      "product_id": 8,
+      "name": "甜度選擇",
+      "is_multiple": 0
+    },
+    {
+      "id": 10,
+      "product_id": 1,
+      "name": "口感",
+      "is_multiple": 0
+    },
+    {
+      "id": 11,
+      "product_id": 2,
+      "name": "客製加料",
+      "is_multiple": 1
+    }
+  ],
+  "modifier_options": [
+    {
+      "id": 1,
+      "group_id": 1,
+      "name": "加起司",
+      "extra_price": 15
+    },
+    {
+      "id": 2,
+      "group_id": 1,
+      "name": "加蛋",
+      "extra_price": 15
+    },
+    {
+      "id": 5,
+      "group_id": 2,
+      "name": "加起司",
+      "extra_price": 15
+    },
+    {
+      "id": 6,
+      "group_id": 2,
+      "name": "加蛋",
+      "extra_price": 15
+    },
+    {
+      "id": 7,
+      "group_id": 3,
+      "name": "加起司",
+      "extra_price": 15
+    },
+    {
+      "id": 8,
+      "group_id": 3,
+      "name": "加蛋",
+      "extra_price": 15
+    },
+    {
+      "id": 10,
+      "group_id": 4,
+      "name": "去冰",
+      "extra_price": 0
+    },
+    {
+      "id": 11,
+      "group_id": 5,
+      "name": "無糖",
+      "extra_price": 0
+    },
+    {
+      "id": 13,
+      "group_id": 6,
+      "name": "正常冰",
+      "extra_price": 0
+    },
+    {
+      "id": 14,
+      "group_id": 6,
+      "name": "去冰",
+      "extra_price": 0
+    },
+    {
+      "id": 15,
+      "group_id": 7,
+      "name": "微糖 3分",
+      "extra_price": 0
+    },
+    {
+      "id": 16,
+      "group_id": 7,
+      "name": "半糖 5分",
+      "extra_price": 0
+    },
+    {
+      "id": 17,
+      "group_id": 8,
+      "name": "正常冰",
+      "extra_price": 0
+    },
+    {
+      "id": 18,
+      "group_id": 8,
+      "name": "去冰",
+      "extra_price": 0
+    },
+    {
+      "id": 19,
+      "group_id": 9,
+      "name": "無糖",
+      "extra_price": 0
+    },
+    {
+      "id": 20,
+      "group_id": 1,
+      "name": "加九層塔",
+      "extra_price": 15
+    },
+    {
+      "id": 21,
+      "group_id": 10,
+      "name": "焦一點",
+      "extra_price": 0
+    },
+    {
+      "id": 22,
+      "group_id": 10,
+      "name": "不要焦",
+      "extra_price": 0
+    },
+    {
+      "id": 23,
+      "group_id": 11,
+      "name": "加起司",
+      "extra_price": 15
+    },
+    {
+      "id": 24,
+      "group_id": 11,
+      "name": "加荷包蛋",
+      "extra_price": 15
+    },
+    {
+      "id": 25,
+      "group_id": 11,
+      "name": "加培根",
+      "extra_price": 20
+    },
+    {
+      "id": 26,
+      "group_id": 11,
+      "name": "加泡菜",
+      "extra_price": 20
+    },
+    {
+      "id": 27,
+      "group_id": 11,
+      "name": "多醬油膏",
+      "extra_price": 0
+    },
+    {
+      "id": 28,
+      "group_id": 11,
+      "name": "特製朝天辣椒醬",
+      "extra_price": 0
+    },
+    {
+      "id": 29,
+      "group_id": 4,
+      "name": "溫",
+      "extra_price": 0
+    },
+    {
+      "id": 30,
+      "group_id": 1,
+      "name": "加玉米",
+      "extra_price": 10
+    }
+  ],
+  "orders": [],
+  "order_items": [],
+  "settlements": [],
+  "auto_ids": {
+    "categories": 4,
+    "products": 9,
+    "tables": 7,
+    "orders": 1,
+    "order_items": 1,
+    "settlements": 1,
+    "modifier_groups": 12,
+    "modifier_options": 31
+  }
+}

@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>小森食光坊 · 後台管理與規格加料中心</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen font-sans p-6 text-slate-800">
+  <div class="max-w-6xl mx-auto space-y-6">
+    <!-- 頂部 Header -->
+    <div class="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow">⚙️</div>
+        <div>
+          <h1 class="text-xl font-bold text-slate-800">小森食光坊 · 後台管理中心</h1>
+          <p class="text-xs text-slate-500">菜單商品登錄維護 · 規格加料設定 · 桌位配置 · 歷史營收查詢 · 每日日結封存</p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <a href="/pos.html" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-300">進入前台 POS</a>
+        <a href="/kds.html" target="_blank" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-300">廚房 KDS</a>
+      </div>
+    </div>
+
+    <!-- 導航分頁 Tabs -->
+    <div class="flex border-b border-slate-200 gap-2">
+      <button onclick="switchTab('REPORTS')" id="tabBtnReports" class="tab-btn px-5 py-3 font-bold text-sm border-b-2 border-blue-600 text-blue-600">📊 營收日結對帳</button>
+      <button onclick="switchTab('MENU')" id="tabBtnMenu" class="tab-btn px-5 py-3 font-bold text-sm text-slate-500 hover:text-slate-800">📋 菜單與商品登錄</button>
+      <button onclick="switchTab('MODIFIERS')" id="tabBtnModifiers" class="tab-btn px-5 py-3 font-bold text-sm text-slate-500 hover:text-slate-800">🧂 規格客製與加料管理</button>
+      <button onclick="switchTab('TABLES')" id="tabBtnTables" class="tab-btn px-5 py-3 font-bold text-sm text-slate-500 hover:text-slate-800">🪑 桌位配置管理</button>
+      <button onclick="switchTab('HISTORY')" id="tabBtnHistory" class="tab-btn px-5 py-3 font-bold text-sm text-slate-500 hover:text-slate-800">📁 歷史日結封存檔案</button>
+    </div>
+
+    <!-- 分頁 1: 營收報表與當日日結 -->
+    <div id="sectionReports" class="space-y-6">
+      <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex items-center gap-3">
+          <label class="text-xs font-bold text-slate-600">選擇查詢日期：</label>
+          <input type="date" id="queryDateInput" onchange="loadDailyReport()" class="text-sm px-3 py-1.5 border border-slate-300 rounded-lg">
+          <button onclick="setTodayDate()" class="text-xs bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-300 font-medium">今天</button>
+        </div>
+        <button onclick="openSettleModal()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow">
+          📝 執行本日交班日結封存
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="text-xs text-slate-500 font-medium">總營業額 (<span id="statOrderCount">0</span> 單)</div>
+          <div id="statRevenue" class="text-2xl font-black text-slate-900 mt-2">NT$ 0</div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="text-xs text-slate-500 font-medium">💵 現金實收</div>
+          <div id="statCash" class="text-2xl font-black text-emerald-600 mt-2">NT$ 0</div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="text-xs text-slate-500 font-medium">💚 LINE Pay</div>
+          <div id="statLinePay" class="text-2xl font-black text-emerald-700 mt-2">NT$ 0</div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="text-xs text-slate-500 font-medium">💳 信用卡</div>
+          <div id="statCard" class="text-2xl font-black text-blue-600 mt-2">NT$ 0</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <h2 class="text-base font-bold text-slate-800">熱銷品項排行榜</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="border-b border-slate-200 text-slate-400">
+                  <th class="py-2">排名</th><th>品項</th><th>銷量</th><th class="text-right">銷售額</th>
+                </tr>
+              </thead>
+              <tbody id="topItemsBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <h2 class="text-base font-bold text-slate-800">已結帳訂單流水紀錄</h2>
+          <div class="overflow-y-auto max-h-72">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="border-b border-slate-200 text-slate-400">
+                  <th class="py-2">單號</th><th>桌位</th><th>支付</th><th class="text-right">金額</th>
+                </tr>
+              </thead>
+              <tbody id="ordersFlowBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 分頁 2: 菜單商品登錄與分類維護 -->
+    <div id="sectionMenu" class="space-y-6 hidden">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">菜單品項管理</h2>
+          <p class="text-xs text-slate-500">在此新增或修改店內餐點、調整定價與指定廚房出餐工作站</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="openCategoryModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow">+ 新增分類</button>
+          <button onclick="openProductModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow">+ 登錄新商品</button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 border-b border-slate-200 text-slate-500">
+            <tr>
+              <th class="p-3.5">ID</th>
+              <th>商品名稱</th>
+              <th>分類</th>
+              <th>定價 (NT$)</th>
+              <th>工作站</th>
+              <th>狀態</th>
+              <th class="text-right p-3.5">操作</th>
+            </tr>
+          </thead>
+          <tbody id="adminProductsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 分頁 3: 規格客製與加料管理 (視覺化編輯器) -->
+    <div id="sectionModifiers" class="space-y-6 hidden">
+      <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">🧂 規格加料視覺化編輯器</h2>
+          <p class="text-xs text-slate-500 mt-0.5">為各餐點設定單選規格（甜度/冰量）或多選加料（加蛋/加起司/醬料備註）及加價金額</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <label class="text-xs font-bold text-slate-600">篩選商品：</label>
+          <select id="modProductFilterSelect" onchange="renderModifierCards()" class="text-xs px-3 py-2 border border-slate-300 rounded-xl font-bold"></select>
+          <button onclick="openAddGroupModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow">
+            + 為當前商品新增規格群組
+          </button>
+        </div>
+      </div>
+
+      <!-- 快速套用模板小工具條 -->
+      <div class="bg-blue-50/70 border border-blue-200 rounded-2xl p-4 flex justify-between items-center text-xs">
+        <div class="flex items-center gap-2 text-blue-900">
+          <span class="text-base">⚡</span>
+          <span class="font-bold">快速套用通用模板：</span>
+          <span class="text-blue-700">可為當前選中商品一鍵生成完整規格群組與選項</span>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="applyTemplate('BRUNCH_ADDONS')" class="px-3 py-1.5 bg-white hover:bg-blue-100 text-blue-800 font-bold rounded-lg border border-blue-300 shadow-sm">
+            🍳 套用【早午餐客製加料模板】(起司/蛋/辣醬)
+          </button>
+          <button onclick="applyTemplate('DRINK')" class="px-3 py-1.5 bg-white hover:bg-blue-100 text-blue-800 font-bold rounded-lg border border-blue-300 shadow-sm">
+            🧋 套用【茶飲甜度冰量模板】(全/半/微/無糖、正/少/去冰)
+          </button>
+        </div>
+      </div>
+
+      <!-- 規格群組卡片展示區 -->
+      <div id="modifierCardsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- 動態渲染各群組與其選項 -->
+      </div>
+    </div>
+
+    <!-- 分頁 4: 桌位配置管理 -->
+    <div id="sectionTables" class="space-y-6 hidden">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">桌位配置管理</h2>
+          <p class="text-xs text-slate-500">設定店內內用桌號與容納人數</p>
+        </div>
+        <button onclick="openTableModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow">+ 新增桌位</button>
+      </div>
+
+      <div class="grid grid-cols-4 gap-4" id="adminTablesGrid"></div>
+    </div>
+
+    <!-- 分頁 5: 歷史日結封存檔案 -->
+    <div id="sectionHistory" class="space-y-6 hidden">
+      <div>
+        <h2 class="text-lg font-bold text-slate-800">歷史日結封帳存檔</h2>
+        <p class="text-xs text-slate-500">每次交班日結時永久保存的對帳紀錄，包含備用金、現金短溢與電子支付總額</p>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 border-b border-slate-200 text-slate-500">
+            <tr>
+              <th class="p-3.5">結帳日期</th>
+              <th>交班人員</th>
+              <th>總營收</th>
+              <th>系統現金</th>
+              <th>盤點現金</th>
+              <th>短溢差額</th>
+              <th>LINE Pay</th>
+              <th>信用卡</th>
+              <th class="p-3.5">封存時間</th>
+            </tr>
+          </thead>
+          <tbody id="settlementsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 彈窗: 新增/編輯規格群組 -->
+  <div id="modalModGroup" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <h3 class="text-lg font-bold text-slate-900" id="modGroupModalTitle">新增規格群組</h3>
+      <input type="hidden" id="editModGroupId">
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">目標商品</label>
+          <select id="modalGroupProdSelect" class="w-full p-2 border rounded-lg font-bold text-slate-800"></select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">規格群組名稱</label>
+          <input type="text" id="modGroupNameInput" placeholder="如：蛋餅加料、冰量選擇、甜度" class="w-full p-2 border rounded-lg">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">選擇模式</label>
+          <div class="grid grid-cols-2 gap-2 mt-1">
+            <label class="flex items-center gap-2 p-2 border rounded-lg cursor-pointer hover:bg-slate-50">
+              <input type="radio" name="modGroupType" value="0" checked>
+              <span class="font-bold">單選 (如冰量/甜度)</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 border rounded-lg cursor-pointer hover:bg-slate-50">
+              <input type="radio" name="modGroupType" value="1">
+              <span class="font-bold">多選 (如加料/配料)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2 border-t">
+        <button onclick="closeAddGroupModal()" class="px-4 py-2 text-slate-500 text-xs">取消</button>
+        <button onclick="saveModGroup()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow">儲存群組</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 彈窗: 新增/編輯規格選項細項 -->
+  <div id="modalModOption" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <h3 class="text-lg font-bold text-slate-900" id="modOptModalTitle">新增規格選項細項</h3>
+      <input type="hidden" id="optParentGroupId">
+      <input type="hidden" id="editOptId">
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">選項名稱</label>
+          <input type="text" id="optNameInput" placeholder="如：加雙倍起司、微糖、去冰" class="w-full p-2 border rounded-lg">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">加價金額 (NT$)</label>
+          <input type="number" id="optPriceInput" value="0" placeholder="0" class="w-full p-2 border rounded-lg font-mono font-bold">
+          <p class="text-[11px] text-slate-400 mt-1">若不加價（如微糖/去冰/多醬）請填 0</p>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2 border-t">
+        <button onclick="closeModOptModal()" class="px-4 py-2 text-slate-500 text-xs">取消</button>
+        <button onclick="saveModOption()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow">確認儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 彈窗: 執行日結交班 -->
+  <div id="modalSettle" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <h3 class="text-lg font-bold text-slate-900">執行本日交班日結</h3>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">交班人姓名</label>
+          <input type="text" id="settleCashier" value="店長" class="w-full p-2 border rounded-lg">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">開櫃備用金 (NT$)</label>
+          <input type="number" id="settleInitialCash" value="2000" class="w-full p-2 border rounded-lg font-mono">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">實盤現金總額 (NT$ - 包含備用金)</label>
+          <input type="number" id="settleActualCash" placeholder="請清點錢箱現金填入" class="w-full p-2 border rounded-lg font-mono text-base font-bold text-emerald-700">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">交班備註</label>
+          <input type="text" id="settleNote" placeholder="例如：換零錢、外送小費等" class="w-full p-2 border rounded-lg">
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2 border-t">
+        <button onclick="closeSettleModal()" class="px-4 py-2 text-slate-500 text-xs">取消</button>
+        <button onclick="confirmSettle()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow">確認封帳存檔</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 彈窗: 商品登錄/編輯 -->
+  <div id="modalProduct" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <h3 class="text-lg font-bold text-slate-900" id="prodModalTitle">登錄餐點商品</h3>
+      <input type="hidden" id="editProdId">
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">所屬分類</label>
+          <select id="prodCategorySelect" class="w-full p-2 border rounded-lg"></select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">餐點名稱</label>
+          <input type="text" id="prodNameInput" placeholder="如：玉米起司粉漿蛋餅" class="w-full p-2 border rounded-lg">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">定價 (NT$)</label>
+          <input type="number" id="prodPriceInput" placeholder="45" class="w-full p-2 border rounded-lg font-mono">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">出餐工作站</label>
+          <select id="prodStationSelect" class="w-full p-2 border rounded-lg">
+            <option value="KITCHEN">熟食廚房 (出切單)</option>
+            <option value="BAR">吧檯飲料 (出標籤)</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2 border-t">
+        <button onclick="closeProductModal()" class="px-4 py-2 text-slate-500 text-xs">取消</button>
+        <button onclick="saveProduct()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow">儲存商品</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 彈窗: 分類新增 -->
+  <div id="modalCategory" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <h3 class="text-lg font-bold text-slate-900">新增菜單分類</h3>
+      <div class="text-xs">
+        <label class="block font-bold text-slate-700 mb-1">分類名稱</label>
+        <input type="text" id="catNameInput" placeholder="如：熱壓吐司系列" class="w-full p-2 border rounded-lg">
+      </div>
+      <div class="flex justify-end gap-2 pt-2 border-t">
+        <button onclick="closeCategoryModal()" class="px-4 py-2 text-slate-500 text-xs">取消</button>
+        <button onclick="saveCategory()" class="px-5 py-2 bg-slate-800 text-white font-bold text-xs rounded-xl shadow">確認新增</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let adminMenuCache = null;
+    let allModifiersCache = [];
+
+    function init() {
+      setTodayDate();
+      loadDailyReport();
+      loadAdminProducts();
+      loadAdminTables();
+      loadSettlements();
+      loadAdminModifiers();
+    }
+
+    function setTodayDate() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('queryDateInput').value = today;
+      loadDailyReport();
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.className = 'tab-btn px-5 py-3 font-bold text-sm text-slate-500 hover:text-slate-800';
+      });
+      document.getElementById('sectionReports').classList.add('hidden');
+      document.getElementById('sectionMenu').classList.add('hidden');
+      document.getElementById('sectionModifiers').classList.add('hidden');
+      document.getElementById('sectionTables').classList.add('hidden');
+      document.getElementById('sectionHistory').classList.add('hidden');
+
+      if (tab === 'REPORTS') {
+        document.getElementById('sectionReports').classList.remove('hidden');
+        document.getElementById('tabBtnReports').className = 'tab-btn px-5 py-3 font-bold text-sm border-b-2 border-blue-600 text-blue-600';
+      } else if (tab === 'MENU') {
+        document.getElementById('sectionMenu').classList.remove('hidden');
+        document.getElementById('tabBtnMenu').className = 'tab-btn px-5 py-3 font-bold text-sm border-b-2 border-blue-600 text-blue-600';
+      } else if (tab === 'MODIFIERS') {
+        document.getElementById('sectionModifiers').classList.remove('hidden');
+        document.getElementById('tabBtnModifiers').className = 'tab-btn px-5 py-3 font-bold text-sm border-b-2 border-blue-600 text-blue-600';
+        loadAdminModifiers();
+      } else if (tab === 'TABLES') {
+        document.getElementById('sectionTables').classList.remove('hidden');
+        document.getElementById('tabBtnTables').className = 'tab-btn px-5 py-3 font-bold text-sm border-b-2 border-blue-600 text-blue-600';
+      } else if (tab === 'HISTORY') {
+        document.getElementById('sectionHistory').classList.remove('hidden');
+        document.getElementById('tabBtnHistory').className = 'tab-btn px-5 py-3 font-bold text-sm border-b-2 border-blue-600 text-blue-600';
+      }
+    }
+
+    // ================= 規格加料管理模組 (視覺化邏輯) =================
+    async function loadAdminModifiers() {
+      const res = await fetch('/api/admin/modifiers');
+      allModifiersCache = await res.json();
+
+      const filterSelect = document.getElementById('modProductFilterSelect');
+      const prevVal = filterSelect.value;
+      filterSelect.innerHTML = '<option value="ALL">全部商品 (' + allModifiersCache.length + ' 項)</option>';
+      allModifiersCache.forEach(p => {
+        filterSelect.innerHTML += '<option value="' + p.product_id + '">[' + p.category_name + '] ' + p.product_name + '</option>';
+      });
+
+      if (prevVal && [...filterSelect.options].some(o => o.value === prevVal)) {
+        filterSelect.value = prevVal;
+      }
+
+      renderModifierCards();
+    }
+
+    function renderModifierCards() {
+      const filterVal = document.getElementById('modProductFilterSelect').value;
+      const container = document.getElementById('modifierCardsContainer');
+      container.innerHTML = '';
+
+      const targetList = filterVal === 'ALL' || !filterVal
+        ? allModifiersCache
+        : allModifiersCache.filter(p => String(p.product_id) === filterVal);
+
+      let totalGroupsCount = 0;
+
+      targetList.forEach(prod => {
+        if (!prod.groups || prod.groups.length === 0) {
+          if (targetList.length === 1) {
+            container.innerHTML = `
+              <div class="col-span-2 bg-white rounded-2xl p-10 text-center border border-slate-200">
+                <div class="text-4xl mb-2">🧂</div>
+                <div class="font-bold text-slate-800 text-base">此餐點「${prod.product_name}」尚未建立任何規格群組</div>
+                <div class="text-xs text-slate-400 mt-1 mb-4">您可以點擊右上角新增群組，或點選上方「快速套用通用模板」一鍵生成！</div>
+                <button onclick="openAddGroupModal(${prod.product_id})" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow">
+                  + 為 ${prod.product_name} 新增規格群組
+                </button>
+              </div>
+            `;
+          }
+          return;
+        }
+
+        prod.groups.forEach(grp => {
+          totalGroupsCount++;
+          const card = document.createElement('div');
+          card.className = 'bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4';
+
+          let optionsHtml = '';
+          if (grp.options && grp.options.length > 0) {
+            optionsHtml = grp.options.map(opt => `
+              <div class="flex justify-between items-center bg-slate-50 hover:bg-slate-100/80 px-3.5 py-2 rounded-xl border border-slate-100 text-xs">
+                <div class="flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full ${grp.is_multiple ? 'bg-amber-500' : 'bg-blue-500'}"></span>
+                  <span class="font-bold text-slate-800">${opt.name}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="font-mono font-bold ${opt.extra_price > 0 ? 'text-emerald-700' : 'text-slate-400'}">
+                    ${opt.extra_price > 0 ? '+ NT$ ' + opt.extra_price : '不加價 (NT$ 0)'}
+                  </span>
+                  <button onclick="editModOption(${grp.id}, ${JSON.stringify(opt).replace(/"/g, '&quot;')})" class="text-blue-600 hover:underline">改價</button>
+                  <button onclick="deleteModOption(${opt.id})" class="text-rose-500 hover:text-rose-700 font-bold">&times;</button>
+                </div>
+              </div>
+            `).join('');
+          } else {
+            optionsHtml = `<div class="text-xs text-slate-400 text-center py-3 bg-slate-50 rounded-xl border border-dashed border-slate-200">群組內尚無選項細項，請點下方按鈕新增</div>`;
+          }
+
+          card.innerHTML = `
+            <div class="flex justify-between items-start border-b border-slate-100 pb-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs px-2 py-0.5 rounded font-bold bg-slate-100 text-slate-600">${prod.category_name}</span>
+                  <h3 class="font-black text-slate-800 text-base">${grp.name}</h3>
+                  <span class="text-[11px] px-2 py-0.5 rounded-md font-bold ${grp.is_multiple ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}">
+                    ${grp.is_multiple ? '多選加料' : '單選規格'}
+                  </span>
+                </div>
+                <div class="text-xs text-slate-400 mt-1">套用品項：<strong class="text-slate-700">${prod.product_name}</strong></div>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="editModGroup(${prod.product_id}, ${JSON.stringify(grp).replace(/"/g, '&quot;')})" class="text-xs text-blue-600 hover:underline font-bold">編輯群組</button>
+                <button onclick="deleteModGroup(${grp.id})" class="text-xs text-rose-600 hover:underline">刪除群組</button>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex justify-between items-center text-xs text-slate-500 font-bold px-1">
+                <span>規格選項清單 (${grp.options.length})</span>
+                <span class="text-[11px] text-slate-400 font-normal">前台依此順序展示</span>
+              </div>
+              ${optionsHtml}
+            </div>
+
+            <div class="pt-2 border-t border-slate-50 flex justify-end">
+              <button onclick="openAddOptionModal(${grp.id})" class="px-3.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                + 新增選項細項
+              </button>
+            </div>
+          `;
+
+          container.appendChild(card);
+        });
+      });
+
+      if (totalGroupsCount === 0 && filterVal === 'ALL') {
+        container.innerHTML = `
+          <div class="col-span-2 bg-white rounded-2xl p-10 text-center border border-slate-200 text-slate-400">
+            <div class="text-4xl mb-2">🧂</div>
+            <div class="font-bold text-slate-700 text-base">目前尚無任何餐點規格資料</div>
+            <div class="text-xs mt-1">請點選右上角新增，或選擇商品套用模板！</div>
+          </div>
+        `;
+      }
+    }
+
+    function openAddGroupModal(preselectProdId) {
+      document.getElementById('editModGroupId').value = '';
+      document.getElementById('modGroupModalTitle').innerText = '新增規格群組';
+      document.getElementById('modGroupNameInput').value = '';
+      document.querySelector('input[name="modGroupType"][value="0"]').checked = true;
+
+      const sel = document.getElementById('modalGroupProdSelect');
+      sel.innerHTML = '';
+      allModifiersCache.forEach(p => {
+        sel.innerHTML += `<option value="${p.product_id}">[${p.category_name}] ${p.product_name}</option>`;
+      });
+
+      if (preselectProdId) {
+        sel.value = preselectProdId;
+      } else {
+        const filterVal = document.getElementById('modProductFilterSelect').value;
+        if (filterVal !== 'ALL') sel.value = filterVal;
+      }
+
+      document.getElementById('modalModGroup').classList.remove('hidden');
+    }
+
+    function editModGroup(prodId, grp) {
+      document.getElementById('editModGroupId').value = grp.id;
+      document.getElementById('modGroupModalTitle').innerText = '編輯規格群組名稱與類型';
+      document.getElementById('modGroupNameInput').value = grp.name;
+      document.querySelector(`input[name="modGroupType"][value="${grp.is_multiple}"]`).checked = true;
+
+      const sel = document.getElementById('modalGroupProdSelect');
+      sel.innerHTML = '';
+      allModifiersCache.forEach(p => {
+        sel.innerHTML += `<option value="${p.product_id}" ${p.product_id === prodId ? 'selected' : ''}>[${p.category_name}] ${p.product_name}</option>`;
+      });
+
+      document.getElementById('modalModGroup').classList.remove('hidden');
+    }
+
+    function closeAddGroupModal() {
+      document.getElementById('modalModGroup').classList.add('hidden');
+    }
+
+    async function saveModGroup() {
+      const id = document.getElementById('editModGroupId').value;
+      const product_id = document.getElementById('modalGroupProdSelect').value;
+      const name = document.getElementById('modGroupNameInput').value.trim();
+      const is_multiple = document.querySelector('input[name="modGroupType"]:checked').value;
+
+      if (!name) return alert('請填寫規格群組名稱！');
+
+      await fetch('/api/admin/modifiers/group', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, product_id, name, is_multiple })
+      });
+
+      closeAddGroupModal();
+      await loadAdminModifiers();
+    }
+
+    async function deleteModGroup(id) {
+      if (!confirm('確定刪除此規格群組？底下所有加料/客製選項將一併刪除！')) return;
+      await fetch(`/api/admin/modifiers/group/${id}`, { method: 'DELETE' });
+      await loadAdminModifiers();
+    }
+
+    function openAddOptionModal(groupId) {
+      document.getElementById('optParentGroupId').value = groupId;
+      document.getElementById('editOptId').value = '';
+      document.getElementById('modOptModalTitle').innerText = '新增規格選項細項';
+      document.getElementById('optNameInput').value = '';
+      document.getElementById('optPriceInput').value = '0';
+      document.getElementById('modalModOption').classList.remove('hidden');
+    }
+
+    function editModOption(groupId, opt) {
+      document.getElementById('optParentGroupId').value = groupId;
+      document.getElementById('editOptId').value = opt.id;
+      document.getElementById('modOptModalTitle').innerText = '修改選項名稱與加價金額';
+      document.getElementById('optNameInput').value = opt.name;
+      document.getElementById('optPriceInput').value = opt.extra_price;
+      document.getElementById('modalModOption').classList.remove('hidden');
+    }
+
+    function closeModOptModal() {
+      document.getElementById('modalModOption').classList.add('hidden');
+    }
+
+    async function saveModOption() {
+      const group_id = document.getElementById('optParentGroupId').value;
+      const id = document.getElementById('editOptId').value;
+      const name = document.getElementById('optNameInput').value.trim();
+      const extra_price = document.getElementById('optPriceInput').value;
+
+      if (!name) return alert('請填寫選項名稱！');
+
+      await fetch('/api/admin/modifiers/option', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, group_id, name, extra_price })
+      });
+
+      closeModOptModal();
+      await loadAdminModifiers();
+    }
+
+    async function deleteModOption(id) {
+      if (!confirm('確定刪除此選項？')) return;
+      await fetch(`/api/admin/modifiers/option/${id}`, { method: 'DELETE' });
+      await loadAdminModifiers();
+    }
+
+    async function applyTemplate(type) {
+      const filterVal = document.getElementById('modProductFilterSelect').value;
+      if (filterVal === 'ALL' || !filterVal) {
+        return alert('請先在上方「篩選商品」下拉選單中指定要套用模板的特定商品！');
+      }
+
+      const prod = allModifiersCache.find(p => String(p.product_id) === filterVal);
+      const typeText = type === 'DRINK' ? '茶飲甜度冰量模板' : '早午餐客製加料模板';
+      if (!confirm(`確定要為【${prod.product_name}】套用「${typeText}」嗎？`)) return;
+
+      const res = await fetch('/api/admin/modifiers/apply-template', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: filterVal, template_type: type })
+      });
+
+      if (res.ok) {
+        alert('模板套用成功！');
+        await loadAdminModifiers();
+      }
+    }
+
+    function jumpToProductModifiers(productId) {
+      switchTab('MODIFIERS');
+      document.getElementById('modProductFilterSelect').value = String(productId);
+      renderModifierCards();
+    }
+
+    // ================= 營業報表 =================
+    async function loadDailyReport() {
+      const date = document.getElementById('queryDateInput').value;
+      const res = await fetch(`/api/admin/reports?date=${date}`);
+      const data = await res.json();
+
+      document.getElementById('statOrderCount').innerText = data.summary.total_orders;
+      document.getElementById('statRevenue').innerText = `NT$ ${data.summary.total_revenue}`;
+      document.getElementById('statCash').innerText = `NT$ ${data.summary.cash_total}`;
+      document.getElementById('statLinePay').innerText = `NT$ ${data.summary.linepay_total}`;
+      document.getElementById('statCard').innerText = `NT$ ${data.summary.card_total}`;
+
+      const tbody = document.getElementById('topItemsBody');
+      tbody.innerHTML = '';
+      if (!data.topItems || data.topItems.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-slate-400">當日無品項銷量</td></tr>`;
+      } else {
+        data.topItems.forEach((it, idx) => {
+          tbody.innerHTML += `
+            <tr class="border-b border-slate-100 hover:bg-slate-50">
+              <td class="py-2.5 font-bold">#${idx + 1}</td>
+              <td class="font-bold text-slate-800">${it.product_name}</td>
+              <td class="text-slate-600">${it.total_qty} 份</td>
+              <td class="text-right font-bold text-emerald-700">NT$ ${it.total_sales}</td>
+            </tr>
+          `;
+        });
+      }
+
+      const flowBody = document.getElementById('ordersFlowBody');
+      flowBody.innerHTML = '';
+      if (!data.orders || data.orders.length === 0) {
+        flowBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-slate-400">當日無已結帳訂單</td></tr>`;
+      } else {
+        data.orders.forEach(o => {
+          flowBody.innerHTML += `
+            <tr class="border-b border-slate-100 hover:bg-slate-50">
+              <td class="py-2 font-mono text-slate-500">${o.order_number}</td>
+              <td class="font-bold">${o.table_name}</td>
+              <td><span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded font-bold">${o.payment_method}</span></td>
+              <td class="text-right font-bold text-emerald-700">NT$ ${o.final_amount}</td>
+            </tr>
+          `;
+        });
+      }
+    }
+
+    // ================= 菜單品項管理 =================
+    async function loadAdminProducts() {
+      const res = await fetch('/api/admin/menu');
+      adminMenuCache = await res.json();
+
+      const tbody = document.getElementById('adminProductsBody');
+      tbody.innerHTML = '';
+
+      adminMenuCache.products.forEach(p => {
+        const cat = adminMenuCache.categories.find(c => c.id === p.category_id);
+        tbody.innerHTML += `
+          <tr class="border-b border-slate-100 hover:bg-slate-50">
+            <td class="p-3.5 font-mono text-slate-400">${p.id}</td>
+            <td class="font-bold text-slate-800">${p.name}</td>
+            <td><span class="bg-slate-100 px-2 py-0.5 rounded text-slate-600">${cat ? cat.name : '未分類'}</span></td>
+            <td class="font-black text-emerald-700 font-mono">NT$ ${p.price}</td>
+            <td><span class="text-[10px] px-2 py-0.5 rounded font-bold ${p.station === 'KITCHEN' ? 'bg-orange-100 text-orange-800' : 'bg-cyan-100 text-cyan-800'}">${p.station === 'KITCHEN' ? '廚房熟食' : '吧檯飲料'}</span></td>
+            <td>${p.is_active ? '<span class="text-emerald-600 font-bold">上架中</span>' : '<span class="text-slate-400">已停用</span>'}</td>
+            <td class="p-3.5 text-right space-x-2">
+              <button onclick="jumpToProductModifiers(${p.id})" class="text-emerald-700 hover:underline font-bold bg-emerald-50 px-2 py-1 rounded border border-emerald-200">🧂 規格加料</button>
+              <button onclick='editProduct(${JSON.stringify(p)})' class="text-blue-600 hover:underline font-bold">編輯</button>
+              <button onclick="deleteProduct(${p.id})" class="text-rose-600 hover:underline">停用</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function openProductModal() {
+      document.getElementById('editProdId').value = '';
+      document.getElementById('prodModalTitle').innerText = '登錄餐點商品';
+      document.getElementById('prodNameInput').value = '';
+      document.getElementById('prodPriceInput').value = '';
+
+      const sel = document.getElementById('prodCategorySelect');
+      sel.innerHTML = '';
+      adminMenuCache.categories.forEach(c => {
+        sel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+      });
+
+      document.getElementById('modalProduct').classList.remove('hidden');
+    }
+
+    function editProduct(p) {
+      document.getElementById('editProdId').value = p.id;
+      document.getElementById('prodModalTitle').innerText = '編輯商品資料';
+      document.getElementById('prodNameInput').value = p.name;
+      document.getElementById('prodPriceInput').value = p.price;
+      document.getElementById('prodStationSelect').value = p.station || 'KITCHEN';
+
+      const sel = document.getElementById('prodCategorySelect');
+      sel.innerHTML = '';
+      adminMenuCache.categories.forEach(c => {
+        sel.innerHTML += `<option value="${c.id}" ${c.id === p.category_id ? 'selected' : ''}>${c.name}</option>`;
+      });
+
+      document.getElementById('modalProduct').classList.remove('hidden');
+    }
+
+    function closeProductModal() {
+      document.getElementById('modalProduct').classList.add('hidden');
+    }
+
+    async function saveProduct() {
+      const id = document.getElementById('editProdId').value;
+      const category_id = document.getElementById('prodCategorySelect').value;
+      const name = document.getElementById('prodNameInput').value.trim();
+      const price = document.getElementById('prodPriceInput').value;
+      const station = document.getElementById('prodStationSelect').value;
+
+      if (!name || !price) return alert('請填寫商品名稱與定價！');
+
+      await fetch('/api/admin/product', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, category_id, name, price, station })
+      });
+
+      closeProductModal();
+      loadAdminProducts();
+      loadAdminModifiers();
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('確定要下架此商品嗎？')) return;
+      await fetch(`/api/admin/product/${id}`, { method: 'DELETE' });
+      loadAdminProducts();
+    }
+
+    function openCategoryModal() {
+      document.getElementById('catNameInput').value = '';
+      document.getElementById('modalCategory').classList.remove('hidden');
+    }
+    function closeCategoryModal() {
+      document.getElementById('modalCategory').classList.add('hidden');
+    }
+    async function saveCategory() {
+      const name = document.getElementById('catNameInput').value.trim();
+      if (!name) return;
+      await fetch('/api/admin/category', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+      });
+      closeCategoryModal();
+      loadAdminProducts();
+    }
+
+    // ================= 桌位管理 =================
+    async function loadAdminTables() {
+      const res = await fetch('/api/tables');
+      const tables = await res.json();
+      const grid = document.getElementById('adminTablesGrid');
+      grid.innerHTML = '';
+      tables.forEach(t => {
+        grid.innerHTML += `
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between h-28">
+            <div class="flex justify-between items-start">
+              <span class="font-bold text-slate-800">${t.table_name}</span>
+              <span class="text-xs text-slate-400 font-mono">${t.table_code}</span>
+            </div>
+            <div class="text-xs text-slate-500">容納人數: ${t.capacity} 人</div>
+            <div class="text-right">
+              <button onclick="deleteTable(${t.id})" class="text-xs text-rose-600 hover:underline">刪除桌位</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    async function openTableModal() {
+      const name = prompt('請輸入新桌位名稱 (如: 桌號 7 或 戶外 A1)：');
+      if (!name) return;
+      const capacity = prompt('請輸入容納人數：', '4');
+      await fetch('/api/tables', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table_name: name, capacity: Number(capacity) || 4 })
+      });
+      loadAdminTables();
+    }
+
+    async function deleteTable(id) {
+      if (!confirm('確定刪除此桌位？')) return;
+      await fetch(`/api/tables/${id}`, { method: 'DELETE' });
+      loadAdminTables();
+    }
+
+    // ================= 日結交班封存 =================
+    function openSettleModal() {
+      document.getElementById('modalSettle').classList.remove('hidden');
+    }
+    function closeSettleModal() {
+      document.getElementById('modalSettle').classList.add('hidden');
+    }
+    async function confirmSettle() {
+      const date = document.getElementById('queryDateInput').value;
+      const cashier = document.getElementById('settleCashier').value.trim();
+      const initCash = document.getElementById('settleInitialCash').value;
+      const actualCash = document.getElementById('settleActualCash').value;
+      const note = document.getElementById('settleNote').value.trim();
+
+      if (!actualCash) return alert('請填寫盤點現金總額！');
+
+      const res = await fetch('/api/admin/settle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date,
+          cashier_name: cashier,
+          initial_cash: initCash,
+          actual_cash: actualCash,
+          note
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        closeSettleModal();
+        alert(`本日日結交班完成！\n總營收: NT$ ${data.settlement.total_revenue}\n現金短溢差額: NT$ ${data.settlement.diff_amount}\n已永久封存進歷史日結！`);
+        loadSettlements();
+      }
+    }
+
+    async function loadSettlements() {
+      const res = await fetch('/api/admin/settlements');
+      const list = await res.json();
+      const tbody = document.getElementById('settlementsBody');
+      tbody.innerHTML = '';
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-400">尚無封存的日結紀錄</td></tr>`;
+        return;
+      }
+      list.forEach(s => {
+        const diffColor = s.diff_amount === 0 ? 'text-slate-600' : (s.diff_amount > 0 ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold');
+        tbody.innerHTML += `
+          <tr class="border-b border-slate-100 hover:bg-slate-50">
+            <td class="p-3.5 font-bold">${s.settle_date}</td>
+            <td>${s.cashier_name}</td>
+            <td class="font-black text-slate-900 font-mono">NT$ ${s.total_revenue}</td>
+            <td class="font-mono">NT$ ${s.system_cash_sales}</td>
+            <td class="font-mono font-bold text-emerald-700">NT$ ${s.actual_cash_counted}</td>
+            <td class="${diffColor} font-mono">NT$ ${s.diff_amount > 0 ? '+' : ''}${s.diff_amount}</td>
+            <td class="font-mono">NT$ ${s.linepay_total}</td>
+            <td class="font-mono">NT$ ${s.card_total}</td>
+            <td class="p-3.5 text-slate-400 font-mono text-[10px]">${new Date(s.closed_at).toLocaleString('zh-TW')}</td>
+          </tr>
+        `;
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>
