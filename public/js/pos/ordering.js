@@ -224,12 +224,26 @@ export function updateCart(cartKey, baseId, name, price, optionsText, delta) {
 
 
 // ---------------------------------------- [切換商品招待狀態] 開始 ----------------------------------------
+let lastCompClickTime = {};
+
 export function toggleItemComp(cartKey) {
-  if (state.cart[cartKey]) {
-    state.cart[cartKey].isComp = !state.cart[cartKey].isComp;
-    updateCartUI();
+  const now = Date.now();
+  const lastTime = lastCompClickTime[cartKey] || 0;
+
+  // 0.5 秒 (500ms) 內點兩下才切換招待 ON/OFF
+  if (now - lastTime <= 500) {
+    lastCompClickTime[cartKey] = 0;
+    if (state.cart[cartKey]) {
+      state.cart[cartKey].isComp = !state.cart[cartKey].isComp;
+      showToast(state.cart[cartKey].isComp ? "🎁 已設為【招待 (免單)】" : "已取消招待");
+      updateCartUI();
+    }
+  } else {
+    lastCompClickTime[cartKey] = now;
+    showToast("⚠️ 請於 0.5 秒內連點兩下確認「招待」");
   }
 }
+window.toggleItemComp = toggleItemComp;
 // ---------------------------------------- [切換商品招待狀態] 結束 ----------------------------------------
 
 
@@ -307,18 +321,30 @@ export function updateCartUI() {
     let itemTotal = effectiveUnitPrice * item.qty;
     subtotal += itemTotal;
 
-    let rawName = (item.name || '').trim();
-    if (!rawName.includes('\n') && rawName.includes('+')) {
-      rawName = rawName.split('+').join('\n');
-    }
-    const nameLines = rawName.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    const nameLines = (item.name || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
     const mainTitle = nameLines[0] || '';
-    const subLines = nameLines.slice(1);
 
-    const subHtml = subLines.map(s => `<div style="font-size:0.8em; color:#64748b; line-height:1.2;">- ${s}</div>`).join('');
-    let optHtml = item.optionsText ? `<div class="cart-item-options">${item.optionsText}</div>` : '';
-    let safeNameStr = JSON.stringify(item.name);
-    let safeOptsStr = JSON.stringify(item.optionsText || "");
+    // 子品項與下方專屬客製化排版
+    let detailsHtml = '';
+    if (item.structuredOptions && item.structuredOptions.length > 0) {
+      detailsHtml += '<div class="cart-sub-item-block">';
+      item.structuredOptions.forEach(opt => {
+        let subMods = opt.subModifiers && opt.subModifiers.length > 0 ? ` (${opt.subModifiers.join(', ')})` : '';
+        let extraText = opt.price > 0 ? ` +$${opt.price}` : '';
+        detailsHtml += `
+          <div>
+            <span class="cart-sub-title">▪ ${opt.groupTitle}：${opt.name}${extraText}</span>
+            ${subMods ? `<span class="cart-sub-opt">${subMods}</span>` : ''}
+          </div>
+        `;
+      });
+      detailsHtml += '</div>';
+    } else if (item.optionsText) {
+      detailsHtml += `<div class="cart-sub-opt">${item.optionsText}</div>`;
+    }
+
+    // 顧客備註
+    let noteHtml = item.note ? `<div class="cart-item-note-text">📝 備註：${item.note}</div>` : '';
 
     let compBtnBg = item.isComp ? "#ef4444" : "#f1f5f9";
     let compBtnColor = item.isComp ? "#fff" : "#64748b";
@@ -331,19 +357,21 @@ export function updateCartUI() {
     cartDiv.innerHTML += `
       <div class="cart-item-row">
         <div class="cart-item-main">
-          <div style="flex:1; padding-right:8px;">
+          <div style="flex:1;">
             <div style="font-size:1.15em; font-weight:800; color:#0f172a;">${mainTitle}</div>
-            ${subHtml}
-            ${optHtml}
+            ${detailsHtml}
+            ${noteHtml}
           </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <button type="button" onclick="toggleItemComp('${cartKey}')" style="background:${compBtnBg}; color:${compBtnColor}; border:${compBorder}; padding:5px 8px; border-radius:6px; font-weight:bold; font-size:0.85em; cursor:pointer; white-space:nowrap;">🎁 招待</button>
+          <div style="display: flex; flex-direction:column; align-items: flex-end; gap: 8px;">
+            <button type="button" onclick="toggleItemComp('${cartKey}')" title="0.5秒內連點兩下切換招待" style="background:${compBtnBg}; color:${compBtnColor}; border:${compBorder}; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:0.8em; cursor:pointer;">
+              ${item.isComp ? '🎁 招待中' : '🎁 招待'}
+            </button>
             <div class="qty-control">
-              <button class="qty-btn" onclick='updateCart("${cartKey}", ${item.baseId}, ${safeNameStr}, ${item.price}, ${safeOptsStr}, -1)'>-</button>
+              <button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '', ${item.price}, '', -1)">-</button>
               <span class="qty-number">${item.qty}</span>
-              <button class="qty-btn" onclick='updateCart("${cartKey}", ${item.baseId}, ${safeNameStr}, ${item.price}, ${safeOptsStr}, 1)'>+</button>
+              <button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '', ${item.price}, '', 1)">+</button>
             </div>
-            <div style="font-weight: 900; font-size: 1.15em; color:#ea580c; min-width: 50px; text-align: right;">${priceDisplay}</div>
+            <div style="font-weight: 900; font-size: 1.15em; color:#ea580c; text-align: right;">${priceDisplay}</div>
           </div>
         </div>
       </div>`;
@@ -379,29 +407,53 @@ export function handleModalOverlayClick(e) {
   }
 }
 
+// 尋找菜單中單點飲料的規格（依名稱自動比對）
+function findDrinkModifiers(drinkName) {
+  if (!drinkName || !state.menuData) return [];
+  const cleanName = drinkName.replace(/\(.*?\)/g, '').trim();
+  const matched = state.menuData.find(m => {
+    const mName = m.name.split('\n')[0].trim();
+    return mName.includes(cleanName) || cleanName.includes(mName);
+  });
+  return (matched && matched.options) ? matched.options : [];
+}
+
 export function openModal(itemId) {
   const item = state.menuData.find(i => i.id === itemId);
   if (!item) return;
-  state.currentModalItem = item;
+  state.currentModalItem = JSON.parse(JSON.stringify(item));
 
-  document.getElementById("modal-item-name").innerText = item.name;
+  document.getElementById("modal-item-name").innerText = item.name.split('\n')[0];
   document.getElementById("modal-base-price").innerText = `$${item.price}`;
+  
+  renderModalOptionGroups();
+
+  calcModalPrice();
+  const modalEl = document.getElementById("option-modal");
+  modalEl.style.display = "flex";
+  modalEl.onclick = handleModalOverlayClick;
+}
+
+export function renderModalOptionGroups() {
+  const item = state.currentModalItem;
   const container = document.getElementById("modal-options-container");
+  if (!container || !item) return;
   container.innerHTML = "";
 
   (item.options || []).forEach((grp, gIdx) => {
     const config = getOptionGroupConfig(grp);
-    const isRequired = config.isRequired;
-    const isMultiple = config.isMultiple;
     const cleanTitle = config.cleanTitle;
-
+    const isMultiple = config.isMultiple;
+    const isRequired = config.isRequired;
     let badgeText = config.type;
     let badgeColor = isRequired ? '#ef4444' : (isMultiple ? '#10b981' : '#3b82f6');
+
+    let isDrinkGroup = cleanTitle.includes("飲料") || cleanTitle.includes("飲品");
 
     let grpHtml = `
       <div class="option-group" data-group-index="${gIdx}" data-required="${isRequired}" data-clean-title="${cleanTitle}">
         <div class="option-group-title" style="display:flex; justify-content:space-between; align-items:center;">
-          <span>${cleanTitle}</span>
+          <span>🍽️ ${cleanTitle}</span>
           <span style="font-size:0.8em; padding:2px 8px; border-radius:12px; background:${badgeColor}; color:#fff; font-weight:bold;">${badgeText}</span>
         </div>`;
 
@@ -411,23 +463,114 @@ export function openModal(itemId) {
       let isChecked = (isRequired && oIdx === 0) ? "checked" : "";
 
       grpHtml += `
-        <div class="option-item">
-          <label>
-            <input type="${inputType}" name="modal_group_${gIdx}" value="${opt.name}" data-price="${opt.price || 0}" ${isChecked} onchange="calcModalPrice()">
-            ${opt.name}
-          </label>
-          <span class="option-price">${optPrice}</span>
+        <div class="option-item" style="flex-direction:column; align-items:stretch;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="flex:1; cursor:pointer;">
+              <input type="${inputType}" name="modal_group_${gIdx}" value="${opt.name}" data-price="${opt.price || 0}" ${isChecked} onchange="handleModalOptionChange(${gIdx}, '${opt.name}', ${isDrinkGroup})">
+              ${opt.name}
+            </label>
+            <span class="option-price">${optPrice}</span>
+          </div>
+          ${isDrinkGroup ? `<div id="sub-modifiers-for-${gIdx}-${oIdx}" class="sub-drink-box" style="margin-top:6px; padding:8px 12px; background:#f1f5f9; border-radius:8px; display:${isChecked ? 'block' : 'none'};"></div>` : ''}
         </div>`;
     });
+
     grpHtml += `</div>`;
     container.innerHTML += grpHtml;
+
+    if (isDrinkGroup && grp.items.length > 0) {
+      setTimeout(() => {
+        handleModalOptionChange(gIdx, grp.items[0].name, true);
+      }, 0);
+    }
   });
 
-  calcModalPrice();
-  const modalEl = document.getElementById("option-modal");
-  modalEl.style.display = "flex";
-  modalEl.onclick = handleModalOverlayClick;
+  // 每道餐點下方專屬顧客備註輸入框
+  container.innerHTML += `
+    <div class="option-group" style="margin-top:16px;">
+      <div class="option-group-title" style="border-left-color: #0284c7;">
+        <span>📝 本項備註說明</span>
+      </div>
+      <input type="text" id="modal-item-note-input" class="table-input" style="margin-top:6px; font-size:1.05em;" placeholder="例如: 蛋餅焦一點、不要洋蔥、醬另外包...">
+    </div>
+  `;
 }
+
+// 飲料選取動態聯動：依據紅茶、青茶、奶茶載入單點客製規格
+window.handleModalOptionChange = function(groupIndex, selectedOptName, isDrinkGroup) {
+  calcModalPrice();
+  if (!isDrinkGroup) return;
+
+  const grp = state.currentModalItem.options[groupIndex];
+  grp.items.forEach((opt, oIdx) => {
+    const box = document.getElementById(`sub-modifiers-for-${groupIndex}-${oIdx}`);
+    if (!box) return;
+
+    if (opt.name === selectedOptName) {
+      box.style.display = 'block';
+      const drinkOpts = findDrinkModifiers(selectedOptName);
+
+      // 若在單點找不到對應規格，提供預設選項判斷（青茶固定、奶茶冰溫等）
+      if (drinkOpts.length === 0) {
+        let isChingTea = selectedOptName.includes("青茶");
+        let isMilkTea = selectedOptName.includes("奶茶");
+
+        let iceHtml = '';
+        let sugarHtml = '';
+
+        if (isChingTea) {
+          iceHtml = `<label><input type="radio" name="sub_drink_ice_${groupIndex}" value="固定冰" checked onchange="calcModalPrice()"> 固定冰</label>`;
+          sugarHtml = `<label><input type="radio" name="sub_drink_sugar_${groupIndex}" value="固定糖" checked onchange="calcModalPrice()"> 固定無糖</label>`;
+        } else if (isMilkTea) {
+          iceHtml = `
+            <label><input type="radio" name="sub_drink_ice_${groupIndex}" value="冰" checked onchange="calcModalPrice()"> 冰</label>
+            <label><input type="radio" name="sub_drink_ice_${groupIndex}" value="溫" onchange="calcModalPrice()"> 溫</label>
+          `;
+          sugarHtml = `<label><input type="radio" name="sub_drink_sugar_${groupIndex}" value="固定糖" checked onchange="calcModalPrice()"> 甜度固定</label>`;
+        } else {
+          // 紅茶等一般飲品
+          iceHtml = `
+            <label><input type="radio" name="sub_drink_ice_${groupIndex}" value="冰" checked onchange="calcModalPrice()"> 冰</label>
+            <label><input type="radio" name="sub_drink_ice_${groupIndex}" value="溫" onchange="calcModalPrice()"> 溫</label>
+          `;
+          sugarHtml = `
+            <label><input type="radio" name="sub_drink_sugar_${groupIndex}" value="有糖" checked onchange="calcModalPrice()"> 有糖</label>
+            <label><input type="radio" name="sub_drink_sugar_${groupIndex}" value="無糖" onchange="calcModalPrice()"> 無糖</label>
+          `;
+        }
+
+        box.innerHTML = `
+          <div style="font-size:0.85em; color:#64748b; font-weight:bold; margin-bottom:4px;">↳ 飲料客製：</div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap; font-size:0.95em; font-weight:bold;">
+            ${iceHtml}
+            ${sugarHtml}
+          </div>
+        `;
+      } else {
+        // 從單點資料動態組裝
+        let subHtml = `<div style="font-size:0.85em; color:#64748b; font-weight:bold; margin-bottom:4px;">↳ ${selectedOptName} 規格：</div>`;
+        drinkOpts.forEach((subGrp, sIdx) => {
+          const sTitle = (subGrp.title || subGrp.name || '').replace(/^(必選|單選|複選)[:：]?/, '');
+          subHtml += `<div style="margin-bottom:6px; font-size:0.9em; font-weight:bold; color:#334155;">${sTitle}：`;
+          subGrp.items.forEach((sItem, siIdx) => {
+            const chk = siIdx === 0 ? 'checked' : '';
+            subHtml += `
+              <label style="margin-right:8px; cursor:pointer;">
+                <input type="radio" name="sub_drink_${groupIndex}_${sIdx}" value="${sItem.name}" data-price="${sItem.price || 0}" ${chk} onchange="calcModalPrice()">
+                ${sItem.name}
+              </label>
+            `;
+          });
+          subHtml += `</div>`;
+        });
+        box.innerHTML = subHtml;
+      }
+    } else {
+      box.style.display = 'none';
+      box.innerHTML = '';
+    }
+  });
+};
 
 export function closeModal() {
   document.getElementById("option-modal").style.display = "none";
@@ -449,37 +592,62 @@ export function calcModalPrice() {
 export function confirmOptions() {
   if (!state.currentModalItem) return;
 
-  const groups = document.querySelectorAll("#modal-options-container .option-group");
+  const groups = document.querySelectorAll("#modal-options-container .option-group[data-group-index]");
   for (let grpEl of groups) {
     const isRequired = grpEl.getAttribute("data-required") === "true";
-    if (isRequired) {
-      const hasChecked = grpEl.querySelector("input:checked");
-      if (!hasChecked) {
-        const title = grpEl.getAttribute("data-clean-title") || '必選項目';
-        showToast(`⚠️ 請選擇【${title}】！`);
-        return;
-      }
+    if (isRequired && !grpEl.querySelector("input:checked")) {
+      const title = grpEl.getAttribute("data-clean-title") || '必選項目';
+      showToast(`⚠️ 請選擇【${title}】！`);
+      return;
     }
   }
 
-  let selected = [];
+  let structuredOptions = [];
   let extraPrice = 0;
-  document.querySelectorAll("#modal-options-container input:checked").forEach(inp => {
-    let p = parseInt(inp.getAttribute("data-price") || 0);
-    extraPrice += p;
-    if (p > 0) {
-      selected.push(`${inp.value} +$${p}`);
-    } else {
-      selected.push(inp.value);
-    }
+
+  groups.forEach((grpEl, gIdx) => {
+    const title = grpEl.getAttribute("data-clean-title");
+    const checkedList = grpEl.querySelectorAll(`input[name="modal_group_${gIdx}"]:checked`);
+    checkedList.forEach(inp => {
+      let p = parseInt(inp.getAttribute("data-price") || 0);
+      extraPrice += p;
+      let optObj = {
+        groupTitle: title,
+        name: inp.value,
+        price: p,
+        subModifiers: []
+      };
+
+      const subContainer = grpEl.querySelector(`div[id^="sub-modifiers-for-${gIdx}-"]`);
+      if (subContainer && subContainer.style.display !== 'none') {
+        subContainer.querySelectorAll('input:checked').forEach(subInp => {
+          let sp = parseInt(subInp.getAttribute("data-price") || 0);
+          extraPrice += sp;
+          optObj.subModifiers.push(subInp.value);
+        });
+      }
+      structuredOptions.push(optObj);
+    });
   });
 
-  let optionsText = selected.join(', ');
-  let cartKey = `${state.currentModalItem.id}_${optionsText}`;
-  let itemPrice = state.currentModalItem.price + extraPrice;
+  const noteInput = document.getElementById("modal-item-note-input");
+  const itemNote = noteInput ? noteInput.value.trim() : "";
 
-  updateCart(cartKey, state.currentModalItem.id, state.currentModalItem.name, itemPrice, optionsText, 1);
+  let itemPrice = state.currentModalItem.price + extraPrice;
+  let cartKey = `${state.currentModalItem.id}_${Date.now()}`;
+
+  state.cart[cartKey] = {
+    baseId: state.currentModalItem.id,
+    name: state.currentModalItem.name,
+    price: itemPrice,
+    structuredOptions: structuredOptions,
+    note: itemNote,
+    qty: 1,
+    isComp: false
+  };
+
   closeModal();
+  updateCartUI();
 }
 // ---------------------------------------- [選項即時計價與確認加入] 結束 ----------------------------------------
 
@@ -501,13 +669,23 @@ function buildOrderDetailsPayload() {
 
     details += `${item.qty}x ${mainName}${compTag} ::: $${itemTotal}${nl}`;
 
-    let subLines = item.name.split('\n').slice(1);
-    subLines.forEach(sub => {
-      details += `  - ${sub}${nl}`;
-    });
-
-    if (item.optionsText) {
+    // 副餐、主餐客製、飲料各自分列展示
+    if (item.structuredOptions && item.structuredOptions.length > 0) {
+      item.structuredOptions.forEach(opt => {
+        let subMods = opt.subModifiers && opt.subModifiers.length > 0 ? ` (${opt.subModifiers.join(', ')})` : '';
+        let extraText = opt.price > 0 ? ` +$${opt.price}` : '';
+        details += `  - ${opt.groupTitle}：${opt.name}${extraText}${nl}`;
+        if (subMods) {
+          details += `    ✬ ${subMods}${nl}`;
+        }
+      });
+    } else if (item.optionsText) {
       details += `  ✬ ${item.optionsText}${nl}`;
+    }
+
+    // 專屬顧客備註印於該餐點最下方
+    if (item.note) {
+      details += `  📝 備註：${item.note}${nl}`;
     }
   }
 
