@@ -153,10 +153,15 @@ export function renderPosMenu() {
   items.forEach(item => {
     let isSoldOut = item.status === "售完" || (item.status && item.status.includes("完售")) || item.status === "停售";
     let hasOptions = item.options && item.options.length > 0;
-    let displayTitle = item.name.split(/\r?\n/)[0];
+
+    // 解析主標題（例如：一號餐）與副標題/食材明細（例如：嫩煎雞腿蛋餅、飲料、炸物雙拼）
+    const nameLines = (item.name || '').split(/\r?\n/);
+    const mainTitle = nameLines[0];
+    const subTitle = nameLines.slice(1).join('、');
 
     const card = document.createElement('div');
     card.className = `pos-menu-item ${isSoldOut ? 'sold-out' : ''}`;
+    card.style.cssText = "min-height: 72px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;";
 
     card.onclick = () => {
       if (isSoldOut) {
@@ -167,7 +172,7 @@ export function renderPosMenu() {
         openModal(item.id);
       } else {
         updateCart(item.id.toString(), item.id, item.name, item.price, "", 1);
-        showToast(`已加入：${displayTitle}`);
+        showToast(`已加入：${mainTitle}`);
       }
     };
 
@@ -178,8 +183,11 @@ export function renderPosMenu() {
     let priceText = isSoldOut ? '售完' : `$${item.price}`;
 
     card.innerHTML = `
-      <div class="pos-menu-item-title">${displayTitle}</div>
-      <div class="pos-menu-item-price">${priceText}</div>
+      <div class="pos-menu-item-title" style="flex: 1; text-align: left; padding-right: 8px;">
+        <div style="font-size: 1.15em; font-weight: 800; color: #0f172a; line-height: 1.2;">${mainTitle}</div>
+        ${subTitle ? `<div style="font-size: 0.82em; color: #64748b; font-weight: 500; margin-top: 3px; line-height: 1.3;">${subTitle}</div>` : ''}
+      </div>
+      <div class="pos-menu-item-price" style="font-size: 1.25em; font-weight: 900; color: #ea580c; white-space: nowrap;">${priceText}</div>
     `;
     grid.appendChild(card);
   });
@@ -285,6 +293,11 @@ export function updateCartUI() {
     let itemTotal = effectiveUnitPrice * item.qty;
     subtotal += itemTotal;
 
+    const nameLines = (item.name || '').split(/\r?\n/);
+    const mainTitle = nameLines[0];
+    const subTitle = nameLines.slice(1).join('、');
+
+    let subHtml = subTitle ? `<div style="font-size:0.85em; color:#64748b; margin-top:2px;">${subTitle}</div>` : '';
     let optHtml = item.optionsText ? `<div class="cart-item-options">${item.optionsText}</div>` : '';
     let safeNameStr = JSON.stringify(item.name);
     let safeOptsStr = JSON.stringify(item.optionsText || "");
@@ -301,7 +314,8 @@ export function updateCartUI() {
       <div class="cart-item-row">
         <div class="cart-item-main">
           <div style="flex:1; padding-right:8px;">
-            <div style="font-size:1.15em; font-weight:800; color:#0f172a;">${item.name.split('\n')[0]}</div>
+            <div style="font-size:1.15em; font-weight:800; color:#0f172a;">${mainTitle}</div>
+            ${subHtml}
             ${optHtml}
           </div>
           <div style="display: flex; align-items: center; gap: 8px;">
