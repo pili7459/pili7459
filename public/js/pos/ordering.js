@@ -298,13 +298,13 @@ window.applyPromoCode = applyPromoCode;
 
 
 // ---------------------------------------- [更新購物車介面UI] 開始 ----------------------------------------
-// 輔助函式：依照「主餐 -> 飲料 -> 各副餐獨立客製 -> 加購 -> 備註」層次解析結構
+// 輔助函式：依照「主餐 -> 飲料 -> 各副餐 -> 加購 -> 備註」層次解析結構，產出 Excel 單行排版
 function categorizeOrderSections(item) {
   const nameLines = (item.name || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
   const comboTitle = nameLines[0] || '';
   const subItems = nameLines.slice(1);
 
-  // 1. 拆解套餐名稱子行：識別主餐、飲料、副餐1、副餐2...
+  // 1. 拆解套餐名稱子行：識別主餐、飲料、副餐
   let mainItemName = '';
   let drinkItemName = '';
   let rawSideItems = [];
@@ -323,38 +323,40 @@ function categorizeOrderSections(item) {
         rawSideItems.push(line);
       }
     });
+  } else {
+    mainItemName = comboTitle;
   }
 
-  // 2. 依照標題前綴歸納客製化規格
+  // 2. 依照標籤分類各項客製化
   let mainModifiers = [];
   let drinkModifiers = [];
-  let sideGroupsMap = {}; // 記錄「副餐1客製」、「副餐2客製」...
-  let extraAddons = [];   // 純「加購」項目
+  let drinkPriceAdd = 0;
+  let sideGroupsMap = {};
+  let extraAddons = [];
 
   const opts = item.structuredOptions || [];
   opts.forEach(opt => {
     const title = opt.groupTitle || '';
-    let subMods = opt.subModifiers && opt.subModifiers.length > 0 ? ` (${opt.subModifiers.join(', ')})` : '';
-    let extraText = opt.price > 0 ? ` +$${opt.price}` : '';
-    let displayMod = `${opt.name}${extraText}${subMods}`;
+    let extraText = opt.price > 0 ? ` +${opt.price}` : '';
+    let displayMod = `${opt.name}${extraText}`;
 
     if (title.includes('主餐')) {
       mainModifiers.push(displayMod);
     } else if (title.includes('飲料') || title.includes('飲品')) {
-      if (!drinkItemName || drinkItemName === '飲料') {
-        drinkItemName = opt.name;
+      drinkItemName = opt.name;
+      drinkPriceAdd = opt.price || 0;
+      if (opt.subModifiers && opt.subModifiers.length > 0) {
+        drinkModifiers.push(...opt.subModifiers);
       }
-      drinkModifiers.push(opt.subModifiers && opt.subModifiers.length > 0 ? opt.subModifiers.join(', ') : displayMod);
     } else if (title.includes('加購') || title.includes('加點')) {
       extraAddons.push(displayMod);
     } else if (title.includes('副餐')) {
-      // 提取副餐編號，如「副餐1」、「副餐2」
       let match = title.match(/副餐(\d+)/);
       let sideIdx = match ? parseInt(match[1], 10) : 1;
       if (!sideGroupsMap[sideIdx]) sideGroupsMap[sideIdx] = [];
       sideGroupsMap[sideIdx].push(displayMod);
     } else {
-      // 容錯判斷：未標明時按常規關鍵字分類
+      // 若標題未包含特定名詞，依關鍵字容錯分類
       if (title.includes('口感') || title.includes('加料') || title.includes('熟度')) {
         mainModifiers.push(displayMod);
       } else if (title.includes('冰') || title.includes('糖')) {
@@ -366,26 +368,41 @@ function categorizeOrderSections(item) {
     }
   });
 
-  // 3. 組裝各副餐品項及其專屬客製化列表
-  let sidesList = [];
+  // 3. 組合主餐行：嫩煎雞腿蛋餅●焦一點●加起司 +10...
+  let mainLine = '';
+  if (mainItemName) {
+    mainLine = mainItemName + (mainModifiers.length > 0 ? '●' + mainModifiers.join('●') : '');
+  }
+
+  // 4. 組合飲料行：豆漿 +5●有糖●冰
+  let drinkLine = '';
+  if (drinkItemName) {
+    let drinkPriceText = drinkPriceAdd > 0 ? ` +${drinkPriceAdd}` : '';
+    drinkLine = drinkItemName + drinkPriceText + (drinkModifiers.length > 0 ? '●' + drinkModifiers.join('●') : '');
+  }
+
+  // 5. 組合副餐各行
+  let sideLines = [];
   let maxSideCount = Math.max(rawSideItems.length, Object.keys(sideGroupsMap).length);
   for (let i = 1; i <= maxSideCount; i++) {
     let name = rawSideItems[i - 1] || (Object.keys(sideGroupsMap).length > 1 ? `副餐${i}` : '副餐');
     let mods = sideGroupsMap[i] || [];
-    sidesList.push({
-      name: name,
-      modifiersText: mods.join('，')
-    });
+    let sLine = name + (mods.length > 0 ? '●' + mods.join('●') : '');
+    sideLines.push(sLine);
+  }
+
+  // 6. 組合加購行：加購●熱狗 +16
+  let addonLine = '';
+  if (extraAddons.length > 0) {
+    addonLine = '加購●' + extraAddons.join('●');
   }
 
   return {
-    comboTitle,
-    mainItemName,
-    mainModifiers: mainModifiers.join('，'),
-    drinkItemName,
-    drinkModifiers: drinkModifiers.join('，'),
-    sidesList, // 陣列：包含各副餐名稱與各自下方的客製化
-    extraAddons: extraAddons.join('，'), // 加購項目
+    comboTitle: subItems.length > 0 ? comboTitle : '',
+    mainLine,
+    drinkLine,
+    sideLines,
+    addonLine,
     note: item.note || ''
   };
 }
@@ -413,56 +430,20 @@ export function updateCartUI() {
     let itemTotal = effectiveUnitPrice * item.qty;
     subtotal += itemTotal;
 
-    const sections = categorizeOrderSections(item);
+    const sec = categorizeOrderSections(item);
 
-    // 建立排版：套餐名 -> 主餐(下方客製) -> 飲料(下方客製) -> 副餐1(下方客製) -> 副餐2(下方客製) -> 加購 -> 備註
-    let orderBlockHtml = `<div style="font-size:1.15em; font-weight:900; color:#0f172a; margin-bottom:4px;">${sections.comboTitle}</div>`;
-
-    // 1. 主餐與其客製化
-    if (sections.mainItemName || sections.mainModifiers) {
-      orderBlockHtml += `
-        <div style="margin-top:2px;">
-          ${sections.mainItemName ? `<div style="font-size:0.95em; font-weight:800; color:#1e293b;">${sections.mainItemName}</div>` : ''}
-          ${sections.mainModifiers ? `<div style="font-size:0.88em; color:#ea580c; font-weight:bold; padding-left:10px;">${sections.mainModifiers}</div>` : ''}
-        </div>
-      `;
+    // 依照 Excel 格式一行行輸出，不換行，每個選項前加●
+    let lines = [];
+    if (sec.comboTitle) lines.push(`<div style="font-size:1.15em; font-weight:900; color:#0f172a;">${sec.comboTitle}</div>`);
+    if (sec.mainLine) lines.push(`<div style="font-size:0.95em; font-weight:700; color:#1e293b;">${sec.mainLine}</div>`);
+    if (sec.drinkLine) lines.push(`<div style="font-size:0.95em; font-weight:700; color:#1e293b;">${sec.drinkLine}</div>`);
+    if (sec.sideLines && sec.sideLines.length > 0) {
+      sec.sideLines.forEach(s => lines.push(`<div style="font-size:0.95em; font-weight:700; color:#1e293b;">${s}</div>`));
     }
+    if (sec.addonLine) lines.push(`<div style="font-size:0.95em; font-weight:700; color:#ea580c;">${sec.addonLine}</div>`);
+    if (sec.note) lines.push(`<div class="cart-item-note-text" style="font-size:0.88em; color:#0284c7; font-weight:bold; margin-top:2px;">備註：${sec.note}</div>`);
 
-    // 2. 飲料與其客製化
-    if (sections.drinkItemName || sections.drinkModifiers) {
-      orderBlockHtml += `
-        <div style="margin-top:2px;">
-          ${sections.drinkItemName ? `<div style="font-size:0.95em; font-weight:800; color:#1e293b;">${sections.drinkItemName}</div>` : ''}
-          ${sections.drinkModifiers ? `<div style="font-size:0.88em; color:#ea580c; font-weight:bold; padding-left:10px;">${sections.drinkModifiers}</div>` : ''}
-        </div>
-      `;
-    }
-
-    // 3. 副餐各項（副餐1與客製、副餐2與客製...）
-    if (sections.sidesList && sections.sidesList.length > 0) {
-      sections.sidesList.forEach(side => {
-        orderBlockHtml += `
-          <div style="margin-top:2px;">
-            <div style="font-size:0.95em; font-weight:800; color:#1e293b;">${side.name}</div>
-            ${side.modifiersText ? `<div style="font-size:0.88em; color:#ea580c; font-weight:bold; padding-left:10px;">${side.modifiersText}</div>` : ''}
-          </div>
-        `;
-      });
-    }
-
-    // 4. 加購項目
-    if (sections.extraAddons) {
-      orderBlockHtml += `
-        <div style="margin-top:2px;">
-          <div style="font-size:0.88em; color:#ea580c; font-weight:bold; padding-left:10px;">加購：${sections.extraAddons}</div>
-        </div>
-      `;
-    }
-
-    // 5. 顧客備註
-    if (sections.note) {
-      orderBlockHtml += `<div class="cart-item-note-text" style="margin-top:4px; font-size:0.88em; color:#0284c7; font-weight:bold;">備註：${sections.note}</div>`;
-    }
+    let orderBlockHtml = lines.join('');
 
     let compBtnBg = item.isComp ? "#ef4444" : "#f1f5f9";
     let compBtnColor = item.isComp ? "#fff" : "#64748b";
@@ -473,21 +454,21 @@ export function updateCartUI() {
       : `$${itemTotal}`;
 
     cartDiv.innerHTML += `
-      <div class="cart-item-row">
-        <div class="cart-item-main">
-          <div style="flex:1;">
+      <div class="cart-item-row" style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px; margin-bottom:10px;">
+        <div class="cart-item-main" style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div style="flex:1; line-height:1.6; word-break:break-all;">
             ${orderBlockHtml}
           </div>
-          <div style="display: flex; flex-direction:column; align-items: flex-end; gap: 8px;">
+          <div style="display: flex; flex-direction:column; align-items: flex-end; gap: 8px; flex-shrink:0; margin-left:12px;">
             <button type="button" onclick="toggleItemComp('${cartKey}')" title="0.5秒內連點兩下切換招待" style="background:${compBtnBg}; color:${compBtnColor}; border:${compBorder}; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:0.8em; cursor:pointer;">
               ${item.isComp ? '🎁 招待中' : '🎁 招待'}
             </button>
-            <div class="qty-control">
+            <div class="qty-control" style="display:flex; align-items:center; gap:6px;">
               <button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '', ${item.price}, '', -1)">-</button>
-              <span class="qty-number">${item.qty}</span>
+              <span class="qty-number" style="font-weight:bold; min-width:20px; text-align:center;">${item.qty}</span>
               <button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '', ${item.price}, '', 1)">+</button>
             </div>
-            <div style="font-weight: 900; font-size: 1.15em; color:#ea580c; text-align: right;">${priceDisplay}</div>
+            <div style="font-weight: 900; font-size: 1.2em; color:#ea580c; text-align: right;">${priceDisplay}</div>
           </div>
         </div>
       </div>`;
@@ -523,6 +504,7 @@ export function handleModalOverlayClick(e) {
   }
 }
 
+// 尋找菜單中單點飲料的規格（依名稱自動比對）
 function findDrinkModifiers(drinkName) {
   if (!drinkName || !state.menuData) return [];
   const cleanName = drinkName.replace(/\(.*?\)/g, '').trim();
@@ -573,7 +555,7 @@ export function renderModalOptionGroups() {
         </div>`;
 
     grp.items.forEach((opt, oIdx) => {
-      let optPrice = opt.price ? ` (+$${opt.price})` : "";
+      let optPrice = opt.price ? ` (+${opt.price})` : "";
       let inputType = isMultiple ? "checkbox" : "radio";
       let isChecked = (isRequired && oIdx === 0) ? "checked" : "";
 
@@ -611,6 +593,7 @@ export function renderModalOptionGroups() {
   `;
 }
 
+// 飲料選取動態聯動：載入單點客製規格
 window.handleModalOptionChange = function(groupIndex, selectedOptName, isDrinkGroup) {
   calcModalPrice();
   if (!isDrinkGroup) return;
@@ -632,27 +615,27 @@ window.handleModalOptionChange = function(groupIndex, selectedOptName, isDrinkGr
         let sugarHtml = '';
 
         if (isChingTea) {
-          iceHtml = `<label><input type="radio" name="sub_drink_ice_${groupIndex}" value="固定冰" checked onchange="calcModalPrice()"> 固定冰</label>`;
-          sugarHtml = `<label><input type="radio" name="sub_drink_sugar_${groupIndex}" value="固定無糖" checked onchange="calcModalPrice()"> 固定無糖</label>`;
+          iceHtml = `<label><input type="radio" name="sub_drink_${groupIndex}_ice" value="固定冰" checked onchange="calcModalPrice()"> 固定冰</label>`;
+          sugarHtml = `<label><input type="radio" name="sub_drink_${groupIndex}_sugar" value="固定無糖" checked onchange="calcModalPrice()"> 固定無糖</label>`;
         } else if (isMilkTea) {
           iceHtml = `
-            <label><input type="radio" name="sub_drink_ice_${groupIndex}" value="冰" checked onchange="calcModalPrice()"> 冰</label>
-            <label><input type="radio" name="sub_drink_ice_${groupIndex}" value="溫" onchange="calcModalPrice()"> 溫</label>
+            <label><input type="radio" name="sub_drink_${groupIndex}_ice" value="冰" checked onchange="calcModalPrice()"> 冰</label>
+            <label><input type="radio" name="sub_drink_${groupIndex}_ice" value="溫" onchange="calcModalPrice()"> 溫</label>
           `;
-          sugarHtml = `<label><input type="radio" name="sub_drink_sugar_${groupIndex}" value="甜度固定" checked onchange="calcModalPrice()"> 甜度固定</label>`;
+          sugarHtml = `<label><input type="radio" name="sub_drink_${groupIndex}_sugar" value="甜度固定" checked onchange="calcModalPrice()"> 甜度固定</label>`;
         } else {
           iceHtml = `
-            <label><input type="radio" name="sub_drink_ice_${groupIndex}" value="冰" checked onchange="calcModalPrice()"> 冰</label>
-            <label><input type="radio" name="sub_drink_ice_${groupIndex}" value="溫" onchange="calcModalPrice()"> 溫</label>
+            <label><input type="radio" name="sub_drink_${groupIndex}_ice" value="冰" checked onchange="calcModalPrice()"> 冰</label>
+            <label><input type="radio" name="sub_drink_${groupIndex}_ice" value="溫" onchange="calcModalPrice()"> 溫</label>
           `;
           sugarHtml = `
-            <label><input type="radio" name="sub_drink_sugar_${groupIndex}" value="有糖" checked onchange="calcModalPrice()"> 有糖</label>
-            <label><input type="radio" name="sub_drink_sugar_${groupIndex}" value="無糖" onchange="calcModalPrice()"> 無糖</label>
+            <label><input type="radio" name="sub_drink_${groupIndex}_sugar" value="有糖" checked onchange="calcModalPrice()"> 有糖</label>
+            <label><input type="radio" name="sub_drink_${groupIndex}_sugar" value="無糖" onchange="calcModalPrice()"> 無糖</label>
           `;
         }
 
         box.innerHTML = `
-          <div style="font-size:0.85em; color:#64748b; font-weight:bold; margin-bottom:4px;">↳ 飲料客製：</div>
+          <div style="font-size:0.85em; color:#64748b; font-weight:bold; margin-bottom:4px;">↳ ${selectedOptName} 規格：</div>
           <div style="display:flex; gap:12px; flex-wrap:wrap; font-size:0.95em; font-weight:bold;">
             ${iceHtml}
             ${sugarHtml}
@@ -722,22 +705,27 @@ export function confirmOptions() {
     checkedList.forEach(inp => {
       let p = parseInt(inp.getAttribute("data-price") || 0);
       extraPrice += p;
-      let optObj = {
+
+      // 抓取選中項下方所屬的飲料甜度冰塊規格
+      let subModifiers = [];
+      const parentItemDiv = inp.closest('.option-item');
+      if (parentItemDiv) {
+        const subBox = parentItemDiv.querySelector('.sub-drink-box');
+        if (subBox && subBox.style.display !== 'none') {
+          subBox.querySelectorAll('input:checked').forEach(subInp => {
+            let sp = parseInt(subInp.getAttribute("data-price") || 0);
+            extraPrice += sp;
+            subModifiers.push(subInp.value);
+          });
+        }
+      }
+
+      structuredOptions.push({
         groupTitle: title,
         name: inp.value,
         price: p,
-        subModifiers: []
-      };
-
-      const subContainer = grpEl.querySelector(`div[id^="sub-modifiers-for-${gIdx}-"]`);
-      if (subContainer && subContainer.style.display !== 'none') {
-        subContainer.querySelectorAll('input:checked').forEach(subInp => {
-          let sp = parseInt(subInp.getAttribute("data-price") || 0);
-          extraPrice += sp;
-          optObj.subModifiers.push(subInp.value);
-        });
-      }
-      structuredOptions.push(optObj);
+        subModifiers: subModifiers
+      });
     });
   });
 
@@ -776,40 +764,20 @@ function buildOrderDetailsPayload() {
     subtotal += itemTotal;
 
     let compTag = item.isComp ? " (🎁招待)" : "";
-    const sections = categorizeOrderSections(item);
+    const sec = categorizeOrderSections(item);
 
-    // 第一行：單號品項名稱 + 招待
-    details += `${item.qty}x ${sections.comboTitle}${compTag} ::: $${itemTotal}${nl}`;
+    // 套餐單號行
+    let headerName = sec.comboTitle || sec.mainLine;
+    details += `${item.qty}x ${headerName}${compTag} ::: $${itemTotal}${nl}`;
 
-    // 1. 主餐與其客製化
-    if (sections.mainItemName || sections.mainModifiers) {
-      if (sections.mainItemName) details += `  - ${sections.mainItemName}${nl}`;
-      if (sections.mainModifiers) details += `    ✬ ${sections.mainModifiers}${nl}`;
+    // 依序輸出主餐、飲料、副餐、加購、備註（Excel 一行化排版）
+    if (sec.comboTitle && sec.mainLine) details += `  ${sec.mainLine}${nl}`;
+    if (sec.drinkLine) details += `  ${sec.drinkLine}${nl}`;
+    if (sec.sideLines && sec.sideLines.length > 0) {
+      sec.sideLines.forEach(s => details += `  ${s}${nl}`);
     }
-
-    // 2. 飲料與其客製化
-    if (sections.drinkItemName || sections.drinkModifiers) {
-      if (sections.drinkItemName) details += `  - ${sections.drinkItemName}${nl}`;
-      if (sections.drinkModifiers) details += `    ✬ ${sections.drinkModifiers}${nl}`;
-    }
-
-    // 3. 各副餐獨立客製化
-    if (sections.sidesList && sections.sidesList.length > 0) {
-      sections.sidesList.forEach(side => {
-        details += `  - ${side.name}${nl}`;
-        if (side.modifiersText) details += `    ✬ ${side.modifiersText}${nl}`;
-      });
-    }
-
-    // 4. 加購項目
-    if (sections.extraAddons) {
-      details += `  - 加購：${sections.extraAddons}${nl}`;
-    }
-
-    // 5. 專屬顧客備註
-    if (sections.note) {
-      details += `  📝 備註：${sections.note}${nl}`;
-    }
+    if (sec.addonLine) details += `  ${sec.addonLine}${nl}`;
+    if (sec.note) details += `  備註：${sec.note}${nl}`;
   }
 
   details += `----------------------${nl}`;
