@@ -39,18 +39,122 @@ window.filterCategory = function(categoryName) {
 
 
 // ---------------------------------------- [更新購物車品項與數量] 開始 ----------------------------------------
-window.updateCart = function(cartKey, baseId, name, unitPrice, optionsString, delta) {
-    if (!cart[cartKey]) { cart[cartKey] = { baseId: baseId, name: name, price: unitPrice, optionsText: optionsString, qty: 0 }; }
-    cart[cartKey].qty += delta; 
-    if (cart[cartKey].qty <= 0) delete cart[cartKey];
-    
+window.updateCart = function(cartKey, delta) {
+    if (cart[cartKey]) {
+        cart[cartKey].qty += delta;
+        if (cart[cartKey].qty <= 0) delete cart[cartKey];
+    }
     updateCartUI();
-    renderMenu();
+    if (typeof window.updateItemBadges === 'function') {
+        window.updateItemBadges();
+    }
 };
 // ---------------------------------------- [更新購物車品項與數量] 結束 ----------------------------------------
 
 
 // ---------------------------------------- [更新購物車介面與金額計算] 開始 ----------------------------------------
+// 輔助函式：依照 Excel 格式輸出單行 ● 客製（無主餐/副餐/飲料字樣則省略標題）
+function categorizeCustomerOrderSections(item) {
+    const nameLines = (item.name || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    const comboTitle = nameLines[0] || '';
+    const subItems = nameLines.slice(1);
+
+    let mainItemName = '';
+    let drinkItemName = '';
+    let rawSideItems = [];
+
+    if (subItems.length > 0) {
+        let foundDrink = false;
+        subItems.forEach(line => {
+            let isDrink = line.includes('飲') || line.includes('茶') || line.includes('咖啡') || line.includes('豆漿');
+            if (isDrink && !foundDrink) {
+                drinkItemName = line;
+                foundDrink = true;
+            } else if (!foundDrink) {
+                if (!mainItemName) mainItemName = line;
+                else rawSideItems.push(line);
+            } else {
+                rawSideItems.push(line);
+            }
+        });
+    } else {
+        mainItemName = comboTitle;
+    }
+
+    let mainModifiers = [];
+    let drinkModifiers = [];
+    let drinkPriceAdd = 0;
+    let sideGroupsMap = {};
+    let extraAddons = [];
+
+    const opts = item.structuredOptions || [];
+    opts.forEach(opt => {
+        const title = opt.groupTitle || '';
+        let extraText = opt.price > 0 ? ` +${opt.price}` : '';
+        let displayMod = `${opt.name}${extraText}`;
+
+        if (title.includes('主餐')) {
+            mainModifiers.push(displayMod);
+        } else if (title.includes('飲料') || title.includes('飲品')) {
+            drinkItemName = opt.name;
+            drinkPriceAdd = opt.price || 0;
+            if (opt.subModifiers && opt.subModifiers.length > 0) {
+                drinkModifiers.push(...opt.subModifiers);
+            }
+        } else if (title.includes('加購') || title.includes('加點')) {
+            extraAddons.push(displayMod);
+        } else if (title.includes('副餐')) {
+            let match = title.match(/副餐(\d+)/);
+            let sideIdx = match ? parseInt(match[1], 10) : 1;
+            if (!sideGroupsMap[sideIdx]) sideGroupsMap[sideIdx] = [];
+            sideGroupsMap[sideIdx].push(displayMod);
+        } else {
+            if (title.includes('口感') || title.includes('加料') || title.includes('熟度')) {
+                mainModifiers.push(displayMod);
+            } else if (title.includes('冰') || title.includes('糖')) {
+                drinkModifiers.push(displayMod);
+            } else {
+                if (!sideGroupsMap[1]) sideGroupsMap[1] = [];
+                sideGroupsMap[1].push(displayMod);
+            }
+        }
+    });
+
+    let mainLine = '';
+    if (mainItemName) {
+        mainLine = mainItemName + (mainModifiers.length > 0 ? '●' + mainModifiers.join('●') : '');
+    }
+
+    let drinkLine = '';
+    if (drinkItemName) {
+        let drinkPriceText = drinkPriceAdd > 0 ? ` +${drinkPriceAdd}` : '';
+        drinkLine = drinkItemName + drinkPriceText + (drinkModifiers.length > 0 ? '●' + drinkModifiers.join('●') : '');
+    }
+
+    let sideLines = [];
+    let maxSideCount = Math.max(rawSideItems.length, Object.keys(sideGroupsMap).length);
+    for (let i = 1; i <= maxSideCount; i++) {
+        let name = rawSideItems[i - 1] || (Object.keys(sideGroupsMap).length > 1 ? `副餐${i}` : '副餐');
+        let mods = sideGroupsMap[i] || [];
+        let sLine = name + (mods.length > 0 ? '●' + mods.join('●') : '');
+        sideLines.push(sLine);
+    }
+
+    let addonLine = '';
+    if (extraAddons.length > 0) {
+        addonLine = '加購●' + extraAddons.join('●');
+    }
+
+    return {
+        comboTitle: subItems.length > 0 ? comboTitle : '',
+        mainLine,
+        drinkLine,
+        sideLines,
+        addonLine,
+        note: item.note || ''
+    };
+}
+
 window.updateCartUI = function() {
     const cartDiv = document.getElementById("cart-items"); 
     const checkoutOptions = document.getElementById("checkout-options"); 
@@ -86,21 +190,34 @@ window.updateCartUI = function() {
         let itemTotal = item.price * item.qty; 
         subtotal += itemTotal;
         
-        let optHtml = item.optionsText ? `<div style="font-size:0.9em; color:#ea580c; font-weight:bold; margin-top:4px;">${item.optionsText}</div>` : '';
-        
+        const sec = categorizeCustomerOrderSections(item);
+
+        let lines = [];
+        if (sec.comboTitle) lines.push(`<div style="font-size:1.15em; font-weight:900; color:#0f172a;">${sec.comboTitle}</div>`);
+        if (sec.mainLine) lines.push(`<div style="font-size:0.95em; font-weight:700; color:#1e293b;">${sec.mainLine}</div>`);
+        if (sec.drinkLine) lines.push(`<div style="font-size:0.95em; font-weight:700; color:#1e293b;">${sec.drinkLine}</div>`);
+        if (sec.sideLines && sec.sideLines.length > 0) {
+            sec.sideLines.forEach(s => lines.push(`<div style="font-size:0.95em; font-weight:700; color:#1e293b;">${s}</div>`));
+        }
+        if (sec.addonLine) lines.push(`<div style="font-size:0.95em; font-weight:700; color:#ea580c;">${sec.addonLine}</div>`);
+        if (sec.note) lines.push(`<div style="font-size:0.88em; color:#0284c7; font-weight:bold; margin-top:2px;">備註：${sec.note}</div>`);
+
+        let blockHtml = lines.join('');
+
         cartDiv.innerHTML += `
-            <div class="cart-item">
-                <div class="cart-item-main">
-                    <div style="flex:1;">
-                        <strong style="font-size:1.15em; color:#0f172a;">${item.name.split('\n')[0]}</strong>
-                        ${optHtml}
+            <div class="cart-item" style="padding:12px; border-bottom:1px solid #e2e8f0;">
+                <div class="cart-item-main" style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div style="flex:1; line-height:1.6; word-break:break-all;">
+                        ${blockHtml}
                     </div>
-                    <div class="qty-control">
-                        <button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '${item.name}', ${item.price}, '${item.optionsText}', -1)">-</button>
-                        <span class="qty-number">${item.qty}</span>
-                        <button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '${item.name}', ${item.price}, '${item.optionsText}', 1)">+</button>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px; margin-left:12px; flex-shrink:0;">
+                        <div class="qty-control" style="display:flex; align-items:center; gap:6px;">
+                            <button class="qty-btn" onclick="updateCart('${cartKey}', -1)">-</button>
+                            <span class="qty-number" style="min-width:20px; text-align:center; font-weight:bold;">${item.qty}</span>
+                            <button class="qty-btn" onclick="updateCart('${cartKey}', 1)">+</button>
+                        </div>
+                        <div style="font-weight: 900; font-size: 1.15em; color:#ea580c; text-align:right;">$${itemTotal}</div>
                     </div>
-                    <div style="width: 60px; text-align: right; font-weight: 900; font-size: 1.15em; color:#ea580c;">$${itemTotal}</div>
                 </div>
             </div>`;
     }
@@ -266,8 +383,18 @@ window.submitOrder = function() {
         let item = cart[k];
         let itemTotal = item.price * item.qty;
         subtotal += itemTotal;
-        details += `${item.qty}x ${item.name.split('\n')[0]} ::: $${itemTotal}${nl}`;
-        if (item.optionsText) details += `  ✬ ${item.optionsText}${nl}`;
+
+        const sec = categorizeCustomerOrderSections(item);
+        let headerName = sec.comboTitle || sec.mainLine;
+        details += `${item.qty}x ${headerName} ::: $${itemTotal}${nl}`;
+
+        if (sec.comboTitle && sec.mainLine) details += `  ${sec.mainLine}${nl}`;
+        if (sec.drinkLine) details += `  ${sec.drinkLine}${nl}`;
+        if (sec.sideLines && sec.sideLines.length > 0) {
+            sec.sideLines.forEach(s => details += `  ${s}${nl}`);
+        }
+        if (sec.addonLine) details += `  ${sec.addonLine}${nl}`;
+        if (sec.note) details += `  備註：${sec.note}${nl}`;
     }
     details += `----------------------${nl}`;
     details += `小計 ::: $${subtotal}${nl}`;
@@ -285,7 +412,7 @@ window.submitOrder = function() {
     details += `🍴 ${needCutlery}${nl}`;
 
     const notes = document.getElementById("order-notes").value.trim();
-    if (notes) details += `📝 備註：${notes}${nl}`;
+    if (notes) details += `📝 全單備註：${notes}${nl}`;
 
     const backendData = {
         diningType: finalDiningType,
