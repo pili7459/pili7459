@@ -92,7 +92,6 @@ body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-
 .pos-menu-item-title { font-size: 1.1em; font-weight: 800; color: #1e293b; line-height: 1.4; white-space: pre-wrap; margin: 0; flex: 1; text-align: left; }
 .pos-menu-item-price { font-size: 1.35em; font-weight: 900; color: #ea580c; margin: 0; white-space: nowrap; text-align: right; }
 /* ---------------------------------------- [現場點餐與菜單網格] 結束 ---------------------------------------- */
-```[cite: 1]
 
 
 /* ---------------------------------------- [POS購物車面板] 開始 ---------------------------------------- */
@@ -104,29 +103,30 @@ body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-
   display: flex; 
   flex-direction: column; 
   box-shadow: -2px 0 15px rgba(0,0,0,0.03); 
+  height: 100%; /* 確保面板佔滿高度 */
 }
-.pos-cart-header { background: #1e293b; color: #ffffff; padding: 18px; text-align: center; font-size: 1.3em; font-weight: 800; }
-.pos-cart-items { flex: 1; overflow-y: auto; padding: 16px; }
-.pos-cart-footer { padding: 18px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 12px; }
+.pos-cart-header { background: #1e293b; color: #ffffff; padding: 18px; text-align: center; font-size: 1.3em; font-weight: 800; flex-shrink: 0; }
+
+/* 讓購物車商品列表區塊自動佔滿剩餘空間，若品項過多可獨立捲動 */
+.pos-cart-items { 
+  flex: 1; 
+  overflow-y: auto; 
+  padding: 16px; 
+}
+
+/* 底部結帳控制區固定在最下方 */
+.pos-cart-footer { 
+  padding: 18px 20px; 
+  background: #f8fafc; 
+  border-top: 1px solid #e2e8f0; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 12px; 
+  flex-shrink: 0; /* 防止被壓縮 */
+}
 .pos-cart-total { font-size: 1.7em; font-weight: 900; color: #0f172a; text-align: right; }
 .pos-cart-checkout-btn { width: 100%; background: #10b981; color: white; border: none; padding: 16px; border-radius: 12px; font-size: 1.4em; font-weight: 900; cursor: pointer; box-shadow: 0 4px 6px rgba(16,185,129,0.2); transition: 0.1s; }
 .pos-cart-checkout-btn:active { transform: scale(0.98); box-shadow: none; }
-
-button.add-btn { background: #3b82f6; color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.1em; }
-button.add-btn:active { transform: scale(0.95); }
-button.spec-btn { background: #f59e0b; color: #fff; }
-.qty-control { display: flex; align-items: center; justify-content: center; gap: 8px; background: #f1f5f9; border-radius: 8px; padding: 2px 4px; }
-.qty-btn { background: #ffffff; border: 1px solid #cbd5e1; width: 34px; height: 34px; border-radius: 6px; font-size: 1.3em; font-weight: bold; cursor: pointer; color: #334155; display:flex; justify-content:center; align-items:center; z-index:2; }
-.qty-number { font-weight: bold; font-size: 1.2em; width: 26px; text-align: center; color: #0f172a; }
-
-.cart-item-row { margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; }
-.cart-item-main { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.cart-item-options { font-size: 0.9em; color: #ea580c; font-weight: bold; margin-top: 4px; }
-
-.radio-group { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
-.radio-group label { font-size: 1.1em; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: bold; color: #334155; background: #ffffff; padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; }
-.radio-group label:has(input:checked) { background: #eff6ff; border-color: #3b82f6; color: #1e3a8a; }
-.table-input { width: 100%; padding: 11px 12px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 1.05em; box-sizing: border-box; font-family: inherit; font-weight: bold; }
 /* ---------------------------------------- [POS購物車面板] 結束 ---------------------------------------- */
 
 
