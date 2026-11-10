@@ -1,0 +1,217 @@
+{
+  "categories": [
+    "經典粉漿蛋餅",
+    "吐司與漢堡",
+    "研磨咖啡與飲品",
+    "點心拼盤"
+  ],
+  "products": [
+    {
+      "id": "p1",
+      "name": "招牌原味粉漿蛋餅",
+      "price": 35,
+      "category": "經典粉漿蛋餅",
+      "spec": [
+        "原味"
+      ]
+    },
+    {
+      "id": "p2",
+      "name": "玉米起司粉漿蛋餅",
+      "price": 50,
+      "category": "經典粉漿蛋餅",
+      "spec": [
+        "加辣",
+        "不辣"
+      ]
+    },
+    {
+      "id": "p3",
+      "name": "特製鮪魚粉漿蛋餅",
+      "price": 55,
+      "category": "經典粉漿蛋餅",
+      "spec": [
+        "加辣",
+        "不辣"
+      ]
+    },
+    {
+      "id": "p4",
+      "name": "里肌豬排蛋吐司",
+      "price": 60,
+      "category": "吐司與漢堡",
+      "spec": [
+        "去邊",
+        "正常"
+      ]
+    },
+    {
+      "id": "p5",
+      "name": "咔啦雞腿經典漢堡",
+      "price": 75,
+      "category": "吐司與漢堡",
+      "spec": [
+        "原味",
+        "辣味"
+      ]
+    },
+    {
+      "id": "p6",
+      "name": "古早味特調紅茶",
+      "price": 25,
+      "category": "研磨咖啡與飲品",
+      "spec": [
+        "冰",
+        "溫",
+        "熱"
+      ]
+    },
+    {
+      "id": "p7",
+      "name": "特調鮮奶茶",
+      "price": 40,
+      "category": "研磨咖啡與飲品",
+      "spec": [
+        "冰",
+        "溫",
+        "熱"
+      ]
+    },
+    {
+      "id": "p8",
+      "name": "黃金脆薯",
+      "price": 40,
+      "category": "點心拼盤",
+      "spec": [
+        "番茄醬",
+        "胡椒"
+      ]
+    },
+    {
+      "id": "",
+      "category_id": "undefined",
+      "name": "313",
+      "price": "100",
+      "station": "KITCHEN"
+    },
+    {
+      "id": "",
+      "category_id": "undefined",
+      "name": "313",
+      "price": "100",
+      "station": "KITCHEN"
+    },
+    {
+      "id": "p1",
+      "category_id": "undefined",
+      "name": "招牌原味粉漿蛋餅",
+      "price": "35",
+      "station": "KITCHEN"
+    }
+  ],
+  "tables": [
+    {
+      "id": "1",
+      "name": "1 號桌",
+      "number": "1",
+      "table_name": "1 號桌",
+      "tableName": "1 號桌",
+      "capacity": 4,
+      "seats": 4,
+      "status": "IDLE",
+      "current_order_id": null
+    },
+    {
+      "id": "2",
+      "name": "2 號桌",
+      "number": "2",
+      "table_name": "2 號桌",
+      "tableName": "2 號桌",
+      "capacity": 4,
+      "seats": 4,
+      "status": "IDLE",
+      "current_order_id": null
+    },
+    {
+      "id": "3",
+      "name": "3 號桌",
+      "number": "3",
+      "table_name": "3 號桌",
+      "tableName": "3 號桌",
+      "capacity": 2,
+      "seats": 2,
+      "status": "IDLE",
+      "current_order_id": null
+    },
+    {
+      "id": "5",
+      "name": "5 號桌",
+      "number": "5",
+      "table_name": "5 號桌",
+      "tableName": "5 號桌",
+      "capacity": 6,
+      "seats": 6,
+      "status": "IDLE",
+      "current_order_id": null
+    },
+    {
+      "id": "6",
+      "name": "6 號桌",
+      "number": "6",
+      "table_name": "6 號桌",
+      "tableName": "6 號桌",
+      "capacity": 4,
+      "seats": 4,
+      "status": "IDLE",
+      "current_order_id": null
+    },
+    {
+      "id": "外帶",
+      "name": "外帶區",
+      "number": "外帶",
+      "table_name": "外帶單",
+      "tableName": "外帶單",
+      "capacity": 1,
+      "seats": 1,
+      "status": "IDLE",
+      "current_order_id": null
+    }
+  ],
+  "modifiers": [
+    {
+      "id": "g1",
+      "name": "辣度選擇",
+      "type": "radio",
+      "options": [
+        {
+          "id": "o1",
+          "name": "不辣",
+          "price": 0
+        },
+        {
+          "id": "o2",
+          "name": "小辣",
+          "price": 0
+        }
+      ]
+    },
+    {
+      "id": "g2",
+      "name": "加料專區",
+      "type": "checkbox",
+      "options": [
+        {
+          "id": "o3",
+          "name": "加蛋",
+          "price": 15
+        },
+        {
+          "id": "o4",
+          "name": "加起司",
+          "price": 15
+        }
+      ]
+    }
+  ],
+  "orders": {}
+}

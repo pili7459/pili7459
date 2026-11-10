@@ -356,7 +356,584 @@
       "extra_price": 10
     }
   ],
-  "orders": [],
+  "orders": [
+    {
+      "id": 1793954867446,
+      "orderNumber": "",
+      "orderDate": "2026-11-06",
+      "time": "11/06 16:47",
+      "diningType": "💸 支出",
+      "customerName": "[日結抽存] 2026-11-06 營收抽存存銀",
+      "detailsText": "支出項目：[日結抽存] 2026-11-06 營收抽存存銀\n金額：$1600",
+      "totalAmount": 1600,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳"
+    },
+    {
+      "id": 1793952292542,
+      "orderNumber": "019",
+      "orderDate": "2026-11-06",
+      "time": "11/06 16:04",
+      "diningType": "外帶 (盡快取餐)",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "1x 經典薯餅蛋餅 ::: $50\n----------------------\n小計 ::: $50\n總額 ::: $50\n",
+      "totalAmount": 50,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "尚未取餐"
+    },
+    {
+      "id": 1793949517734,
+      "orderNumber": "002",
+      "orderDate": "2026-11-07",
+      "time": "11/06 15:18",
+      "diningType": "自取 (預訂: 11/07 08:00)",
+      "tableNumber": "",
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "detailsText": "1x 原味蛋餅 ::: $30\n----------------------\n小計 ::: $30\n總額 ::: $30\n🍴 提供餐具\n",
+      "totalAmount": 30,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "✅ 已取餐"
+    },
+    {
+      "id": 1793949456796,
+      "orderNumber": "018",
+      "orderDate": "2026-11-06",
+      "time": "11/06 15:17",
+      "diningType": "自取 (盡快取餐)",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "1x 雙蛋蛋餅 ::: $40\n----------------------\n小計 ::: $40\n總額 ::: $40\n",
+      "totalAmount": 40,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "✅ 已取餐"
+    },
+    {
+      "id": 1793949073878,
+      "orderNumber": "017",
+      "orderDate": "2026-11-06",
+      "time": "11/06 15:11",
+      "diningType": "外帶 (盡快取餐)",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "1x 經典薯餅蛋餅 ::: $50\n----------------------\n小計 ::: $50\n總額 ::: $50\n",
+      "totalAmount": 50,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "尚未取餐"
+    },
+    {
+      "id": 1793949048112,
+      "orderNumber": "016",
+      "orderDate": "2026-11-06",
+      "time": "11/06 15:10",
+      "diningType": "外帶 (盡快取餐)",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "1x 三杯杏鮑菇蛋餅 ::: $55\n1x 雙蛋蛋餅 ::: $40\n----------------------\n小計 ::: $95\n總額 ::: $95\n",
+      "totalAmount": 95,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "尚未取餐"
+    },
+    {
+      "id": 1793948435040,
+      "orderNumber": "015",
+      "orderDate": "2026-11-06",
+      "time": "11/06 15:00",
+      "diningType": "外帶 (盡快取餐)",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "1x 雙蛋蛋餅 ::: $40\n----------------------\n小計 ::: $40\n總額 ::: $40\n",
+      "totalAmount": 40,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "尚未取餐"
+    },
+    {
+      "id": 1793945494110,
+      "orderNumber": "014",
+      "orderDate": "2026-11-06",
+      "time": "11/06 14:11",
+      "diningType": "外帶 (盡快取餐)",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "1x 九層塔蛋餅 ::: $40\n----------------------\n小計 ::: $40\n總額 ::: $40\n",
+      "totalAmount": 40,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "尚未取餐"
+    },
+    {
+      "id": 1793944443425,
+      "orderNumber": "013",
+      "orderDate": "2026-11-06",
+      "time": "11/06 13:54",
+      "diningType": "外帶 (盡快取餐)",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "1x 經典薯餅蛋餅 ::: $50\n1x 三杯杏鮑菇蛋餅 ::: $55\n----------------------\n小計 ::: $105\n🎟️ 優惠折抵 (vip8888) ::: -$10\n----------------------\n總額 ::: $95\n",
+      "totalAmount": 95,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "尚未取餐"
+    },
+    {
+      "id": 1793943531671,
+      "orderNumber": "001",
+      "orderDate": "2026-11-07",
+      "time": "11/06 13:38",
+      "diningType": "自取 (預訂: 11/07 08:15)",
+      "tableNumber": "",
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "detailsText": "1x 玉米捲餅 ::: $55\n----------------------\n小計 ::: $55\n總額 ::: $55\n🍴 提供餐具\n",
+      "totalAmount": 55,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "✅ 已取餐"
+    },
+    {
+      "id": 1793942152179,
+      "orderNumber": "",
+      "orderDate": "2026-11-06",
+      "time": "11/06 13:15",
+      "diningType": "💰 收入",
+      "customerName": "溢收現金",
+      "detailsText": "收入項目：溢收現金\n金額：$1000",
+      "totalAmount": 1000,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳"
+    },
+    {
+      "id": 1793942151190,
+      "orderNumber": "",
+      "orderDate": "2026-11-06",
+      "time": "11/06 13:15",
+      "diningType": "💸 支出",
+      "customerName": "買封膜",
+      "detailsText": "支出項目：買封膜\n金額：$500",
+      "totalAmount": 500,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳"
+    },
+    {
+      "id": 1793937369394,
+      "orderNumber": "013",
+      "orderDate": "2026-11-06",
+      "time": "11/06 11:56",
+      "diningType": "💸 支出",
+      "customerName": "買蛋",
+      "detailsText": "支出：買蛋\n金額：$600",
+      "totalAmount": 600,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳"
+    },
+    {
+      "id": 1793936843153,
+      "orderNumber": "012",
+      "orderDate": "2026-11-06",
+      "time": "11/06 11:47",
+      "diningType": "外帶",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "1x 經典薯餅蛋餅 ::: $50\n----------------------\n小計 ::: $50\n總額 ::: $50\n",
+      "totalAmount": 50,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "尚未取餐"
+    },
+    {
+      "id": 1793936793253,
+      "orderNumber": "011",
+      "orderDate": "2026-11-06",
+      "time": "11/06 11:46",
+      "diningType": "外帶",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "1x 原味蛋餅 ::: $30\n----------------------\n小計 ::: $30\n總額 ::: $30\n",
+      "totalAmount": 30,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "尚未取餐"
+    },
+    {
+      "id": 1793936674676,
+      "orderNumber": "010",
+      "orderDate": "2026-11-06",
+      "time": "11/06 11:44",
+      "diningType": "自取 (盡快取餐)",
+      "tableNumber": "",
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "detailsText": "1x 小豬里肌蛋餅 ::: $60\n----------------------\n小計 ::: $60\n總額 ::: $60\n🍴 提供餐具\n",
+      "totalAmount": 60,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "✅ 已取餐"
+    },
+    {
+      "id": 1793936342327,
+      "orderNumber": "009",
+      "orderDate": "2026-11-06",
+      "time": "11/06 11:39",
+      "diningType": "自取 (盡快取餐)",
+      "tableNumber": "",
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "detailsText": "1x 香煎雞胸肉蛋堡 ::: $70\n----------------------\n小計 ::: $70\n總額 ::: $70\n🍴 提供餐具\n",
+      "totalAmount": 70,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "✅ 已取餐"
+    },
+    {
+      "id": 1793935486191,
+      "orderNumber": "008",
+      "orderDate": "2026-11-06",
+      "time": "11/06 11:24",
+      "diningType": "自取 (盡快取餐)",
+      "tableNumber": "",
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "detailsText": "1x 鮮蔬蛋吐司 ::: $35\n----------------------\n小計 ::: $35\n總額 ::: $35\n🍴 提供餐具\n",
+      "totalAmount": 35,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "✅ 已取餐"
+    },
+    {
+      "id": 1793935116544,
+      "orderNumber": "007",
+      "orderDate": "2026-11-06",
+      "time": "11/06 11:18",
+      "diningType": "自取 (盡快取餐)",
+      "tableNumber": "",
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "detailsText": "1x 泡菜豬排堡 ::: $70\n1x 炸杏鮑菇 ::: $50\n  ✬ 椒鹽\n1x 銀絲卷 ::: $40\n  ✬ 煉乳\n----------------------\n小計 ::: $160\n總額 ::: $160\n🍴 提供餐具\n",
+      "totalAmount": 160,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "✅ 已取餐"
+    },
+    {
+      "id": 1793935013874,
+      "orderNumber": "006",
+      "orderDate": "2026-11-06",
+      "time": "11/06 11:16",
+      "diningType": "自取 (盡快取餐)",
+      "tableNumber": "",
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "detailsText": "1x 卡啦脆雞堡 ::: $65\n----------------------\n小計 ::: $65\n總額 ::: $65\n🍴 提供餐具\n",
+      "totalAmount": 65,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "✅ 已取餐"
+    },
+    {
+      "id": 1793934257032,
+      "orderNumber": "005",
+      "orderDate": "2026-11-06",
+      "time": "11/06 11:04",
+      "diningType": "自取 (盡快取餐)",
+      "tableNumber": "",
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "detailsText": "1x 玉米布丁酥 ::: $40\n1x 雙層起司蛋餅 ::: $50\n1x 巧克力厚片 ::: $25\n  ✬ 厚片\n1x 銀絲卷 ::: $40\n  ✬ 煉乳\n1x 地瓜脆薯 ::: $40\n  ✬ 梅粉\n----------------------\n小計 ::: $195\n總額 ::: $195\n🍴 提供餐具\n",
+      "totalAmount": 195,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "✅ 已取餐"
+    },
+    {
+      "id": 1793931284835,
+      "orderNumber": "004",
+      "orderDate": "2026-11-06",
+      "time": "11/06 10:14",
+      "diningType": "自取 (盡快取餐)",
+      "tableNumber": "",
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "detailsText": "2x 招牌嫩煎雞腿蛋吐司 ::: $160\n----------------------\n小計 ::: $160\n總額 ::: $160\n🍴 提供餐具\n",
+      "totalAmount": 160,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "✅ 已取餐"
+    },
+    {
+      "id": 1793926835481,
+      "orderNumber": "003",
+      "orderDate": "2026-11-06",
+      "time": "11/06 09:00",
+      "diningType": "自取",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "1x 炸湯圓 ::: $35\n1x 美式脆薯 ::: $40\n2x 蔥抓餅 ::: $90\n  ✬ 不加蛋\n1x 地瓜脆薯 ::: $40\n  ✬ 梅粉\n1x 炸杏鮑菇 ::: $50\n  ✬ 椒鹽\n1x 炸甜不辣 ::: $40\n  ✬ 椒鹽\n----------------------\n小計 ::: $295\n總額 ::: $295\n",
+      "totalAmount": 295,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "✅ 已取餐"
+    },
+    {
+      "id": 1793868870400,
+      "orderNumber": "002",
+      "orderDate": "2026-11-06",
+      "time": "11/05 16:54",
+      "diningType": "自取 (預訂: 11/06 08:30)",
+      "tableNumber": "",
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "detailsText": "1x 鮮蔬蛋漢堡 ::: $35\n----------------------\n小計 ::: $35\n總額 ::: $35\n🍴 提供餐具\n",
+      "totalAmount": 35,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "✅ 已取餐"
+    },
+    {
+      "id": 1793868235849,
+      "orderNumber": "001",
+      "orderDate": "2026-11-06",
+      "time": "11/05 16:43",
+      "diningType": "自取 (預訂: 11/06 08:00)",
+      "tableNumber": "",
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "detailsText": "1x 一號餐 ::: $135\n  ✬ 焦一點, 紅茶, 冰, 無糖\n----------------------\n小計 ::: $135\n總額 ::: $135\n🍴 提供餐具\n",
+      "totalAmount": 135,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "✅ 已取餐"
+    },
+    {
+      "id": 1793867501836,
+      "orderNumber": "011",
+      "orderDate": "2026-11-05",
+      "time": "11/05 16:31",
+      "diningType": "自取",
+      "tableNumber": "",
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "detailsText": "1x 麥克雞塊(5入) ::: $40\n3x 台味鹽酥雞 ::: $135\n1x 人氣炸雞 ::: $45\n----------------------\n小計 ::: $220\n總額 ::: $220\n",
+      "totalAmount": 220,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "✅ 已取餐"
+    },
+    {
+      "id": 1793867155456,
+      "orderNumber": "010",
+      "orderDate": "2026-11-05",
+      "time": "11/05 16:25",
+      "diningType": "自取",
+      "tableNumber": "",
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "detailsText": "1x 原味蔬菜捲餅 ::: $45\n1x 玉米捲餅 ::: $55\n----------------------\n小計 ::: $100\n🎟️ 優惠折抵 ::: -$10\n----------------------\n總額 ::: $90\n",
+      "totalAmount": 90,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "✅ 已取餐"
+    },
+    {
+      "id": 1793865789933,
+      "orderNumber": "009",
+      "orderDate": "2026-11-05",
+      "time": "11/05 16:03",
+      "diningType": "外帶",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "1x 玉米蛋餅 ::: $40\n1x 特調鮪魚蛋餅 ::: $55\n----------------------\n小計 ::: $95\n總額 ::: $95\n",
+      "totalAmount": 95,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳"
+    },
+    {
+      "id": 1793864795353,
+      "orderNumber": "008",
+      "orderDate": "2026-11-05",
+      "time": "11/05 15:46",
+      "diningType": "自取",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "1x 原味蛋餅 ::: $75\n  ✬ 加起司, 加九層塔, 加玉米, 不要蔥, 加蛋\n----------------------\n小計 ::: $75\n總額 ::: $75\n",
+      "totalAmount": 75,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳",
+      "pickupStatus": "尚未取餐"
+    },
+    {
+      "id": 1793861761037,
+      "orderNumber": "011",
+      "orderDate": "2026-11-05",
+      "time": "11/05 14:56",
+      "diningType": "自取",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "1x 原味蛋餅 ::: $65\n  ✬ 焦一點, 加起司, 加九層塔, 加玉米, 不要蔥, 不要蛋, 加辣\n----------------------\n小計 ::: $65\n🎟️ 優惠折抵 ::: -$6\n----------------------\n總額 ::: $59\n",
+      "totalAmount": 59,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳"
+    },
+    {
+      "id": 1793861238187,
+      "orderNumber": "010",
+      "orderDate": "2026-11-05",
+      "time": "11/05 14:47",
+      "diningType": "自取",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "1x 原味蛋餅 ::: $65\n  ✬ 加起司, 加九層塔, 加玉米\n1x 九層塔蛋餅 ::: $40\n1x 經典薯餅蛋餅 ::: $50\n----------------------\n小計 ::: $155\n🎟️ 優惠折抵 ::: -$15\n----------------------\n總額 ::: $140\n",
+      "totalAmount": 140,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳"
+    },
+    {
+      "id": 1793860564814,
+      "orderNumber": "009",
+      "orderDate": "2026-11-05",
+      "time": "11/05 14:36",
+      "diningType": "內用(桌號:8)",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "原味蛋餅 x 1\n  ✬ 焦一點, 加起司, 加九層塔, 加玉米\n----------------------\n🎟️ 優惠碼 (vip8888): -$6\n----------------------\n",
+      "totalAmount": 59,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳"
+    },
+    {
+      "id": 1793855815106,
+      "orderNumber": "008",
+      "orderDate": "2026-11-05",
+      "time": "11/05 13:16",
+      "diningType": "外帶",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "蘿蔔糕煎蛋 x 1\n美式脆薯 x 1\n麥克雞塊(5入) x 1\n----------------------\n",
+      "totalAmount": 135,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳"
+    },
+    {
+      "id": 1793855785386,
+      "orderNumber": "007",
+      "orderDate": "2026-11-05",
+      "time": "11/05 13:16",
+      "diningType": "外帶",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "原味蛋餅 x 1\n  ✬ 焦一點, 加起司, 不要蔥, 加蛋, 加辣\n雙蛋蛋餅 x 1\n  ✬ 焦一點, 加起司\n----------------------\n",
+      "totalAmount": 100,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳"
+    },
+    {
+      "id": 1793850845661,
+      "orderNumber": "006",
+      "orderDate": "2026-11-05",
+      "time": "11/05 11:54",
+      "diningType": "內用(桌號:6)",
+      "tableNumber": "6",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "原味蛋餅 x 3\n  ✬ 焦一點, 加起司, 不要蔥, 加蛋, 加辣\n原味蛋餅 x 1\n  ✬ 不要焦, 加起司, 不要蔥, 加蛋, 加辣\n----------------------\n",
+      "totalAmount": 200,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳"
+    },
+    {
+      "id": 1793847757296,
+      "orderNumber": "005",
+      "orderDate": "2026-11-05",
+      "time": "11/05 11:02",
+      "diningType": "內用(桌號:4)",
+      "tableNumber": "4",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "炸湯圓 x 3\n----------------------\n",
+      "totalAmount": 105,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳"
+    },
+    {
+      "id": 1793777774510,
+      "orderNumber": "004",
+      "orderDate": "2026-11-04",
+      "time": "11/04 15:36",
+      "diningType": "自取",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "港式蘿蔔糕 x 1\n蘿蔔糕煎蛋 x 1\n美式脆薯 x 1\n----------------------\n",
+      "totalAmount": 135,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳"
+    },
+    {
+      "id": 1793777747412,
+      "orderNumber": "003",
+      "orderDate": "2026-11-04",
+      "time": "11/04 15:35",
+      "diningType": "內用(桌號:7)",
+      "tableNumber": "7",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "鮮蔬蛋吐司 x 1\n  ✬加起司+10\n----------------------\n",
+      "totalAmount": 45,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳"
+    },
+    {
+      "id": 1793776396111,
+      "orderNumber": "002",
+      "orderDate": "2026-11-04",
+      "time": "11/04 15:13",
+      "diningType": "內用(桌號:6)",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "蘿蔔糕煎蛋 x 1\n美式脆薯 x 1\n----------------------\n",
+      "totalAmount": 95,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳"
+    },
+    {
+      "id": 1793776371270,
+      "orderNumber": "001",
+      "orderDate": "2026-11-04",
+      "time": "11/04 15:12",
+      "diningType": "外帶",
+      "tableNumber": "",
+      "customerName": "現場客",
+      "customerPhone": "",
+      "detailsText": "炸湯圓 x 1\n港式蘿蔔糕 x 1\n----------------------\n",
+      "totalAmount": 75,
+      "status": "✅ 已完成",
+      "paymentStatus": "✅ 已結帳"
+    }
+  ],
   "order_items": [],
   "settlements": [],
   "auto_ids": {
@@ -368,5 +945,4972 @@
     "settlements": 1,
     "modifier_groups": 12,
     "modifier_options": 31
-  }
+  },
+  "menu": [
+    {
+      "id": 1,
+      "category": "蛋餅",
+      "name": "原味蛋餅",
+      "price": 30,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:口感",
+          "name": "口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        },
+        {
+          "title": "複選:減料",
+          "name": "減料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不要蔥",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "單選:口感",
+          "name": "口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "加蛋",
+              "price": 10
+            }
+          ]
+        },
+        {
+          "title": "單選:口感",
+          "name": "口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "加辣",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "category": "蛋餅",
+      "name": "雙蛋蛋餅",
+      "price": 40,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:口感",
+          "name": "口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "category": "蛋餅",
+      "name": "玉米蛋餅",
+      "price": 40,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:口感",
+          "name": "口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "category": "蛋餅",
+      "name": "九層塔蛋餅",
+      "price": 40,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:口感",
+          "name": "口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "category": "蛋餅",
+      "name": "雙層起司蛋餅",
+      "price": 50,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:口感",
+          "name": "口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "category": "蛋餅",
+      "name": "經典薯餅蛋餅",
+      "price": 50,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:口感",
+          "name": "口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "category": "蛋餅",
+      "name": "特調鮪魚蛋餅",
+      "price": 55,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:口感",
+          "name": "口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "category": "蛋餅",
+      "name": "三杯杏鮑菇蛋餅",
+      "price": 55,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:口感",
+          "name": "口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "category": "蛋餅",
+      "name": "厚培根蛋餅",
+      "price": 55,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:口感",
+          "name": "口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "category": "蛋餅",
+      "name": "小豬里肌蛋餅",
+      "price": 60,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:口感",
+          "name": "口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "category": "蛋餅",
+      "name": "香煎雞胸肉蛋餅",
+      "price": 60,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:口感",
+          "name": "口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "category": "蛋餅",
+      "name": "酥炸里肌豬蛋餅",
+      "price": 65,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:口感",
+          "name": "口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "category": "蛋餅",
+      "name": "台味鹽酥雞蛋餅",
+      "price": 65,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:口感",
+          "name": "口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "category": "蛋餅",
+      "name": "日式雞排蛋餅",
+      "price": 65,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:口感",
+          "name": "口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "category": "蛋餅",
+      "name": "泰式打拋豬肉蛋餅",
+      "price": 75,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:口感",
+          "name": "口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "category": "蛋餅",
+      "name": "經典人氣炸雞蛋餅",
+      "price": 75,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:口感",
+          "name": "口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "category": "蛋餅",
+      "name": "招牌嫩煎雞腿蛋餅",
+      "price": 75,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:口感",
+          "name": "口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "category": "捲餅",
+      "name": "原味蔬菜捲餅",
+      "price": 45,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "category": "捲餅",
+      "name": "玉米捲餅",
+      "price": 55,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "category": "捲餅",
+      "name": "特調鮪魚捲餅",
+      "price": 70,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "category": "捲餅",
+      "name": "小豬里肌捲餅",
+      "price": 75,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "category": "捲餅",
+      "name": "香煎雞胸肉捲餅",
+      "price": 75,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "category": "捲餅",
+      "name": "招牌嫩煎雞腿捲餅",
+      "price": 90,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "category": "吐司",
+      "name": "鮮蔬蛋吐司",
+      "price": 35,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "category": "吐司",
+      "name": "特製蛋沙拉吐司(冷)",
+      "price": 40,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "category": "吐司",
+      "name": "肉鬆蛋吐司",
+      "price": 40,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "category": "吐司",
+      "name": "經典薯餅蛋吐司",
+      "price": 55,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "category": "吐司",
+      "name": "特調鮪魚蛋吐司",
+      "price": 60,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "category": "吐司",
+      "name": "三杯杏鮑菇蛋吐司",
+      "price": 60,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "category": "吐司",
+      "name": "小豬里肌蛋吐司",
+      "price": 70,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "category": "吐司",
+      "name": "香煎雞胸肉蛋吐司",
+      "price": 70,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "category": "吐司",
+      "name": "招牌嫩煎雞腿蛋吐司",
+      "price": 80,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "category": "漢堡",
+      "name": "鮮蔬蛋漢堡",
+      "price": 35,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "category": "漢堡",
+      "name": "卡啦脆雞堡",
+      "price": 65,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "category": "漢堡",
+      "name": "純手拍豬肉蛋堡",
+      "price": 65,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "category": "漢堡",
+      "name": "小豬里肌蛋堡",
+      "price": 70,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "category": "漢堡",
+      "name": "香煎雞胸肉蛋堡",
+      "price": 70,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "category": "漢堡",
+      "name": "泡菜豬排堡",
+      "price": 70,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "category": "漢堡",
+      "name": "酥炸里肌豬蛋堡",
+      "price": 75,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "category": "漢堡",
+      "name": "純手拍牛肉蛋堡",
+      "price": 80,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "category": "漢堡",
+      "name": "招牌嫩煎雞腿蛋堡",
+      "price": 80,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "category": "漢堡",
+      "name": "雙層起司豬牛蛋堡",
+      "price": 108,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "category": "漢堡",
+      "name": "厚牛花粒薯來蛋堡",
+      "price": 108,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加蛋",
+              "price": 15
+            }
+          ]
+        },
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "不加生菜",
+              "price": 0
+            },
+            {
+              "name": "不加番茄",
+              "price": 0
+            },
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "不加醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "category": "飯糰",
+      "name": "古早味飯糰",
+      "price": 45,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "去菜脯",
+              "price": 0
+            },
+            {
+              "name": "去油條",
+              "price": 0
+            },
+            {
+              "name": "去菜酥",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 45,
+      "category": "飯糰",
+      "name": "\"素\"古味飯糰",
+      "price": 45,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "去菜脯",
+              "price": 0
+            },
+            {
+              "name": "去油條",
+              "price": 0
+            },
+            {
+              "name": "去菜酥",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "category": "飯糰",
+      "name": "鮪魚玉米飯糰",
+      "price": 55,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "去菜脯",
+              "price": 0
+            },
+            {
+              "name": "去油條",
+              "price": 0
+            },
+            {
+              "name": "去菜酥",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 47,
+      "category": "飯糰",
+      "name": "泰式打拋豬飯糰",
+      "price": 60,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "去菜脯",
+              "price": 0
+            },
+            {
+              "name": "去油條",
+              "price": 0
+            },
+            {
+              "name": "去菜酥",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "category": "刈包",
+      "name": "古早味刈包",
+      "price": 45,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "去酸菜",
+              "price": 0
+            },
+            {
+              "name": "去花生粉",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 49,
+      "category": "刈包",
+      "name": "招牌控肉刈包",
+      "price": 55,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "去酸菜",
+              "price": 0
+            },
+            {
+              "name": "去花生粉",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "category": "刈包",
+      "name": "酥炸里肌豬刈包",
+      "price": 55,
+      "status": "上架",
+      "options": [
+        {
+          "title": "複選:特製",
+          "name": "特製",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "去酸菜",
+              "price": 0
+            },
+            {
+              "name": "去花生粉",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 51,
+      "category": "小點",
+      "name": "炸湯圓",
+      "price": 35,
+      "status": "上架",
+      "options": []
+    },
+    {
+      "id": 52,
+      "category": "小點",
+      "name": "港式蘿蔔糕",
+      "price": 40,
+      "status": "上架",
+      "options": []
+    },
+    {
+      "id": 53,
+      "category": "小點",
+      "name": "蘿蔔糕煎蛋",
+      "price": 55,
+      "status": "上架",
+      "options": []
+    },
+    {
+      "id": 54,
+      "category": "小點",
+      "name": "美式脆薯",
+      "price": 40,
+      "status": "上架",
+      "options": []
+    },
+    {
+      "id": 55,
+      "category": "小點",
+      "name": "麥克雞塊(5入)",
+      "price": 40,
+      "status": "上架",
+      "options": []
+    },
+    {
+      "id": 56,
+      "category": "小點",
+      "name": "台味鹽酥雞",
+      "price": 45,
+      "status": "上架",
+      "options": []
+    },
+    {
+      "id": 57,
+      "category": "小點",
+      "name": "人氣炸雞",
+      "price": 45,
+      "status": "上架",
+      "options": []
+    },
+    {
+      "id": 58,
+      "category": "小點",
+      "name": "蔥抓餅",
+      "price": 45,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:加蛋",
+          "name": "加蛋",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "不加蛋",
+              "price": 0
+            },
+            {
+              "name": "加蛋",
+              "price": 10
+            }
+          ]
+        },
+        {
+          "title": "複選:加料",
+          "name": "加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            },
+            {
+              "name": "加肉片",
+              "price": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 59,
+      "category": "小點",
+      "name": "銀絲卷",
+      "price": 40,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:口味",
+          "name": "口味",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "煉乳",
+              "price": 0
+            },
+            {
+              "name": "椒鹽",
+              "price": 0
+            },
+            {
+              "name": "梅粉",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 60,
+      "category": "小點",
+      "name": "地瓜脆薯",
+      "price": 40,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:口味",
+          "name": "口味",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "梅粉",
+              "price": 0
+            },
+            {
+              "name": "不加調味",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 61,
+      "category": "小點",
+      "name": "玉米布丁酥",
+      "price": 40,
+      "status": "上架",
+      "options": []
+    },
+    {
+      "id": 62,
+      "category": "小點",
+      "name": "炸杏鮑菇",
+      "price": 50,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:口味",
+          "name": "口味",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "椒鹽",
+              "price": 0
+            },
+            {
+              "name": "不加調味",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 63,
+      "category": "小點",
+      "name": "炸甜不辣",
+      "price": 40,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:口味",
+          "name": "口味",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "椒鹽",
+              "price": 0
+            },
+            {
+              "name": "不加調味",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 64,
+      "category": "小點",
+      "name": "骰子雞",
+      "price": 50,
+      "status": "售完",
+      "options": [
+        {
+          "title": "必選:口味",
+          "name": "口味",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "椒鹽",
+              "price": 0
+            },
+            {
+              "name": "不加調味",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 65,
+      "category": "厚片",
+      "name": "巧克力厚片",
+      "price": 25,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:品項",
+          "name": "品項",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "厚片",
+              "price": 0
+            },
+            {
+              "name": "薄片",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 66,
+      "category": "厚片",
+      "name": "奶酥厚片",
+      "price": 25,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:品項",
+          "name": "品項",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "厚片",
+              "price": 0
+            },
+            {
+              "name": "薄片",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 67,
+      "category": "厚片",
+      "name": "草莓厚片",
+      "price": 25,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:品項",
+          "name": "品項",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "厚片",
+              "price": 0
+            },
+            {
+              "name": "薄片",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 68,
+      "category": "厚片",
+      "name": "砂糖帶粒花生厚片",
+      "price": 40,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:品項",
+          "name": "品項",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "厚片",
+              "price": 0
+            },
+            {
+              "name": "薄片",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 69,
+      "category": "厚片",
+      "name": "小山園抹茶奶酥厚片",
+      "price": 60,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:品項",
+          "name": "品項",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "厚片",
+              "price": 0
+            },
+            {
+              "name": "薄片",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 70,
+      "category": "沙拉",
+      "name": "鮮蔬堅果沙拉",
+      "price": 60,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:醬料",
+          "name": "醬料",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "胡麻醬",
+              "price": 0
+            },
+            {
+              "name": "油醋醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 71,
+      "category": "沙拉",
+      "name": "水果優格沙拉",
+      "price": 70,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:醬料",
+          "name": "醬料",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "胡麻醬",
+              "price": 0
+            },
+            {
+              "name": "油醋醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 72,
+      "category": "沙拉",
+      "name": "香煎雞胸肉沙拉",
+      "price": 85,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:醬料",
+          "name": "醬料",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "胡麻醬",
+              "price": 0
+            },
+            {
+              "name": "油醋醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 73,
+      "category": "沙拉",
+      "name": "招牌嫩煎雞腿沙拉",
+      "price": 95,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:醬料",
+          "name": "醬料",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "胡麻醬",
+              "price": 0
+            },
+            {
+              "name": "油醋醬",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 74,
+      "category": "飲料",
+      "name": "紅茶",
+      "price": 25,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:溫度",
+          "name": "溫度",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            },
+            {
+              "name": "溫",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:甜度",
+          "name": "甜度",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "有糖",
+              "price": 0
+            },
+            {
+              "name": "無糖",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 75,
+      "category": "飲料",
+      "name": "奶茶",
+      "price": 30,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:溫度",
+          "name": "溫度",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            },
+            {
+              "name": "溫",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:甜度",
+          "name": "甜度",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "固定",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 76,
+      "category": "飲料",
+      "name": "鮮奶茶",
+      "price": 45,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:溫度",
+          "name": "溫度",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            },
+            {
+              "name": "溫",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:甜度",
+          "name": "甜度",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "固定",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 77,
+      "category": "飲料",
+      "name": "杉林溪青茶",
+      "price": 30,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:溫度",
+          "name": "溫度",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:甜度",
+          "name": "甜度",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "固定",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 78,
+      "category": "飲料",
+      "name": "非基改豆漿",
+      "price": 30,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:溫度",
+          "name": "溫度",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            },
+            {
+              "name": "溫",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:甜度",
+          "name": "甜度",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "有糖",
+              "price": 0
+            },
+            {
+              "name": "無糖",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 79,
+      "category": "飲料",
+      "name": "冬瓜茶",
+      "price": 25,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:溫度",
+          "name": "溫度",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:甜度",
+          "name": "甜度",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "固定",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 80,
+      "category": "飲料",
+      "name": "檸檬冬瓜",
+      "price": 35,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:溫度",
+          "name": "溫度",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:甜度",
+          "name": "甜度",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "固定",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 81,
+      "category": "飲料",
+      "name": "黑咖啡",
+      "price": 40,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:溫度",
+          "name": "溫度",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            },
+            {
+              "name": "溫",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:甜度",
+          "name": "甜度",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "固定",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 82,
+      "category": "飲料",
+      "name": "輕拿鐵",
+      "price": 55,
+      "status": "上架",
+      "options": [
+        {
+          "title": "必選:溫度",
+          "name": "溫度",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            },
+            {
+              "name": "溫",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:甜度",
+          "name": "甜度",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "固定",
+              "price": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 83,
+      "category": "套餐",
+      "name": "一號餐\n嫩煎雞腿蛋餅\n飲料\n炸物雙拼",
+      "price": 135,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:主餐口感",
+          "name": "主餐口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:主餐加料",
+          "name": "主餐加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料",
+          "name": "飲料",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "紅茶",
+              "price": 0
+            },
+            {
+              "name": "奶茶",
+              "price": 5
+            },
+            {
+              "name": "鮮奶茶",
+              "price": 20
+            },
+            {
+              "name": "青茶",
+              "price": 5
+            },
+            {
+              "name": "豆漿",
+              "price": 5
+            },
+            {
+              "name": "冬瓜茶",
+              "price": 0
+            },
+            {
+              "name": "檸檬冬瓜",
+              "price": 10
+            },
+            {
+              "name": "黑咖啡",
+              "price": 15
+            },
+            {
+              "name": "輕拿鐵",
+              "price": 30
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料溫度(特定飲料溫度固定)",
+          "name": "飲料溫度(特定飲料溫度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            },
+            {
+              "name": "溫",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料甜度(特定飲料甜度固定)",
+          "name": "飲料甜度(特定飲料甜度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "有糖",
+              "price": 0
+            },
+            {
+              "name": "無糖",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加購",
+          "name": "加購",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "熱狗",
+              "price": 16
+            },
+            {
+              "name": "蘿蔔糕",
+              "price": 32
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 84,
+      "category": "套餐",
+      "name": "二號餐\n泰式打拋豬蛋餅\n飲料\n麥克雞塊",
+      "price": 135,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:主餐口感",
+          "name": "主餐口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:主餐加料",
+          "name": "主餐加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料",
+          "name": "飲料",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "紅茶",
+              "price": 0
+            },
+            {
+              "name": "奶茶",
+              "price": 5
+            },
+            {
+              "name": "鮮奶茶",
+              "price": 20
+            },
+            {
+              "name": "青茶",
+              "price": 5
+            },
+            {
+              "name": "豆漿",
+              "price": 5
+            },
+            {
+              "name": "冬瓜茶",
+              "price": 0
+            },
+            {
+              "name": "檸檬冬瓜",
+              "price": 10
+            },
+            {
+              "name": "黑咖啡",
+              "price": 15
+            },
+            {
+              "name": "輕拿鐵",
+              "price": 30
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料溫度(特定飲料溫度固定)",
+          "name": "飲料溫度(特定飲料溫度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            },
+            {
+              "name": "溫",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料甜度(特定飲料甜度固定)",
+          "name": "飲料甜度(特定飲料甜度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "有糖",
+              "price": 0
+            },
+            {
+              "name": "無糖",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加購",
+          "name": "加購",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "熱狗",
+              "price": 16
+            },
+            {
+              "name": "蘿蔔糕",
+              "price": 32
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 85,
+      "category": "套餐",
+      "name": "三號餐\n玉米蛋餅\n飲料\n菇菇濃湯\n經典薯餅",
+      "price": 135,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:主餐口感",
+          "name": "主餐口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:主餐加料",
+          "name": "主餐加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料",
+          "name": "飲料",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "紅茶",
+              "price": 0
+            },
+            {
+              "name": "奶茶",
+              "price": 5
+            },
+            {
+              "name": "鮮奶茶",
+              "price": 20
+            },
+            {
+              "name": "青茶",
+              "price": 5
+            },
+            {
+              "name": "豆漿",
+              "price": 5
+            },
+            {
+              "name": "冬瓜茶",
+              "price": 0
+            },
+            {
+              "name": "檸檬冬瓜",
+              "price": 10
+            },
+            {
+              "name": "黑咖啡",
+              "price": 15
+            },
+            {
+              "name": "輕拿鐵",
+              "price": 30
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料溫度(特定飲料溫度固定)",
+          "name": "飲料溫度(特定飲料溫度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            },
+            {
+              "name": "溫",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料甜度(特定飲料甜度固定)",
+          "name": "飲料甜度(特定飲料甜度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "有糖",
+              "price": 0
+            },
+            {
+              "name": "無糖",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加購",
+          "name": "加購",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "熱狗",
+              "price": 16
+            },
+            {
+              "name": "蘿蔔糕",
+              "price": 32
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 86,
+      "category": "套餐",
+      "name": "四號餐\n純手拍豬肉漢堡\n飲料\n鮪魚蛋餅",
+      "price": 135,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:主餐口感",
+          "name": "主餐口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:主餐加料",
+          "name": "主餐加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料",
+          "name": "飲料",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "紅茶",
+              "price": 0
+            },
+            {
+              "name": "奶茶",
+              "price": 5
+            },
+            {
+              "name": "鮮奶茶",
+              "price": 20
+            },
+            {
+              "name": "青茶",
+              "price": 5
+            },
+            {
+              "name": "豆漿",
+              "price": 5
+            },
+            {
+              "name": "冬瓜茶",
+              "price": 0
+            },
+            {
+              "name": "檸檬冬瓜",
+              "price": 10
+            },
+            {
+              "name": "黑咖啡",
+              "price": 15
+            },
+            {
+              "name": "輕拿鐵",
+              "price": 30
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料溫度(特定飲料溫度固定)",
+          "name": "飲料溫度(特定飲料溫度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            },
+            {
+              "name": "溫",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料甜度(特定飲料甜度固定)",
+          "name": "飲料甜度(特定飲料甜度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "有糖",
+              "price": 0
+            },
+            {
+              "name": "無糖",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加購",
+          "name": "加購",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "熱狗",
+              "price": 16
+            },
+            {
+              "name": "蘿蔔糕",
+              "price": 32
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 87,
+      "category": "套餐",
+      "name": "五號餐\n純手拍牛肉漢堡\n飲料\n美式脆薯",
+      "price": 135,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:主餐口感",
+          "name": "主餐口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:主餐加料",
+          "name": "主餐加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料",
+          "name": "飲料",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "紅茶",
+              "price": 0
+            },
+            {
+              "name": "奶茶",
+              "price": 5
+            },
+            {
+              "name": "鮮奶茶",
+              "price": 20
+            },
+            {
+              "name": "青茶",
+              "price": 5
+            },
+            {
+              "name": "豆漿",
+              "price": 5
+            },
+            {
+              "name": "冬瓜茶",
+              "price": 0
+            },
+            {
+              "name": "檸檬冬瓜",
+              "price": 10
+            },
+            {
+              "name": "黑咖啡",
+              "price": 15
+            },
+            {
+              "name": "輕拿鐵",
+              "price": 30
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料溫度(特定飲料溫度固定)",
+          "name": "飲料溫度(特定飲料溫度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            },
+            {
+              "name": "溫",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料甜度(特定飲料甜度固定)",
+          "name": "飲料甜度(特定飲料甜度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "有糖",
+              "price": 0
+            },
+            {
+              "name": "無糖",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加購",
+          "name": "加購",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "熱狗",
+              "price": 16
+            },
+            {
+              "name": "蘿蔔糕",
+              "price": 32
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 88,
+      "category": "套餐",
+      "name": "六號餐\n人氣炸雞漢堡\n飲料\n特製蛋沙拉",
+      "price": 135,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:主餐口感",
+          "name": "主餐口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:主餐加料",
+          "name": "主餐加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料",
+          "name": "飲料",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "紅茶",
+              "price": 0
+            },
+            {
+              "name": "奶茶",
+              "price": 5
+            },
+            {
+              "name": "鮮奶茶",
+              "price": 20
+            },
+            {
+              "name": "青茶",
+              "price": 5
+            },
+            {
+              "name": "豆漿",
+              "price": 5
+            },
+            {
+              "name": "冬瓜茶",
+              "price": 0
+            },
+            {
+              "name": "檸檬冬瓜",
+              "price": 10
+            },
+            {
+              "name": "黑咖啡",
+              "price": 15
+            },
+            {
+              "name": "輕拿鐵",
+              "price": 30
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料溫度(特定飲料溫度固定)",
+          "name": "飲料溫度(特定飲料溫度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            },
+            {
+              "name": "溫",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料甜度(特定飲料甜度固定)",
+          "name": "飲料甜度(特定飲料甜度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "有糖",
+              "price": 0
+            },
+            {
+              "name": "無糖",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加購",
+          "name": "加購",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "熱狗",
+              "price": 16
+            },
+            {
+              "name": "蘿蔔糕",
+              "price": 32
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 89,
+      "category": "套餐",
+      "name": "七號餐\n酥炸里肌豬刈包\n飲料\n奶酥厚片\n港式蘿蔔糕",
+      "price": 135,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:主餐口感",
+          "name": "主餐口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:主餐加料",
+          "name": "主餐加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料",
+          "name": "飲料",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "紅茶",
+              "price": 0
+            },
+            {
+              "name": "奶茶",
+              "price": 5
+            },
+            {
+              "name": "鮮奶茶",
+              "price": 20
+            },
+            {
+              "name": "青茶",
+              "price": 5
+            },
+            {
+              "name": "豆漿",
+              "price": 5
+            },
+            {
+              "name": "冬瓜茶",
+              "price": 0
+            },
+            {
+              "name": "檸檬冬瓜",
+              "price": 10
+            },
+            {
+              "name": "黑咖啡",
+              "price": 15
+            },
+            {
+              "name": "輕拿鐵",
+              "price": 30
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料溫度(特定飲料溫度固定)",
+          "name": "飲料溫度(特定飲料溫度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            },
+            {
+              "name": "溫",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料甜度(特定飲料甜度固定)",
+          "name": "飲料甜度(特定飲料甜度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "有糖",
+              "price": 0
+            },
+            {
+              "name": "無糖",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加購",
+          "name": "加購",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "熱狗",
+              "price": 16
+            },
+            {
+              "name": "蘿蔔糕",
+              "price": 32
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 90,
+      "category": "套餐",
+      "name": "八號餐\n招牌焢肉刈包\n飲料\n小山園抹茶奶酥厚片",
+      "price": 135,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:主餐口感",
+          "name": "主餐口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:主餐加料",
+          "name": "主餐加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料",
+          "name": "飲料",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "紅茶",
+              "price": 0
+            },
+            {
+              "name": "奶茶",
+              "price": 5
+            },
+            {
+              "name": "鮮奶茶",
+              "price": 20
+            },
+            {
+              "name": "青茶",
+              "price": 5
+            },
+            {
+              "name": "豆漿",
+              "price": 5
+            },
+            {
+              "name": "冬瓜茶",
+              "price": 0
+            },
+            {
+              "name": "檸檬冬瓜",
+              "price": 10
+            },
+            {
+              "name": "黑咖啡",
+              "price": 15
+            },
+            {
+              "name": "輕拿鐵",
+              "price": 30
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料溫度(特定飲料溫度固定)",
+          "name": "飲料溫度(特定飲料溫度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            },
+            {
+              "name": "溫",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料甜度(特定飲料甜度固定)",
+          "name": "飲料甜度(特定飲料甜度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "有糖",
+              "price": 0
+            },
+            {
+              "name": "無糖",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加購",
+          "name": "加購",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "熱狗",
+              "price": 16
+            },
+            {
+              "name": "蘿蔔糕",
+              "price": 32
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 91,
+      "category": "套餐",
+      "name": "九號餐\n香煎雞胸肉吐司\n飲料\n小胡麻沙拉",
+      "price": 135,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:主餐口感",
+          "name": "主餐口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:主餐加料",
+          "name": "主餐加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料",
+          "name": "飲料",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "紅茶",
+              "price": 0
+            },
+            {
+              "name": "奶茶",
+              "price": 5
+            },
+            {
+              "name": "鮮奶茶",
+              "price": 20
+            },
+            {
+              "name": "青茶",
+              "price": 5
+            },
+            {
+              "name": "豆漿",
+              "price": 5
+            },
+            {
+              "name": "冬瓜茶",
+              "price": 0
+            },
+            {
+              "name": "檸檬冬瓜",
+              "price": 10
+            },
+            {
+              "name": "黑咖啡",
+              "price": 15
+            },
+            {
+              "name": "輕拿鐵",
+              "price": 30
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料溫度(特定飲料溫度固定)",
+          "name": "飲料溫度(特定飲料溫度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            },
+            {
+              "name": "溫",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料甜度(特定飲料甜度固定)",
+          "name": "飲料甜度(特定飲料甜度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "有糖",
+              "price": 0
+            },
+            {
+              "name": "無糖",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加購",
+          "name": "加購",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "熱狗",
+              "price": 16
+            },
+            {
+              "name": "蘿蔔糕",
+              "price": 32
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 92,
+      "category": "套餐",
+      "name": "十號餐\n純手拍豬肉蛋吐司\n飲料\n蘿蔔糕煎蛋",
+      "price": 135,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:主餐口感",
+          "name": "主餐口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:主餐加料",
+          "name": "主餐加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料",
+          "name": "飲料",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "紅茶",
+              "price": 0
+            },
+            {
+              "name": "奶茶",
+              "price": 5
+            },
+            {
+              "name": "鮮奶茶",
+              "price": 20
+            },
+            {
+              "name": "青茶",
+              "price": 5
+            },
+            {
+              "name": "豆漿",
+              "price": 5
+            },
+            {
+              "name": "冬瓜茶",
+              "price": 0
+            },
+            {
+              "name": "檸檬冬瓜",
+              "price": 10
+            },
+            {
+              "name": "黑咖啡",
+              "price": 15
+            },
+            {
+              "name": "輕拿鐵",
+              "price": 30
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料溫度(特定飲料溫度固定)",
+          "name": "飲料溫度(特定飲料溫度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            },
+            {
+              "name": "溫",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料甜度(特定飲料甜度固定)",
+          "name": "飲料甜度(特定飲料甜度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "有糖",
+              "price": 0
+            },
+            {
+              "name": "無糖",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加購",
+          "name": "加購",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "熱狗",
+              "price": 16
+            },
+            {
+              "name": "蘿蔔糕",
+              "price": 32
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 93,
+      "category": "套餐",
+      "name": "十一號餐\n三杯杏鮑菇吐司\n飲料\n蔬菜捲餅",
+      "price": 135,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:主餐口感",
+          "name": "主餐口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:主餐加料",
+          "name": "主餐加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料",
+          "name": "飲料",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "紅茶",
+              "price": 0
+            },
+            {
+              "name": "奶茶",
+              "price": 5
+            },
+            {
+              "name": "鮮奶茶",
+              "price": 20
+            },
+            {
+              "name": "青茶",
+              "price": 5
+            },
+            {
+              "name": "豆漿",
+              "price": 5
+            },
+            {
+              "name": "冬瓜茶",
+              "price": 0
+            },
+            {
+              "name": "檸檬冬瓜",
+              "price": 10
+            },
+            {
+              "name": "黑咖啡",
+              "price": 15
+            },
+            {
+              "name": "輕拿鐵",
+              "price": 30
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料溫度(特定飲料溫度固定)",
+          "name": "飲料溫度(特定飲料溫度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            },
+            {
+              "name": "溫",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料甜度(特定飲料甜度固定)",
+          "name": "飲料甜度(特定飲料甜度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "有糖",
+              "price": 0
+            },
+            {
+              "name": "無糖",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加購",
+          "name": "加購",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "熱狗",
+              "price": 16
+            },
+            {
+              "name": "蘿蔔糕",
+              "price": 32
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 94,
+      "category": "套餐",
+      "name": "十二號餐\n特製蛋沙拉吐司\n飲料\n古早味飯糰",
+      "price": 135,
+      "status": "上架",
+      "options": [
+        {
+          "title": "單選:主餐口感",
+          "name": "主餐口感",
+          "type": "單選",
+          "required": false,
+          "multiple": false,
+          "items": [
+            {
+              "name": "焦一點",
+              "price": 0
+            },
+            {
+              "name": "不要焦",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:主餐加料",
+          "name": "主餐加料",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "加起司",
+              "price": 10
+            },
+            {
+              "name": "加九層塔",
+              "price": 15
+            },
+            {
+              "name": "加玉米",
+              "price": 10
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料",
+          "name": "飲料",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "紅茶",
+              "price": 0
+            },
+            {
+              "name": "奶茶",
+              "price": 5
+            },
+            {
+              "name": "鮮奶茶",
+              "price": 20
+            },
+            {
+              "name": "青茶",
+              "price": 5
+            },
+            {
+              "name": "豆漿",
+              "price": 5
+            },
+            {
+              "name": "冬瓜茶",
+              "price": 0
+            },
+            {
+              "name": "檸檬冬瓜",
+              "price": 10
+            },
+            {
+              "name": "黑咖啡",
+              "price": 15
+            },
+            {
+              "name": "輕拿鐵",
+              "price": 30
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料溫度(特定飲料溫度固定)",
+          "name": "飲料溫度(特定飲料溫度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "冰",
+              "price": 0
+            },
+            {
+              "name": "溫",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "必選:飲料甜度(特定飲料甜度固定)",
+          "name": "飲料甜度(特定飲料甜度固定)",
+          "type": "必選",
+          "required": true,
+          "multiple": false,
+          "items": [
+            {
+              "name": "有糖",
+              "price": 0
+            },
+            {
+              "name": "無糖",
+              "price": 0
+            }
+          ]
+        },
+        {
+          "title": "複選:加購",
+          "name": "加購",
+          "type": "複選",
+          "required": false,
+          "multiple": true,
+          "items": [
+            {
+              "name": "熱狗",
+              "price": 16
+            },
+            {
+              "name": "蘿蔔糕",
+              "price": 32
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "openTime": "06:00",
+    "closeTime": "13:00",
+    "closedDaysOfWeek": "3",
+    "closedDates": "",
+    "autoAccept": "開啟",
+    "enableDelivery": "關閉",
+    "promoDiscountCode": "vip8888",
+    "promoDiscountRate": 0.9,
+    "promoDeductCode": "",
+    "promoDeductAmount": 0,
+    "specialRestDates": "",
+    "tableNumberStart": 1,
+    "tableNumberEnd": 6
+  },
+  "announcement": "",
+  "systemPassword": "1111",
+  "expenseQuickWords": [
+    "買蔥",
+    "買蛋",
+    "買肉",
+    "買菜",
+    "買米",
+    "瓦斯費",
+    "水電費",
+    "買飲料",
+    "找零用",
+    "老闆拿走",
+    "買塑膠袋",
+    "買紙袋",
+    "買吸管",
+    "買筷子",
+    "買湯匙",
+    "買衛生紙",
+    "買餐盒",
+    "買杯子",
+    "買杯蓋",
+    "買封膜",
+    "買醬油",
+    "買辣椒醬",
+    "買胡椒粉",
+    "買番茄醬",
+    "買沙拉醬",
+    "買美乃滋",
+    "買起司",
+    "買火腿",
+    "買培根",
+    "買熱狗",
+    "修理設備",
+    "雜支費用"
+  ],
+  "incomeQuickWords": [
+    "找零用備用金",
+    "老闆補貼",
+    "外送平台撥款",
+    "廢油回收",
+    "資源回收",
+    "溢收現金",
+    "其他收入"
+  ],
+  "employees": [
+    "詩涵",
+    "銘慧",
+    "冠宇"
+  ],
+  "clockStatus": {
+    "詩涵": "下班",
+    "冠宇": "下班"
+  },
+  "messages": [
+    {
+      "time": "2026/07/24 8:34:29",
+      "name": "蔡智偉",
+      "phone": "0923552477",
+      "sender": "customer",
+      "content": "123",
+      "epoch": "1784853269041"
+    },
+    {
+      "time": "2026/07/24 8:34:57",
+      "name": "蔡智偉",
+      "phone": "0923552477",
+      "sender": "owner",
+      "content": "456",
+      "epoch": "1784853297236"
+    },
+    {
+      "time": "2026/07/24 8:35:17",
+      "name": "蔡智偉",
+      "phone": "0923552477",
+      "sender": "customer",
+      "content": "789",
+      "epoch": "1784853317578"
+    },
+    {
+      "time": "2026/07/24 8:38:56",
+      "name": "蔡先生",
+      "phone": "0923552477",
+      "sender": "customer",
+      "content": "我點錯了…",
+      "epoch": "1784853536553"
+    },
+    {
+      "time": "2026/07/24 8:43:47",
+      "name": "蔡先生",
+      "phone": "0923123123",
+      "sender": "customer",
+      "content": "你好",
+      "epoch": "1784853827359"
+    },
+    {
+      "time": "2026/07/24 8:44:05",
+      "name": "蔡先生",
+      "phone": "0923123123",
+      "sender": "owner",
+      "content": "？？",
+      "epoch": "1784853845217"
+    },
+    {
+      "time": "2026/07/24 9:56:27",
+      "name": "蔡先生",
+      "phone": "0923123123",
+      "sender": "customer",
+      "content": "18%hdbebgpx",
+      "epoch": "1784858187487"
+    },
+    {
+      "time": "07/24 10:29",
+      "name": "蔡智偉",
+      "phone": "0923552477",
+      "sender": "customer",
+      "content": "你機",
+      "epoch": "1784860162096"
+    },
+    {
+      "time": "07/24 10:29",
+      "name": "蔡智偉",
+      "phone": "0923552477",
+      "sender": "customer",
+      "content": "四縮",
+      "epoch": "1784860186891"
+    },
+    {
+      "time": "07/24 10:30",
+      "name": "蔡智偉",
+      "phone": "0923552477",
+      "sender": "owner",
+      "content": "45456",
+      "epoch": "1784860244331"
+    },
+    {
+      "time": "07/24 10:30",
+      "name": "蔡智偉",
+      "phone": "0923552477",
+      "sender": "owner",
+      "content": "的fgre ree g",
+      "epoch": "1784860250480"
+    },
+    {
+      "time": "07/24 10:30",
+      "name": "蔡智偉",
+      "phone": "0923552477",
+      "sender": "owner",
+      "content": "wr wt y",
+      "epoch": "1784860251615"
+    },
+    {
+      "time": "07/24 10:30",
+      "name": "蔡智偉",
+      "phone": "0923552477",
+      "sender": "owner",
+      "content": "aet eah eta",
+      "epoch": "1784860253113"
+    },
+    {
+      "time": "07/24 10:30",
+      "name": "蔡智偉",
+      "phone": "0923552477",
+      "sender": "owner",
+      "content": "ety et ea rearg",
+      "epoch": "1784860254258"
+    },
+    {
+      "time": "07/24 16:19",
+      "name": "蔡智偉",
+      "phone": "0923552477",
+      "sender": "customer",
+      "content": "13212132123",
+      "epoch": "1784881190644"
+    },
+    {
+      "time": "07/26 15:49",
+      "name": "蔡智偉",
+      "phone": "0923552477",
+      "sender": "owner",
+      "content": "123",
+      "epoch": "1785052186377"
+    },
+    {
+      "time": "2026/11/05 15:30",
+      "name": "蔡先生",
+      "phone": "0923123123",
+      "sender": "owner",
+      "content": "123",
+      "epoch": "1793863806121"
+    },
+    {
+      "time": "2026/11/05 15:54",
+      "name": "蔡智偉",
+      "phone": "0923552477",
+      "sender": "owner",
+      "content": "123",
+      "epoch": "1793865254921"
+    },
+    {
+      "time": "2026/11/05 15:54",
+      "name": "蔡先生",
+      "phone": "0923123123",
+      "sender": "owner",
+      "content": "456",
+      "epoch": "1793865258595"
+    },
+    {
+      "time": "2026/11/06 11:13",
+      "name": "蔡智偉",
+      "phone": "0923552477",
+      "sender": "customer",
+      "content": "123",
+      "epoch": "1793934799213"
+    }
+  ]
 }

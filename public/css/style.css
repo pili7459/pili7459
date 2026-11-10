@@ -1,0 +1,376 @@
+/* ---------------------------------------- [全局與基礎設定] 開始 ---------------------------------------- */
+* { box-sizing: border-box; }
+body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: #f1f5f9; margin: 0; padding: 0; display: flex; height: 100vh; color: #334155; overflow: hidden; }
+/* ---------------------------------------- [全局與基礎設定] 結束 ---------------------------------------- */
+
+
+/* ---------------------------------------- [三欄佈局核心結構] 開始 ---------------------------------------- */
+.left-panel { width: 28%; min-width: 300px; background: #ffffff; display: flex; flex-direction: column; border-right: 1px solid #e2e8f0; box-shadow: 2px 0 15px rgba(0,0,0,0.03); z-index: 10; }
+.main-content-wrapper { flex: 1; display: flex; flex-direction: column; background: #f8fafc; position: relative; height: 100%; min-width: 0; }
+#checkout-main-container { width: 100%; height: 100%; display: flex; flex-direction: row; }
+
+/* 中欄計算機 (三欄時佔 50%，在已完成與收支簿時由 JS 隱藏) */
+.middle-panel { width: 50%; min-width: 360px; display: flex; flex-direction: column; padding: 18px; gap: 16px; border-right: 1px solid #e2e8f0; }
+
+/* 右欄餐點清單 (自動填滿剩餘寬度) */
+.right-panel { flex: 1; background: #ffffff; display: flex; flex-direction: column; z-index: 10; min-width: 320px; }
+
+.toolbar-panel { width: 72px; min-width: 72px; background: #0f172a; display: flex; flex-direction: column; padding: 15px 6px; gap: 10px; align-items: center; z-index: 5; overflow-y: auto; }
+
+#chat-main-container { display: none; width: 100%; height: 100%; background: #f1f5f9; flex-direction: row; }
+#system-main-container { display: none; width: 100%; height: 100%; flex-direction: column; background: #f8fafc; padding: 20px; overflow-y: auto; }
+/* ---------------------------------------- [三欄佈局核心結構] 結束 ---------------------------------------- */
+
+
+/* ---------------------------------------- [現場點餐與菜單網格] 開始 ---------------------------------------- */
+#ordering-main-container { display: none; width: 100%; height: 100%; flex-direction: column; background: #f8fafc; }
+
+.pos-category-panel { 
+  width: 88px; 
+  min-width: 88px; 
+  background: #ffffff; 
+  border-right: 1px solid #e2e8f0; 
+  display: flex; 
+  flex-direction: column; 
+  overflow-y: auto; 
+}
+.pos-cat-btn { 
+  padding: 16px 2px; 
+  font-size: 1.15em; 
+  font-weight: 800; 
+  color: #64748b; 
+  background: transparent; 
+  border: none; 
+  border-bottom: 1px solid #f1f5f9; 
+  cursor: pointer; 
+  transition: 0.2s; 
+  text-align: center; 
+  border-left: 4px solid transparent; 
+  white-space: nowrap;
+}
+.pos-cat-btn:hover { background: #f8fafc; }
+.pos-cat-btn.active { background: #eff6ff; color: #3b82f6; border-left: 4px solid #3b82f6; }
+
+.pos-menu-panel { 
+  flex: 1; 
+  padding: 16px 18px; 
+  overflow-y: auto; 
+}
+.pos-menu-grid { 
+  display: grid; 
+  grid-template-columns: repeat(2, 1fr); 
+  gap: 12px; 
+}
+.pos-menu-item { 
+  background: #ffffff; 
+  border: 1px solid #cbd5e1; 
+  border-radius: 12px; 
+  padding: 16px 16px; 
+  min-height: 80px; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.03); 
+  display: flex; 
+  flex-direction: row; 
+  align-items: center; 
+  justify-content: space-between; 
+  gap: 12px; 
+  cursor: pointer; 
+  touch-action: pan-y; 
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.pos-menu-item:hover { 
+  border-color: #3b82f6; 
+  transform: translateY(-2px); 
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.12); 
+}
+.pos-menu-item.sold-out { 
+  background: #f1f5f9; 
+  opacity: 0.6; 
+}
+
+.pos-menu-item-title { font-size: 1.25em; font-weight: 800; color: #1e293b; line-height: 1.3; white-space: pre-wrap; margin: 0; flex: 1; text-align: left; }
+.pos-menu-item-price { font-size: 1.35em; font-weight: 900; color: #ea580c; margin: 0; white-space: nowrap; text-align: right; }
+/* ---------------------------------------- [現場點餐與菜單網格] 結束 ---------------------------------------- */
+
+
+/* ---------------------------------------- [POS購物車面板] 開始 ---------------------------------------- */
+.pos-cart-panel { 
+  width: 40%; 
+  min-width: 420px; 
+  background: #ffffff; 
+  border-left: 1px solid #e2e8f0; 
+  display: flex; 
+  flex-direction: column; 
+  box-shadow: -2px 0 15px rgba(0,0,0,0.03); 
+}
+.pos-cart-header { background: #1e293b; color: #ffffff; padding: 18px; text-align: center; font-size: 1.3em; font-weight: 800; }
+.pos-cart-items { flex: 1; overflow-y: auto; padding: 16px; }
+.pos-cart-footer { padding: 18px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 12px; }
+.pos-cart-total { font-size: 1.7em; font-weight: 900; color: #0f172a; text-align: right; }
+.pos-cart-checkout-btn { width: 100%; background: #10b981; color: white; border: none; padding: 16px; border-radius: 12px; font-size: 1.4em; font-weight: 900; cursor: pointer; box-shadow: 0 4px 6px rgba(16,185,129,0.2); transition: 0.1s; }
+.pos-cart-checkout-btn:active { transform: scale(0.98); box-shadow: none; }
+
+button.add-btn { background: #3b82f6; color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.1em; }
+button.add-btn:active { transform: scale(0.95); }
+button.spec-btn { background: #f59e0b; color: #fff; }
+.qty-control { display: flex; align-items: center; justify-content: center; gap: 8px; background: #f1f5f9; border-radius: 8px; padding: 2px 4px; }
+.qty-btn { background: #ffffff; border: 1px solid #cbd5e1; width: 34px; height: 34px; border-radius: 6px; font-size: 1.3em; font-weight: bold; cursor: pointer; color: #334155; display:flex; justify-content:center; align-items:center; z-index:2; }
+.qty-number { font-weight: bold; font-size: 1.2em; width: 26px; text-align: center; color: #0f172a; }
+
+.cart-item-row { margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; }
+.cart-item-main { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.cart-item-options { font-size: 0.9em; color: #ea580c; font-weight: bold; margin-top: 4px; }
+
+.radio-group { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.radio-group label { font-size: 1.1em; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: bold; color: #334155; background: #ffffff; padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; }
+.radio-group label:has(input:checked) { background: #eff6ff; border-color: #3b82f6; color: #1e3a8a; }
+.table-input { width: 100%; padding: 11px 12px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 1.05em; box-sizing: border-box; font-family: inherit; font-weight: bold; }
+/* ---------------------------------------- [POS購物車面板] 結束 ---------------------------------------- */
+
+
+/* ---------------------------------------- [出餐勾選框與規格彈窗] 開始 ---------------------------------------- */
+.cook-checkbox-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border: 2px solid #94a3b8;
+  background-color: #ffffff;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.3em;
+  font-weight: 900;
+  color: transparent;
+  transition: all 0.15s ease;
+  user-select: none;
+  padding: 0;
+  margin-right: 8px;
+}
+.cook-checkbox-btn:hover {
+  border-color: #10b981;
+  background-color: #f0fdf4;
+}
+.cook-checkbox-btn.checked {
+  background-color: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 1000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
+.modal-content { background: #fff; width: 90%; max-width: 550px; border-radius: 20px; padding: 30px; box-sizing: border-box; animation: slideUp 0.3s ease-out; max-height: 90vh; overflow-y: auto; }
+@keyframes slideUp { from { transform: translateY(50px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+.modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; }
+.modal-header h3 { margin: 0; font-size: 1.6em; color: #0f172a; }
+.close-btn { background: #f1f5f9; border: none; font-size: 1.5em; cursor: pointer; color: #64748b; width:40px; height:40px; border-radius:50%; display:flex; justify-content:center; align-items:center; }
+.option-group { margin-bottom: 25px; }
+.option-group-title { font-weight: bold; color: #1e293b; margin-bottom: 12px; font-size: 1.2em; background: #f8fafc; padding: 8px 12px; border-radius: 8px; border-left: 4px solid #3b82f6; }
+.option-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 8px; border-bottom: 1px dashed #e2e8f0; }
+.option-item label { flex: 1; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 1.2em; color: #334155; font-weight:bold; }
+.option-item input[type="checkbox"], .option-item input[type="radio"] { width: 22px; height: 22px; cursor: pointer; }
+.option-price { color: #ea580c; font-weight: 900; font-size: 1.1em; }
+.confirm-modal-btn { width: 100%; padding: 20px; background: #3b82f6; color: white; border: none; border-radius: 12px; font-size: 1.4em; font-weight: 900; cursor: pointer; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); }
+.confirm-modal-btn:active { transform: scale(0.98); box-shadow:none; }
+/* ---------------------------------------- [出餐勾選框與規格彈窗] 結束 ---------------------------------------- */
+
+
+/* ---------------------------------------- [左側頁籤與訂單卡片] 開始 ---------------------------------------- */
+.header { background: #1e293b; color: #10b981; padding: 18px; text-align: center; font-size: 1.5em; font-weight: 800; letter-spacing: 1px; }
+
+.tabs { 
+  display: flex; 
+  flex-direction: column; 
+  background: #ffffff; 
+  padding: 10px 10px; 
+  flex-shrink: 0; 
+  gap: 8px; 
+  border-bottom: 1px solid #e2e8f0; 
+}
+
+.tabs-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.tabs-row .tab { 
+  flex: 1; 
+  min-width: 0;
+  text-align: center; 
+  padding: 10px 4px; 
+  font-weight: 800; 
+  cursor: pointer; 
+  border-radius: 10px; 
+  background: #f1f5f9; 
+  color: #475569; 
+  font-size: 0.95em; 
+  white-space: nowrap; 
+  transition: all 0.15s; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  gap: 4px;
+  border: 1px solid #cbd5e1; 
+}
+
+.tabs-row .tab:hover { background: #e2e8f0; }
+
+.tabs-row .tab.active { 
+  background: #3b82f6 !important; 
+  color: #ffffff !important; 
+  border-color: #2563eb !important;
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3) !important; 
+}
+
+.tab-badge { 
+  background: #ef4444; 
+  color: #ffffff; 
+  border-radius: 12px; 
+  padding: 2px 6px; 
+  font-size: 0.8em; 
+  font-weight: 900; 
+  display: none; 
+  line-height: 1.1; 
+}
+
+.order-list { flex: 1; overflow-y: auto; padding: 15px; background: #f8fafc; }
+.order-card {
+  border: 1px solid #e2e8f0; border-left: 6px solid #fbbf24; border-radius: 12px;
+  padding: 15px; margin-bottom: 12px; cursor: pointer;
+  background-color: #ffffff; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  position: relative;
+  touch-action: pan-y;
+  user-select: none;
+}
+.order-card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.08); border-color: #cbd5e1; }
+.order-card.selected { border-color: #bfdbfe; border-left: 6px solid #3b82f6; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15); }
+.order-card.paid { border-left-color: #10b981; opacity: 0.8; }
+.order-card.cancelled-card { border-left-color: #94a3b8; opacity: 0.6; }
+
+.order-meta { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #e2e8f0; padding-bottom: 8px; margin-bottom: 8px; }
+.order-num { font-size: 1.4em; font-weight: 800; color: #0f172a; }
+.order-type { font-size: 0.9em; background: #e2e8f0; color: #475569; padding: 4px 10px; border-radius: 20px; font-weight: bold; }
+.order-price { font-size: 1.3em; font-weight: 900; color: #0f172a; }
+/* ---------------------------------------- [左側頁籤與訂單卡片] 結束 ---------------------------------------- */
+
+
+/* ---------------------------------------- [中間計算機與數字鍵盤] 開始 ---------------------------------------- */
+.calc-display { background: #0f172a; color: #ffffff; border-radius: 16px; padding: 20px 24px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.05); flex: 0 0 auto; display: flex; flex-direction: column; min-height: 180px; justify-content: center; position: relative; border: 1px solid #1e293b; }
+#checkout-mode-display { display: flex; flex-direction: column; justify-content: center; height: 100%; gap: 6px; }
+.amount-row { display: flex; justify-content: space-between; align-items: center; font-size: 1.6em; font-weight: 600; color: #94a3b8; }
+.amount-row.total-due { color: #f87171; font-size: 1.8em; font-weight: 800; }
+.amount-row.tendered { color: #38bdf8; }
+.amount-row.change { color: #34d399; font-size: 3em; font-weight: 900; border-top: 2px dashed #334155; padding-top: 10px; margin-top: 4px; }
+
+.tx-input { width: 100%; padding: 12px; font-size: 1.2em; border: 2px solid #3b82f6; border-radius: 8px; font-family: inherit; margin-top: 0; background: #1e293b; color: white; }
+
+.numpad-container { flex: 1; display: flex; width: 100%; min-height: 0; position: relative; }
+.normal-keyboard-area { display: flex; gap: 14px; width: 100%; height: 100%; }
+.numpad { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); gap: 12px; flex: 3; height: 100%; }
+.num-btn { background: #ffffff; border: 1px solid #e2e8f0; font-size: 2em; font-weight: 700; color: #1e293b; border-radius: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); cursor: pointer; transition: all 0.1s; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
+.num-btn:active { background: #e2e8f0; transform: translateY(2px); box-shadow: none; }
+.num-btn.zero-btn { grid-column: span 2; }
+
+.action-pad { display: flex; flex-direction: column; gap: 12px; flex: 1.2; height: 100%; }
+.action-btn { color: #fff; border: none; font-size: 1.3em; font-weight: 800; border-radius: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; flex: 1; transition: all 0.1s; height: 100%; display: flex; justify-content: center; align-items: center; }
+.action-btn:active { transform: translateY(2px); box-shadow: none; }
+.action-btn.clear { background: #64748b; }
+
+.action-btn.quick-amt-btn {
+  background-color: #f59e0b !important;
+  color: #ffffff !important;
+  font-size: 1.45em !important;
+  font-weight: 900 !important;
+  border: 1px solid #d97706 !important;
+  box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3) !important;
+}
+.action-btn.quick-amt-btn:active {
+  background-color: #d97706 !important;
+  transform: translateY(2px) !important;
+}
+
+.action-btn.checkout { background: #10b981; font-size: 2em; flex: 1.8; opacity: 0.4; cursor: not-allowed; transition: all 0.3s; }
+.action-btn.checkout.ready { opacity: 1; cursor: pointer; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
+
+.quick-words-area { display: none; flex-direction: column; width: 100%; height: 100%; gap: 10px; }
+.quick-words-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; flex: 1; align-content: start; overflow-y: auto; padding-right: 5px; }
+.qw-btn { background: #ffffff; border: 1px solid #cbd5e1; font-size: 1.3em; font-weight: 700; color: #334155; border-radius: 12px; padding: 15px 10px; min-height: 80px; display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.02); touch-action: pan-y; }
+/* ---------------------------------------- [中間計算機與數字鍵盤] 結束 ---------------------------------------- */
+
+
+/* ---------------------------------------- [右側工具列與訂單明細] 開始 ---------------------------------------- */
+.toolbar-panel::-webkit-scrollbar { display: none; }
+.tool-btn {
+  background: #1e293b;
+  color: #cbd5e1;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  width: 100%;
+  padding: 14px 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.05em;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  text-align: center;
+  letter-spacing: 1px;
+}
+.tool-btn:hover {
+  background: #334155;
+  color: #ffffff;
+  border-color: #64748b;
+}
+.tool-btn.active {
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+  border-color: #60a5fa !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.45) !important;
+}
+
+.notify-badge { position: absolute; top: -6px; right: -6px; background: #ef4444; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 0.8em; display: none; justify-content: center; align-items: center; font-weight: 900; border: 2px solid #0f172a; }
+
+.right-header { padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px; background: #f8fafc; flex-shrink: 0; }
+.right-title { font-size: 1.3em; font-weight: 800; color: #1e293b; }
+.right-content { flex: 1; overflow-y: auto; padding: 20px; background: #ffffff; display: flex; flex-direction: column; }
+
+.detail-item-name { font-size: 1.4em; font-weight: 800; margin-top: 15px; color: #0f172a; white-space: pre-wrap; }
+.detail-item-opt { color: #64748b; font-size: 1em; padding-left: 20px; margin-bottom: 12px; margin-top: 5px; }
+.detail-divider { border: 0; border-top: 2px dashed #cbd5e1; margin: 15px 0; }
+.detail-special { font-size: 1.2em; color: #ea580c; font-weight: 800; margin-bottom: 10px; background: #fff7ed; padding: 12px; border-radius: 10px; border: 1px solid #ffedd5; }
+
+.empty-state { text-align: center; color: #94a3b8; margin-top: 100px; font-size: 1.4em; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 15px; }
+.empty-state::before { content: "📄"; font-size: 3em; opacity: 0.5; }
+
+.reprint-btn { color: white; border: none; padding: 14px; border-radius: 10px; font-size: 1.05em; font-weight: 800; cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.1s; }
+/* ---------------------------------------- [右側工具列與訂單明細] 結束 ---------------------------------------- */
+
+
+/* ---------------------------------------- [結帳成功彈窗與訊息提示] 開始 ---------------------------------------- */
+.modal-box { background: #ffffff; width: 80%; max-width: 600px; border-radius: 24px; padding: 35px; box-sizing: border-box; box-shadow: 0 20px 40px rgba(0,0,0,0.2); text-align: center; }
+.success-title { font-size: 3em; font-weight: 900; color: #10b981; margin-bottom: 10px; }
+.success-subtitle { font-size: 1.8em; color: #475569; margin-top: 20px; font-weight: bold; }
+.success-change { font-size: 6.5em; font-weight: 900; color: #f87171; margin: 15px 0 35px 0; line-height: 1; }
+.btn-finish { background: #3b82f6; color: white; width: 100%; padding: 22px; font-size: 2em; font-weight: 900; border-radius: 16px; border: none; cursor: pointer; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); }
+
+.toast-msg { position: fixed; top: 25px; left: 50%; transform: translateX(-50%); background-color: #1e293b; color: white; padding: 18px 35px; font-size: 1.4em; font-weight: 800; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 9999; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+.toast-msg.show { opacity: 1; }
+/* ---------------------------------------- [結帳成功彈窗與訊息提示] 結束 ---------------------------------------- */
+
+
+/* ---------------------------------------- [系統管理介面樣式] 開始 ---------------------------------------- */
+.sys-settings-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+.sys-settings-table th { background: #f1f5f9; text-align: left; padding: 15px; font-size: 1.1em; color: #475569; }
+.sys-settings-table td { padding: 15px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; font-weight: bold; color: #334155; }
+.sys-settings-table input, .sys-settings-table select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1.1em; font-family: inherit; font-weight: bold; outline: none; }
+.sys-settings-table input:focus { border-color: #3b82f6; }
+.sys-list-item { padding: 14px 18px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #fff; transition: 0.2s; }
+.sys-list-item:hover { background: #f8fafc; }
+.sys-btn-edit { padding: 8px 15px; border-radius: 8px; border: 1px solid #cbd5e1; background: #f1f5f9; cursor: pointer; font-weight: bold; font-size: 1em; color: #334155; }
+.sys-btn-edit:hover { background: #e2e8f0; }
+.sys-input { width: 100%; padding: 12px; font-size: 1.1em; border: 1px solid #cbd5e1; border-radius: 8px; margin-top: 5px; outline: none; font-family: inherit; font-weight: bold; }
+/* ---------------------------------------- [系統管理介面樣式] 結束 ---------------------------------------- */

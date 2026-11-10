@@ -1,678 +1,668 @@
+<!-- ---------------------------------------- [文檔宣告與系統頭部] 開始 ---------------------------------------- -->
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>收銀前台 (POS) - 肚肚風格</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>POS 點餐收銀系統</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:,">
 </head>
-<body class="bg-slate-100 h-screen flex flex-col font-sans overflow-hidden select-none">
-  <!-- 頂部資訊列 -->
-  <header class="bg-white border-b border-slate-200 px-6 py-3 flex justify-between items-center shrink-0">
-    <div class="flex items-center gap-3">
-      <span class="bg-emerald-600 text-white font-black px-2.5 py-1 rounded-lg text-lg">POS</span>
-      <h1 class="text-lg font-bold text-slate-800">小森食光坊 · 收銀端</h1>
-      <span id="wsStatus" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span> 即時連線
-      </span>
-    </div>
-    <div class="flex items-center gap-3">
-      <a href="/kds.html" target="_blank" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-300 font-semibold">🍳 廚房看板 (KDS)</a>
-      <a href="/admin.html" target="_blank" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-300 font-semibold">⚙️ 菜單/桌位/日結 (Admin)</a>
-      <div id="currentTime" class="text-xs font-mono text-slate-500 font-bold">--:--:--</div>
-    </div>
-  </header>
+<body>
+<!-- ---------------------------------------- [文檔宣告與系統頭部] 結束 ---------------------------------------- -->
 
-  <!-- 主體區域 -->
-  <div class="flex-1 flex overflow-hidden">
-    <!-- 左側主要區域 (桌況 或 菜單選購) -->
-    <div class="flex-1 flex flex-col border-r border-slate-200 bg-white overflow-hidden">
-      <!-- 頂部 Tab 切換 -->
-      <div class="flex border-b border-slate-200 bg-slate-50 px-4 pt-3 gap-2 shrink-0 items-center">
-        <button id="tabTablesBtn" onclick="switchView('TABLES')" class="px-5 py-2.5 font-bold text-sm rounded-t-xl bg-white border-t-2 border-emerald-600 text-emerald-700 shadow-sm">
-          🪑 桌況配置地圖
-        </button>
-        <button id="tabMenuBtn" onclick="switchView('MENU')" class="px-5 py-2.5 font-bold text-sm rounded-t-xl text-slate-600 hover:text-slate-900">
-          📋 點餐菜單
-        </button>
-        <button onclick="startTakeoutOrder()" class="px-4 py-2 font-bold text-xs rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-300 ml-2">
-          🥡 外帶直接點餐
-        </button>
-        
-        <div id="activeContextBanner" class="ml-auto my-auto text-xs px-3 py-1 rounded-md font-bold hidden">
-          <!-- 當前模式狀態 -->
+
+<!-- ---------------------------------------- [系統訊息提示 Toast] 開始 ---------------------------------------- -->
+  <div id="toast-msg" class="toast-msg"></div>
+<!-- ---------------------------------------- [系統訊息提示 Toast] 結束 ---------------------------------------- -->
+
+
+<!-- ---------------------------------------- [左欄訂單清單與頁籤] 開始 ---------------------------------------- -->
+  <div class="left-panel" id="pos-left-panel">
+    <div class="header" id="daily-revenue">本日營收: $0</div>
+    <div class="tabs">
+      <div class="tabs-row">
+        <div class="tab active" id="tab-new-order" onclick="switchTab('new-order')">
+          <span>新訂單</span><span class="tab-badge" id="badge-new-order">0</span>
+        </div>
+        <div class="tab" id="tab-unpaid" onclick="switchTab('unpaid')">
+          <span>未完成</span><span class="tab-badge" id="badge-unpaid">0</span>
+        </div>
+        <div class="tab" id="tab-tomorrow" onclick="switchTab('tomorrow')">
+          <span>明日預約</span><span class="tab-badge" id="badge-tomorrow">0</span>
         </div>
       </div>
+      <div class="tabs-row">
+        <div class="tab" id="tab-history" onclick="switchTab('history')">已完成</div>
+        <div class="tab" id="tab-tx" onclick="switchTab('tx')">收支簿</div>
+      </div>
+    </div>
+    <div class="order-list" id="order-list">
+      <div class="loader" id="sync-loader">🔄 正在連線總部資料庫...</div>
+    </div>
+  </div>
+<!-- ---------------------------------------- [左欄訂單清單與頁籤] 結束 ---------------------------------------- -->
 
-      <!-- 視圖 1: 桌位地圖 -->
-      <div id="viewTables" class="flex-1 p-6 overflow-y-auto">
-        <div class="flex justify-between items-center mb-4">
-          <div>
-            <h2 class="font-bold text-slate-800 text-base">店內桌況一覽</h2>
-            <p class="text-xs text-slate-400 mt-0.5">點擊「空桌」開始點餐，點擊「用餐中」可檢視訂單、結帳或加點</p>
+
+  <div class="main-content-wrapper" id="pos-main-wrapper">
+    <div id="checkout-main-container">
+<!-- ---------------------------------------- [中欄結帳計算機與鍵盤] 開始 ---------------------------------------- -->
+      <div class="middle-panel" id="pos-middle-panel">
+        <div class="calc-display">
+          <div id="checkout-mode-display">
+            <div class="amount-row total-due">
+              <span>應收</span>
+              <span id="display-total">$0</span>
+            </div>
+            <div class="amount-row tendered">
+              <span>實收</span>
+              <span id="display-tendered">_</span>
+            </div>
+            <div class="amount-row change">
+              <span>找零</span>
+              <span id="display-change">$0</span>
+            </div>
           </div>
-          <div class="flex items-center gap-4 text-xs font-medium text-slate-500">
-            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500"></span> 空桌</span>
-            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500"></span> 用餐中</span>
+        </div>
+
+        <div class="numpad-container">
+          <div id="normal-keyboard-area" class="normal-keyboard-area">
+            <div class="numpad">
+              <button class="num-btn" onclick="inputNum('7')">7</button>
+              <button class="num-btn" onclick="inputNum('8')">8</button>
+              <button class="num-btn" onclick="inputNum('9')">9</button>
+              <button class="num-btn" onclick="inputNum('4')">4</button>
+              <button class="num-btn" onclick="inputNum('5')">5</button>
+              <button class="num-btn" onclick="inputNum('6')">6</button>
+              <button class="num-btn" onclick="inputNum('1')">1</button>
+              <button class="num-btn" onclick="inputNum('2')">2</button>
+              <button class="num-btn" onclick="inputNum('3')">3</button>
+              <button class="num-btn zero-btn" onclick="inputNum('0')">0</button>
+              <button class="num-btn" onclick="inputNum('00')">00</button>
+            </div>
+            <div class="action-pad">
+              <button class="action-btn clear" onclick="clearTendered()">C 清除</button>
+              <button class="action-btn quick-amt-btn" onclick="quickCash('exact')">收剛好</button>
+              <button class="action-btn quick-amt-btn" onclick="quickCash('500')">$500</button>
+              <button class="action-btn quick-amt-btn" onclick="quickCash('1000')">$1000</button>
+              <button class="action-btn checkout" id="checkout-btn" onclick="processAction()" disabled>結帳</button>
+            </div>
           </div>
         </div>
-        <div id="tablesGrid" class="grid grid-cols-3 gap-5">
-          <!-- 桌位卡片動態渲染 -->
+      </div>
+<!-- ---------------------------------------- [中欄結帳計算機與鍵盤] 結束 ---------------------------------------- -->
+
+
+<!-- ---------------------------------------- [右欄餐點明細面板] 開始 ---------------------------------------- -->
+      <div class="right-panel" id="pos-right-panel">
+        <div class="right-header">
+          <div style="display:flex; justify-content: space-between; width: 100%; align-items: center;">
+            <span class="right-title" id="right-order-num">👉 餐點清單</span>
+            <select id="pos-status-select" style="display:none; padding: 6px 12px; font-size: 1em; border-radius: 8px; font-weight: 800; border: 2px solid #cbd5e1; cursor: pointer; color: #1e293b; background: #fff;" onchange="changeOrderStatus(this.value)">
+              <option value="⏳ 新訂單" hidden>⏳ 新訂單</option>
+              <option value="👩‍🍳 已接單">👩‍🍳 已接單</option>
+              <option value="✅ 已完成">✅ 已完成</option>
+              <option value="❌ 已取消">❌ 訂單取消</option>
+            </select>
+          </div>
+        </div>
+        <div class="right-content" id="right-details-content">
+          <div class="empty-state" id="details-empty-state">尚未選擇訂單</div>
+        </div>
+      </div>
+<!-- ---------------------------------------- [右欄餐點明細面板] 結束 ---------------------------------------- -->
+    </div>
+
+
+<!-- ---------------------------------------- [獨立雙向收支記帳頁面] 開始 ---------------------------------------- -->
+    <div id="tx-split-container" style="display:none; width: 100%; height: 100%; padding: 20px; gap: 20px;">
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 15px; background: #fff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+        <div class="calc-display" style="min-height: 170px; background: #1e1b4b; border: 2px solid #ef4444;">
+          <div style="font-size: 1.5em; font-weight: bold; margin-bottom: 5px; color: #fca5a5;">💸 支出記帳</div>
+          <div id="tx-amount-expense" style="font-size: 3.2em; font-weight: bold; margin-bottom: 12px; line-height: 1; color: #f87171;">$0</div>
+          <div style="display:flex; width:100%; gap:8px; height:50px; margin-top:auto;">
+            <input type="text" id="tx-note-expense" class="tx-input" style="flex:1;" placeholder="👉 支出備註 (如: 買蛋、瓦斯)">
+            <button style="background:#475569; color:#fff; border:none; font-size:1em; font-weight:bold; border-radius:10px; padding:0 12px; cursor:pointer;" onclick="document.getElementById('tx-note-expense').value=''">清空</button>
+            <button style="background:#ef4444; color:#fff; border:none; font-size:1.3em; font-weight:bold; border-radius:10px; padding:0 14px; cursor:pointer;" onclick="let el=document.getElementById('tx-note-expense'); el.value=el.value.slice(0,-1);">⌫</button>
+            <button style="background:#f59e0b; color:#fff; border:none; font-size:1.1em; font-weight:bold; border-radius:10px; padding:0 14px; cursor:pointer; white-space:nowrap;" onclick="toggleTxQuickWords('expense')">常用詞</button>
+          </div>
+        </div>
+
+        <div style="flex: 1; position: relative;">
+          <div id="tx-numpad-area-expense" class="normal-keyboard-area">
+            <div class="numpad">
+              <button class="num-btn" onclick="inputTxNum('expense', '7')">7</button>
+              <button class="num-btn" onclick="inputTxNum('expense', '8')">8</button>
+              <button class="num-btn" onclick="inputTxNum('expense', '9')">9</button>
+              <button class="num-btn" onclick="inputTxNum('expense', '4')">4</button>
+              <button class="num-btn" onclick="inputTxNum('expense', '5')">5</button>
+              <button class="num-btn" onclick="inputTxNum('expense', '6')">6</button>
+              <button class="num-btn" onclick="inputTxNum('expense', '1')">1</button>
+              <button class="num-btn" onclick="inputTxNum('expense', '2')">2</button>
+              <button class="num-btn" onclick="inputTxNum('expense', '3')">3</button>
+              <button class="num-btn zero-btn" onclick="inputTxNum('expense', '0')">0</button>
+              <button class="num-btn" onclick="inputTxNum('expense', '00')">00</button>
+            </div>
+            <div class="action-pad">
+              <button class="action-btn clear" onclick="clearTxNum('expense')">C 清除</button>
+              <button class="action-btn quick-amt-btn" onclick="setTxAmount('expense', '100')">$100</button>
+              <button class="action-btn quick-amt-btn" onclick="setTxAmount('expense', '500')">$500</button>
+              <button class="action-btn quick-amt-btn" onclick="setTxAmount('expense', '1000')">$1000</button>
+              <button class="action-btn checkout ready" style="background:#ef4444; font-size:1.6em;" onclick="submitTxDirect('expense')">記支出</button>
+            </div>
+          </div>
+          <div id="tx-qw-area-expense" class="quick-words-area" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:#fff; z-index:10;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-weight:bold; color:#ef4444;">💡 點擊填入支出備註：</span>
+              <button onclick="toggleTxQuickWords('expense')" style="background:#64748b; color:#fff; border:none; padding:4px 10px; border-radius:6px; cursor:pointer;">返回鍵盤 ✖</button>
+            </div>
+            <div class="quick-words-grid" id="quick-words-grid-expense"></div>
+          </div>
         </div>
       </div>
 
-      <!-- 視圖 2: 點餐菜單 (分類 + 商品) -->
-      <div id="viewMenu" class="flex-1 flex flex-col overflow-hidden hidden">
-        <div id="categoryTabs" class="flex gap-2 p-3 bg-slate-50 border-b border-slate-200 overflow-x-auto shrink-0"></div>
-        <div id="productsGrid" class="flex-1 p-4 grid grid-cols-3 gap-4 overflow-y-auto content-start"></div>
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 15px; background: #fff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+        <div class="calc-display" style="min-height: 170px; background: #064e3b; border: 2px solid #10b981;">
+          <div style="font-size: 1.5em; font-weight: bold; margin-bottom: 5px; color: #a7f3d0;">💰 收入記帳</div>
+          <div id="tx-amount-income" style="font-size: 3.2em; font-weight: bold; margin-bottom: 12px; line-height: 1; color: #34d399;">$0</div>
+          <div style="display:flex; width:100%; gap:8px; height:50px; margin-top:auto;">
+            <input type="text" id="tx-note-income" class="tx-input" style="flex:1;" placeholder="👉 收入備註 (如: 外送補貼、店販)">
+            <button style="background:#475569; color:#fff; border:none; font-size:1em; font-weight:bold; border-radius:10px; padding:0 12px; cursor:pointer;" onclick="document.getElementById('tx-note-income').value=''">清空</button>
+            <button style="background:#ef4444; color:#fff; border:none; font-size:1.3em; font-weight:bold; border-radius:10px; padding:0 14px; cursor:pointer;" onclick="let el=document.getElementById('tx-note-income'); el.value=el.value.slice(0,-1);">⌫</button>
+            <button style="background:#f59e0b; color:#fff; border:none; font-size:1.1em; font-weight:bold; border-radius:10px; padding:0 14px; cursor:pointer; white-space:nowrap;" onclick="toggleTxQuickWords('income')">常用詞</button>
+          </div>
+        </div>
+
+        <div style="flex: 1; position: relative;">
+          <div id="tx-numpad-area-income" class="normal-keyboard-area">
+            <div class="numpad">
+              <button class="num-btn" onclick="inputTxNum('income', '7')">7</button>
+              <button class="num-btn" onclick="inputTxNum('income', '8')">8</button>
+              <button class="num-btn" onclick="inputTxNum('income', '9')">9</button>
+              <button class="num-btn" onclick="inputTxNum('income', '4')">4</button>
+              <button class="num-btn" onclick="inputTxNum('income', '5')">5</button>
+              <button class="num-btn" onclick="inputTxNum('income', '6')">6</button>
+              <button class="num-btn" onclick="inputTxNum('income', '1')">1</button>
+              <button class="num-btn" onclick="inputTxNum('income', '2')">2</button>
+              <button class="num-btn" onclick="inputTxNum('income', '3')">3</button>
+              <button class="num-btn zero-btn" onclick="inputTxNum('income', '0')">0</button>
+              <button class="num-btn" onclick="inputTxNum('income', '00')">00</button>
+            </div>
+            <div class="action-pad">
+              <button class="action-btn clear" onclick="clearTxNum('income')">C 清除</button>
+              <button class="action-btn quick-amt-btn" onclick="setTxAmount('income', '100')">$100</button>
+              <button class="action-btn quick-amt-btn" onclick="setTxAmount('income', '500')">$500</button>
+              <button class="action-btn quick-amt-btn" onclick="setTxAmount('income', '1000')">$1000</button>
+              <button class="action-btn checkout ready" style="background:#10b981; font-size:1.6em;" onclick="submitTxDirect('income')">記收入</button>
+            </div>
+          </div>
+          <div id="tx-qw-area-income" class="quick-words-area" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:#fff; z-index:10;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-weight:bold; color:#10b981;">💡 點擊填入收入備註：</span>
+              <button onclick="toggleTxQuickWords('income')" style="background:#64748b; color:#fff; border:none; padding:4px 10px; border-radius:6px; cursor:pointer;">返回鍵盤 ✖</button>
+            </div>
+            <div class="quick-words-grid" id="quick-words-grid-income"></div>
+          </div>
+        </div>
       </div>
     </div>
+<!-- ---------------------------------------- [獨立雙向收支記帳頁面] 結束 ---------------------------------------- -->
 
-    <!-- 右側：訂單明細與結帳控制台 (380px) -->
-    <div class="w-96 flex flex-col bg-slate-50 shrink-0 border-l border-slate-200">
-      <div class="p-4 border-b border-slate-200 bg-white flex justify-between items-center">
+
+<!-- ---------------------------------------- [現場點餐操作面板] 開始 ---------------------------------------- -->
+    <div id="ordering-main-container">
+      <div id="pos-announcement-banner" style="display:none; width: 100%; background: #ef4444; color: #ffffff; text-align: center; padding: 15px; font-size: 1.4em; font-weight: 900; z-index: 50;">
+        📢 最新公告：<span id="pos-announcement-text"></span>
+      </div>
+      <div style="flex: 1; display: flex; flex-direction: row; width: 100%; min-height: 0;">
+        <div class="pos-category-panel" id="pos-category-nav"></div>
+        <div class="pos-menu-panel">
+          <div class="pos-menu-grid" id="pos-menu-grid"></div>
+        </div>
+
+        <div class="pos-cart-panel">
+          <div class="pos-cart-header">🛒 購物車</div>
+          <div class="pos-cart-items" id="pos-cart-items">
+            <p style="text-align:center; color:#94a3b8; font-weight:bold; margin-top:50px;">目前沒有餐點喔！</p>
+          </div>
+          <div class="pos-cart-footer">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <div class="radio-group" style="margin-bottom: 0;">
+                <label><input type="radio" name="posDiningType" value="內用" checked onchange="togglePosTableOrTime()"> 內用</label>
+                <label><input type="radio" name="posDiningType" value="外帶" onchange="togglePosTableOrTime()"> 外帶</label>
+                <label><input type="radio" name="posDiningType" value="自取" onchange="togglePosTableOrTime()"> 自取</label>
+              </div>
+              <div class="pos-cart-total" style="margin: 0; font-size: 1.6em; white-space: nowrap;">
+                <span id="display-subtotal" style="display:none; font-size:0.7em; color:#94a3b8; text-decoration:line-through; margin-right:4px;"></span>
+                總計: $<span id="pos-total-price">0</span>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <select id="pos-table-number" class="table-input" style="flex: 1.1; background:#fff; cursor:pointer;">
+                <option value="" disabled selected>👉 請選擇桌號</option>
+              </select>
+
+              <select id="pos-pickup-time" class="table-input" style="display: none; flex: 1.1; background:#fff; cursor:pointer;">
+                <option value="盡快取餐" selected>⏰ 盡快取餐</option>
+              </select>
+
+              <div style="flex: 1; display: flex; gap: 4px;">
+                <input type="text" id="promo-code-input" placeholder="優惠碼" style="flex: 1; padding: 10px 8px; border: 2px solid #cbd5e1; border-radius: 8px; font-weight: bold; font-size: 1em; width: 0;">
+                <button type="button" onclick="applyPromoCode()" style="background: #3b82f6; color: white; border: none; padding: 0 12px; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap;">套用</button>
+              </div>
+            </div>
+
+            <div id="promo-message" style="font-size: 0.9em; font-weight: bold; min-height: 18px; margin-top: -4px;"></div>
+
+            <div style="display: flex; gap: 10px;">
+              <button class="pos-cart-checkout-btn" style="background: #f59e0b; flex: 1; font-size: 1.15em;" onclick="submitPosUnpaidOrder()">送單(未結)</button>
+              <button class="pos-cart-checkout-btn" style="flex: 1; font-size: 1.15em;" onclick="preparePosCheckout()">結帳</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+<!-- ---------------------------------------- [現場點餐操作面板] 結束 ---------------------------------------- -->
+
+
+<!-- ---------------------------------------- [客服管理面板] 開始 ---------------------------------------- -->
+    <div id="chat-main-container">
+      <div style="width: 35%; background: #ffffff; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column;">
+        <div style="padding: 18px; background: #1e293b; color: white; font-weight: 800; font-size: 1.3em; text-align: center;">👥 聯絡名單</div>
+        <div id="chat-customer-list-box" style="flex: 1; overflow-y: auto; padding: 15px; background: #f8fafc;">
+          <div class="loader">正在載入名單...</div>
+        </div>
+      </div>
+      <div style="width: 65%; display: flex; flex-direction: column;">
+        <div class="chat-header-pos" id="chat-customer-title" style="border-radius: 0;">💬 請從左側選擇一位客人開始對話</div>
+        <div class="chat-body-pos" id="chat-history-box" style="border-radius: 0; border: none; border-bottom: 1px solid #e2e8f0;">
+          <div class="empty-state" style="margin-top: 150px;">等待選擇對話...</div>
+        </div>
+        <div class="chat-footer-pos" id="chat-input-box" style="display:none; padding: 15px; background: #fff;">
+          <input type="text" id="chat-reply-text" class="chat-input-pos" placeholder="輸入回覆訊息..." onkeypress="if(event.key === 'Enter') sendOwnerMsg()">
+          <button class="chat-send-btn-pos" onclick="sendOwnerMsg()">傳 送</button>
+        </div>
+      </div>
+    </div>
+<!-- ---------------------------------------- [客服管理面板] 結束 ---------------------------------------- -->
+
+
+<!-- ---------------------------------------- [系統設定與菜單管理面板] 開始 ---------------------------------------- -->
+    <div id="system-main-container">
+      <h2 style="margin-top:0; color:#0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; display:flex; justify-content:space-between;">
+        <span>⚙️ 系統與菜單管理 (免開後台)</span>
+        <button onclick="switchMainView('checkout')" style="background:#ef4444; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; padding: 5px 15px;">關閉系統 X</button>
+      </h2>
+      <div style="display:flex; gap: 25px; height: 100%;">
+        <div style="flex: 6; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+          <h3 style="margin-top:0; font-size:1.6em;">🍔 菜單快速修改</h3>
+          <p style="color:#64748b; margin-top:-10px; margin-bottom:15px; font-weight:bold;">點擊右側編輯按鈕修改【名稱 / 價格 / 上下架 / 客製化群組】</p>
+          <div id="sys-menu-list" style="flex:1; overflow-y: auto; border: 2px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px;"></div>
+          <div style="display: flex; gap: 12px; margin-bottom: 5px;">
+            <button onclick="syncMenuFromSheets()" style="flex: 1; padding: 15px 8px; background: #10b981; color: white; border: none; border-radius: 12px; font-weight: 900; font-size: 1.1em; cursor:pointer;">🔄 從試算表同步</button>
+            <button onclick="openItemEditor(null)" style="flex: 1; padding: 15px 8px; background: #3b82f6; color: white; border: none; border-radius: 12px; font-weight: 900; font-size: 1.1em; cursor:pointer;">+ 新增餐點</button>
+          </div>
+        </div>
+
+        <div style="flex: 5; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display:flex; flex-direction: column;">
+          <h3 style="margin-top:0; font-size:1.6em;">🛠️ 系統設定</h3>
+          <div style="flex:1; overflow-y: auto; padding-right:10px;">
+            <table class="sys-settings-table">
+              <tr><th style="width:36%;">設定項目</th><th>設定值</th></tr>
+              <!-- 營業時間 (起、迄) 一排 -->
+              <tr>
+                <td>⏰ 營業時間<br><span style="font-size:0.8em; color:#64748b; font-weight:normal;">起 / 迄</span></td>
+                <td>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <input type="time" id="sys-set-open" style="flex:1;">
+                    <span style="font-weight:bold; color:#64748b;">至</span>
+                    <input type="time" id="sys-set-close" style="flex:1;">
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>💤 每週公休<br><span style="font-size:0.8em; color:#64748b; font-weight:normal;">0是週日,1是週一...多天用逗號</span></td>
+                <td><input type="text" id="sys-set-restdays" placeholder="例如: 3"></td>
+              </tr>
+              <tr>
+                <td>📅 特定公休日<br><span style="font-size:0.8em; color:#64748b; font-weight:normal;">例如 2026/07/25</span></td>
+                <td><input type="text" id="sys-set-special-rest" placeholder="多天請用逗號分隔"></td>
+              </tr>
+              <!-- 內用桌號 (起、迄) 一排 -->
+              <tr>
+                <td>🪑 內用桌號<br><span style="font-size:0.8em; color:#64748b; font-weight:normal;">最小桌號 ~ 最大桌號</span></td>
+                <td>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <input type="number" id="sys-set-tablestart" placeholder="1" style="flex:1;">
+                    <span style="font-weight:bold; color:#64748b;">~</span>
+                    <input type="number" id="sys-set-tableend" placeholder="8" style="flex:1;">
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>🤖 自動接單模式<br><span style="font-size:0.8em; color:#64748b; font-weight:normal;">開啟 / 關閉</span></td>
+                <td>
+                  <select id="sys-set-auto">
+                    <option value="開啟">開啟</option><option value="關閉">關閉</option>
+                  </select>
+                </td>
+              </tr>
+              <!-- 打折優惠 (代碼、折數) 一排 -->
+              <tr>
+                <td>🏷️ 打折優惠<br><span style="font-size:0.8em; color:#64748b; font-weight:normal;">代碼 / 折數 (例:0.9)</span></td>
+                <td>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <input type="text" id="sys-set-p-disc-code" placeholder="代碼 (例:vip8888)" style="flex:1.2;">
+                    <input type="number" step="0.01" id="sys-set-p-disc-rate" placeholder="0.9" style="flex:0.8;">
+                  </div>
+                </td>
+              </tr>
+              <!-- 直扣優惠 (代碼、金額) 一排 -->
+              <tr>
+                <td>🎟️ 直扣優惠<br><span style="font-size:0.8em; color:#64748b; font-weight:normal;">代碼 / 金額 (元)</span></td>
+                <td>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <input type="text" id="sys-set-p-deduct-code" placeholder="代碼 (留空停用)" style="flex:1.2;">
+                    <input type="number" id="sys-set-p-deduct-amt" placeholder="金額" style="flex:0.8;">
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>🛵 外送服務<br><span style="font-size:0.8em; color:#64748b; font-weight:normal;">開啟 / 關閉</span></td>
+                <td>
+                  <select id="sys-set-delivery">
+                    <option value="開啟">開啟</option><option value="關閉">關閉</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td>💸 支出常用詞清單<br><span style="font-size:0.8em; color:#64748b; font-weight:normal;">用逗號分開</span></td>
+                <td><input type="text" id="sys-set-exp-words" placeholder="買蔥, 買蛋, 買肉"></td>
+              </tr>
+              <tr>
+                <td>💰 收入常用詞清單<br><span style="font-size:0.8em; color:#64748b; font-weight:normal;">用逗號分開</span></td>
+                <td><input type="text" id="sys-set-inc-words" placeholder="找零用備用金, 老闆補貼"></td>
+              </tr>
+              <tr>
+                <td>👥 員工名單<br><span style="font-size:0.8em; color:#64748b; font-weight:normal;">用逗號分開</span></td>
+                <td><input type="text" id="sys-set-employees" placeholder="店長, 夥伴A, 夥伴B"></td>
+              </tr>
+              <!-- 進入系統密碼在設定頁面不顯示，保留驗證機制 -->
+              <tr>
+                <td>📢 店鋪公告<br><span style="font-size:0.8em; color:#64748b; font-weight:normal;">顯示在線上點餐最上方</span></td>
+                <td><input type="text" id="sys-set-ann" placeholder="例如：本週三員工旅遊，店休一天"></td>
+              </tr>
+            </table>
+          </div>
+          <button onclick="saveSystemSettings()" style="width:100%; padding: 20px; margin-top:15px; background: #10b981; color: white; border: none; border-radius: 12px; font-weight: 900; font-size: 1.4em; cursor:pointer;">💾 儲存所有系統設定</button>
+        </div>
+      </div>
+    </div>
+<!-- ---------------------------------------- [系統設定與菜單管理面板] 結束 ---------------------------------------- -->
+  </div>
+
+
+<!-- ---------------------------------------- [右側工具列面板] 開始 ---------------------------------------- -->
+  <div class="toolbar-panel">
+    <button class="tool-btn" id="btn-nav-ordering" onclick="switchMainView('ordering')">點餐</button>
+    <button class="tool-btn" id="btn-nav-checkout" onclick="handleToolbarCheckout()">結帳</button>
+    <button class="tool-btn" id="btn-nav-tx" onclick="switchMainView('tx')">收支</button>
+    <button class="tool-btn" id="btn-nav-settle" style="background:#047857; color:#fff;" onclick="openDailySettlementModal()">關帳</button>
+    <div style="flex-grow: 1;"></div>
+    <button class="tool-btn" id="btn-nav-chat" onclick="switchMainView('chat')">
+      客服
+      <span class="notify-badge" id="chat-badge">新</span>
+    </button>
+    <button class="tool-btn" id="btn-nav-clock" onclick="openClockModal()">打卡</button>
+    <button class="tool-btn" id="btn-nav-drawer" onclick="openCashDrawer()">開錢櫃</button>
+    <button class="tool-btn" id="btn-nav-system" onclick="openSystemUI()">系統</button>
+    <button class="tool-btn" id="btn-nav-test" onclick="testPrint()">測試</button>
+  </div>
+<!-- ---------------------------------------- [右側工具列面板] 結束 ---------------------------------------- -->
+
+
+<!-- ---------------------------------------- [餐點長按狀態編輯器 Modal] 開始 ---------------------------------------- -->
+  <div id="menu-status-modal" class="modal-overlay" style="z-index: 3000;">
+    <div class="modal-box" style="width: 90%; max-width: 400px; padding: 25px;">
+      <h3 id="ms-title" style="margin-top:0; color:#1e293b;">狀態修改</h3>
+      <div style="display:flex; gap: 10px; margin-bottom: 20px;">
+        <button id="btn-ms-on" class="sys-btn-edit" style="flex:1; padding:15px; font-size:1.1em;" onclick="setMsMode('上架')">🟢 上架</button>
+        <button id="btn-ms-soldout" class="sys-btn-edit" style="flex:1; padding:15px; font-size:1.1em;" onclick="setMsMode('完售')">🟡 完售</button>
+        <button id="btn-ms-off" class="sys-btn-edit" style="flex:1; padding:15px; font-size:1.1em;" onclick="setMsMode('停售')">🔴 停售</button>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-finish" style="background:#94a3b8; flex:1; font-size:1.2em; padding:12px; box-shadow:none;" onclick="document.getElementById('menu-status-modal').style.display='none'">取消</button>
+        <button class="btn-finish" style="flex:1; font-size:1.2em; padding:12px;" onclick="saveMenuStatus()">確認</button>
+      </div>
+    </div>
+  </div>
+<!-- ---------------------------------------- [餐點長按狀態編輯器 Modal] 結束 ---------------------------------------- -->
+
+
+<!-- ---------------------------------------- [菜單品項與選項編輯器 Modal] 開始 ---------------------------------------- -->
+  <div id="sys-item-edit-modal" class="modal-overlay" style="z-index: 2000;">
+    <div class="modal-box" style="width: 90%; max-width: 900px; height: 90vh; display: flex; flex-direction: column; padding: 25px;">
+      <div class="modal-header">
+        <h3 id="edit-modal-title">🛠️ 編輯餐點與客製化</h3>
+        <button class="close-btn" onclick="document.getElementById('sys-item-edit-modal').style.display='none'">✖</button>
+      </div>
+      <div style="flex: 1; overflow-y: auto; padding-right: 15px; text-align: left;">
+        <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #cbd5e1;">
+          <h4 style="margin-top: 0; color:#1e293b; font-size:1.3em;">1. 基本設定</h4>
+          <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+            <div style="flex: 2; min-width: 150px;">
+              <label style="font-weight:bold; color:#64748b;">餐點/套餐名稱 (套餐請換行)：</label>
+              <textarea id="edit-item-name" class="sys-input" rows="3" placeholder="例如：&#10;一號餐&#10;嫩煎雞腿蛋餅&#10;炸物雙拼&#10;飲料"></textarea>
+            </div>
+            <div style="flex: 1; min-width: 100px;">
+              <label style="font-weight:bold; color:#64748b;">價格 (數字)：</label>
+              <input type="number" id="edit-item-price" class="sys-input">
+            </div>
+            <div style="flex: 1; min-width: 120px;">
+              <label style="font-weight:bold; color:#64748b;">分類：</label>
+              <input type="text" id="edit-item-cat" class="sys-input" placeholder="例如: 蛋餅類">
+            </div>
+            <div style="flex: 1; min-width: 120px;">
+              <label style="font-weight:bold; color:#64748b;">狀態：</label>
+              <select id="edit-item-status" class="sys-input">
+                <option value="上架">🟢 上架</option>
+                <option value="售完">🟡 售完</option>
+                <option value="停售">🔴 停售</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div style="background: #fff; padding: 20px; border-radius: 12px; border: 2px solid #cbd5e1;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h4 style="margin: 0; color:#1e293b; font-size:1.3em;">2. 客製化選項設定</h4>
+            <button onclick="addOptGroup()" style="background:#10b981; color:white; border:none; padding:10px 18px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1.1em;">+ 新增選項群組</button>
+          </div>
+          <div id="edit-item-options-container"></div>
+        </div>
+      </div>
+      <div style="margin-top: 25px; display: flex; gap: 15px;">
+        <button class="btn-finish" style="background:#94a3b8; font-size:1.4em; padding:15px; box-shadow:none; flex:1;" onclick="document.getElementById('sys-item-edit-modal').style.display='none'">取 消</button>
+        <button class="btn-finish" style="font-size:1.4em; padding:15px; flex:2;" onclick="saveItemEditor()">💾 儲存並更新至系統</button>
+      </div>
+    </div>
+  </div>
+<!-- ---------------------------------------- [菜單品項與選項編輯器 Modal] 結束 ---------------------------------------- -->
+
+
+<!-- ---------------------------------------- [點餐客製化選項視窗 Modal] 開始 ---------------------------------------- -->
+  <div id="option-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
         <div>
-          <h2 class="font-bold text-slate-800 text-base" id="panelTitle">點餐收銀明細</h2>
-          <p class="text-xs text-slate-400" id="panelSubtitle">尚未選擇桌位或外帶</p>
+          <h3 id="modal-item-name" style="white-space: pre-wrap; line-height: 1.3;">商品名稱</h3>
+          <span id="modal-base-price" style="color:#e74c3c; font-weight:bold; font-size:1.2em;">$0</span>
         </div>
-        <div class="flex gap-2">
-          <button id="btnCancelOrder" onclick="cancelCurrentOrder()" class="text-xs text-rose-600 hover:text-rose-800 font-bold hidden">作廢</button>
-          <button onclick="resetCartOrOrder()" class="text-xs text-slate-500 hover:text-slate-800 font-medium">重置</button>
-        </div>
+        <button class="close-btn" onclick="closeModal()">✖</button>
+      </div>
+      <div id="modal-options-container"></div>
+      <div style="margin-top: 20px;">
+        <button class="confirm-modal-btn" onclick="confirmOptions()">
+          確認加入 (小計 $<span id="modal-calc-price">0</span>)
+        </button>
+      </div>
+    </div>
+  </div>
+<!-- ---------------------------------------- [點餐客製化選項視窗 Modal] 結束 ---------------------------------------- -->
+
+
+<!-- ---------------------------------------- [員工打卡視窗 Modal] 開始 ---------------------------------------- -->
+  <div id="clock-modal" class="modal-overlay" style="z-index: 9999;">
+    <div class="modal-box" style="max-width: 420px; padding: 35px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px dashed #e2e8f0; padding-bottom:15px; margin-bottom:25px;">
+        <h3 style="margin:0; font-size:1.8em; color:#0f172a; font-weight:900;">員工打卡</h3>
+        <button onclick="closeClockModal()" style="background:none; border:none; font-size:1.8em; cursor:pointer; color:#94a3b8;">✖</button>
+      </div>
+      <select id="employee-name" style="width:100%; padding:18px; font-size:1.3em; font-weight:bold; border:2px solid #cbd5e1; border-radius:12px; margin-bottom:25px; outline:none; text-align:center; background-color: #f8fafc; cursor:pointer; color:#334155;" onchange="updateClockButtons()"></select>
+      <div style="display:flex; gap:15px;">
+        <button id="btn-clock-in" onclick="submitClock('上班')" style="flex:1; background:#10b981; color:white; border:none; padding:18px; font-size:1.4em; font-weight:900; border-radius:12px; cursor:pointer;">上班打卡</button>
+        <button id="btn-clock-out" onclick="submitClock('下班')" style="flex:1; background:#ef4444; color:white; border:none; padding:18px; font-size:1.4em; font-weight:900; border-radius:12px; cursor:pointer;">下班打卡</button>
+      </div>
+      <div style="font-size:0.9em; color:#64748b; margin-top:20px; text-align:center; line-height:1.5;">※ 每日狀態自動重置<br>員工名單請至「系統設定」設定</div>
+    </div>
+  </div>
+<!-- ---------------------------------------- [員工打卡視窗 Modal] 結束 ---------------------------------------- -->
+
+
+<!-- ---------------------------------------- [結帳成功找零視窗 Modal] 開始 ---------------------------------------- -->
+  <div id="success-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="success-title">✅ 結帳成功！</div>
+      <div class="success-subtitle">請找零</div>
+      <div class="success-change" id="success-change-amt">$0</div>
+      <button class="btn-finish" id="btn-finish" onclick="closeSuccessModal()">完 成</button>
+    </div>
+  </div>
+<!-- ---------------------------------------- [結帳成功找零視窗 Modal] 結束 ---------------------------------------- -->
+
+
+<!-- ---------------------------------------- [關帳日結盤點視窗 Modal] 開始 ---------------------------------------- -->
+  <div id="settlement-modal" class="modal-overlay" style="z-index: 3500;">
+    <div class="modal-box" style="width: 95%; max-width: 780px; max-height: 92vh; overflow-y: auto; padding: 25px; text-align: left;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 12px; margin-bottom: 15px;">
+        <h3 style="margin:0; font-size:1.6em; color:#0f172a; font-weight:900;">🧾 打烊關帳與現金盤點</h3>
+        <button class="close-btn" onclick="closeDailySettlementModal()">✖</button>
       </div>
 
-      <!-- 明細清單容器 -->
-      <div id="itemsContainer" class="flex-1 p-4 overflow-y-auto space-y-3">
-        <div class="text-center text-slate-400 text-sm mt-16">
-          請在左側點選桌位<br>或點擊「外帶直接點餐」
-        </div>
-      </div>
+      <!-- 未結提醒 -->
+      <div id="settle-unpaid-warning" style="display:none; background:#fee2e2; border:1px solid #f87171; color:#b91c1c; padding:10px 14px; border-radius:8px; font-weight:bold; margin-bottom:12px;"></div>
 
-      <!-- 金額與功能按鈕區 -->
-      <div class="p-4 bg-white border-t border-slate-200 space-y-3 shrink-0">
-        <div class="space-y-1.5 text-xs text-slate-600">
-          <div class="flex justify-between"><span>合計小計</span><span id="txtSubtotal">NT$ 0</span></div>
-          <div class="flex justify-between"><span>折扣折讓</span><span id="txtDiscount" class="text-rose-600">- NT$ 0</span></div>
-          <div class="flex justify-between text-base font-black text-slate-900 pt-1 border-t border-slate-100">
-            <span>應收總額</span><span id="txtFinal" class="text-emerald-700 text-lg">NT$ 0</span>
+      <!-- 帳面現金試算區 -->
+      <div style="background:#f8fafc; border:2px solid #e2e8f0; border-radius:12px; padding:16px; margin-bottom:15px;">
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; text-align:center;">
+          <div style="background:#fff; padding:10px; border-radius:8px; border:1px solid #cbd5e1;">
+            <div style="font-size:0.85em; color:#64748b; font-weight:bold;">開店備用金</div>
+            <div id="settle-base-float" style="font-size:1.4em; font-weight:900; color:#0f172a;">$6,000</div>
+          </div>
+          <div style="background:#fff; padding:10px; border-radius:8px; border:1px solid #cbd5e1;">
+            <div style="font-size:0.85em; color:#64748b; font-weight:bold;">本日營業額</div>
+            <div id="settle-revenue" style="font-size:1.4em; font-weight:900; color:#10b981;">$0</div>
+          </div>
+          <div style="background:#fff; padding:10px; border-radius:8px; border:1px solid #cbd5e1; position:relative;">
+            <div style="font-size:0.85em; color:#64748b; font-weight:bold;">記帳收/支</div>
+            <div id="settle-tx-diff" style="font-size:1.4em; font-weight:900; color:#3b82f6;">$0</div>
+            <button type="button" onclick="toggleSettleTxList()" style="background:#eff6ff; color:#2563eb; border:1px solid #93c5fd; padding:3px 8px; border-radius:6px; font-size:0.8em; cursor:pointer; font-weight:bold; margin-top:4px;">🔍 查看明細</button>
+          </div>
+          <div style="background:#1e293b; color:#fff; padding:10px; border-radius:8px;">
+            <div style="font-size:0.85em; color:#94a3b8; font-weight:bold;">錢櫃應有總現金</div>
+            <div id="settle-expected-total" style="font-size:1.45em; font-weight:900; color:#38bdf8;">$6,000</div>
           </div>
         </div>
 
-        <!-- 操作按鈕切換組 -->
-        <div id="actionButtons" class="pt-2">
-          <!-- 根據當前是「新點餐」、「用餐中」動態調整按鈕 -->
+        <!-- 收支明細展開列表 -->
+        <div id="settle-tx-detail-box" style="display:none; margin-top:14px; border-top:1px dashed #cbd5e1; padding-top:10px;">
+          <div style="font-size:0.9em; font-weight:bold; color:#475569; margin-bottom:6px;">📋 本日收支記帳明細列表：</div>
+          <div id="settle-tx-detail-list" style="max-height:140px; overflow-y:auto; background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:8px 12px; font-size:0.9em;">
+            <span style="color:#94a3b8;">今日無收支記錄</span>
+          </div>
         </div>
+      </div>
+
+      <!-- 點鈔計算器 -->
+      <div style="background:#fff; border:2px solid #cbd5e1; border-radius:12px; padding:16px; margin-bottom:15px;">
+        <div style="font-weight:bold; color:#1e293b; font-size:1.15em; margin-bottom:10px;">💵 錢櫃現金實點盤點</div>
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px;">
+          <div><label style="font-size:0.9em; font-weight:bold;">1000 元 (張)</label><input type="number" min="0" inputmode="numeric" class="sys-input settle-denom" id="denom-1000" data-val="1000" value="0" oninput="calcDenominations()" onfocus="this.select()" style="font-size:1.2em; text-align:center; font-weight:bold;"></div>
+          <div><label style="font-size:0.9em; font-weight:bold;">500 元 (張)</label><input type="number" min="0" inputmode="numeric" class="sys-input settle-denom" id="denom-500" data-val="500" value="0" oninput="calcDenominations()" onfocus="this.select()" style="font-size:1.2em; text-align:center; font-weight:bold;"></div>
+          <div><label style="font-size:0.9em; font-weight:bold;">100 元 (張)</label><input type="number" min="0" inputmode="numeric" class="sys-input settle-denom" id="denom-100" data-val="100" value="0" oninput="calcDenominations()" onfocus="this.select()" style="font-size:1.2em; text-align:center; font-weight:bold;"></div>
+          <div><label style="font-size:0.9em; font-weight:bold;">50 元 (枚)</label><input type="number" min="0" inputmode="numeric" class="sys-input settle-denom" id="denom-50" data-val="50" value="0" oninput="calcDenominations()" onfocus="this.select()" style="font-size:1.2em; text-align:center; font-weight:bold;"></div>
+          <div><label style="font-size:0.9em; font-weight:bold;">10 元 (枚)</label><input type="number" min="0" inputmode="numeric" class="sys-input settle-denom" id="denom-10" data-val="10" value="0" oninput="calcDenominations()" onfocus="this.select()" style="font-size:1.2em; text-align:center; font-weight:bold;"></div>
+          <div><label style="font-size:0.9em; font-weight:bold;">5 元 (枚)</label><input type="number" min="0" inputmode="numeric" class="sys-input settle-denom" id="denom-5" data-val="5" value="0" oninput="calcDenominations()" onfocus="this.select()" style="font-size:1.2em; text-align:center; font-weight:bold;"></div>
+          <div><label style="font-size:0.9em; font-weight:bold;">1 元 (枚)</label><input type="number" min="0" inputmode="numeric" class="sys-input settle-denom" id="denom-1" data-val="1" value="0" oninput="calcDenominations()" onfocus="this.select()" style="font-size:1.2em; text-align:center; font-weight:bold;"></div>
+          <div style="background:#f1f5f9; padding:8px 10px; border-radius:8px; display:flex; flex-direction:column; justify-content:center; text-align:center; border:1px solid #cbd5e1;">
+            <span style="font-size:0.8em; color:#64748b; font-weight:bold;">實點總現金</span>
+            <span id="settle-counted-total" style="font-size:1.4em; font-weight:900; color:#ea580c;">$0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 盤差與抽現結算結果 -->
+      <div style="display:flex; gap:12px; margin-bottom:18px;">
+        <div style="flex:1; background:#f8fafc; border:2px solid #cbd5e1; border-radius:10px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-weight:bold; color:#475569; font-size:1.1em;">⚖️ 盤點差異 (實點-帳面)：</span>
+          <span id="settle-diff-result" style="font-size:1.5em; font-weight:900; color:#10b981;">$0 (相符)</span>
+        </div>
+        <div style="flex:1; background:#ecfdf5; border:2px solid #10b981; border-radius:10px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-weight:bold; color:#065f46; font-size:1.1em;">🏦 今日應抽存營收：</span>
+          <span id="settle-takeout-amt" style="font-size:1.6em; font-weight:900; color:#059669;">$0</span>
+        </div>
+      </div>
+
+      <div style="font-size:0.9em; color:#64748b; margin-bottom:15px; text-align:center;" id="settle-note-float">
+        ※ 明日底金固定留存 <strong>$6,000</strong> 於錢櫃，其餘金額抽出現金封存。
+      </div>
+
+      <div style="display:flex; gap:12px;">
+        <button class="btn-finish" style="background:#94a3b8; flex:1; font-size:1.3em; padding:14px; box-shadow:none;" onclick="closeDailySettlementModal()">取 消</button>
+        <button class="btn-finish" style="background:#10b981; flex:2; font-size:1.3em; padding:14px;" onclick="submitDailySettlement()">🖨️ 確認關帳並列印日結單</button>
       </div>
     </div>
   </div>
 
-  <!-- 彈窗: 加料客製規格選擇 -->
-  <div id="modalModifier" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
-      <div class="flex justify-between items-start border-b border-slate-100 pb-3">
-        <div>
-          <h3 id="modalProductName" class="text-lg font-bold text-slate-900">商品規格</h3>
-          <p id="modalProductPrice" class="text-emerald-600 font-bold text-sm">NT$ 0</p>
-        </div>
-        <button onclick="closeModifierModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
-      </div>
-      <div id="modalModifierContent" class="py-4 space-y-4 max-h-80 overflow-y-auto"></div>
-      <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
-        <button onclick="closeModifierModal()" class="px-4 py-2 rounded-lg text-slate-600 text-sm hover:bg-slate-100">取消</button>
-        <button onclick="confirmAddToCart()" class="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold shadow">加入明細</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 彈窗: 結帳收款 -->
-  <div id="modalPay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl">
-      <div class="flex justify-between items-center mb-3">
-        <h3 class="text-xl font-bold text-slate-900">結帳收款與出單</h3>
-        <button onclick="closePayModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
-      </div>
-      
-      <div class="bg-slate-50 p-4 rounded-xl mb-4 border border-slate-200">
-        <div class="flex justify-between items-center">
-          <span class="text-xs text-slate-500" id="payOrderInfo">單號: --</span>
-          <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold" id="payTableBadge">內用</span>
-        </div>
-        <div class="text-3xl font-black text-emerald-700 mt-2" id="payFinalAmount">NT$ 0</div>
-      </div>
-
-      <div class="space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1.5">付款方式</label>
-          <div class="grid grid-cols-3 gap-2">
-            <button type="button" onclick="selectPayMethod('CASH')" id="pmCash" class="pay-btn border-2 border-emerald-600 bg-emerald-50 text-emerald-800 font-bold py-2.5 rounded-xl text-xs">💵 現金</button>
-            <button type="button" onclick="selectPayMethod('LINE_PAY')" id="pmLine" class="pay-btn border border-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs">💚 LINE Pay</button>
-            <button type="button" onclick="selectPayMethod('CREDIT_CARD')" id="pmCard" class="pay-btn border border-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs">💳 信用卡</button>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">電子發票載具條碼 (選填)</label>
-          <input type="text" id="invoiceCarrierInput" placeholder="/開頭的手機載具條碼 或 留空列印紙本" class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-600 font-mono">
-        </div>
-      </div>
-
-      <div class="mt-6 flex justify-end gap-3">
-        <button onclick="closePayModal()" class="px-4 py-2.5 rounded-xl text-slate-600 text-sm hover:bg-slate-100">取消</button>
-        <button onclick="executePayment()" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow">確認收款並出單</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    let currentTable = null;        // 當前選中的桌位對象
-    let currentDiningOrder = null; // 當前正在檢視的已點單對象 (若桌位用餐中)
-    let cart = [];                 // 本次點餐暫存 (新單或加點)
-    let menuData = [];
-    let pendingProduct = null;
-    let selectedPayMethod = 'CASH';
-
-    setInterval(() => {
-      document.getElementById('currentTime').innerText = new Date().toLocaleTimeString('zh-TW');
-    }, 1000);
-
-
-const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-let ws;
-try {
-  ws = new WebSocket(`${protocol}//${window.location.host}`);
-} catch (e) {
-  console.warn('WebSocket 連線失敗，改用輪詢機制', e);
-}
+  <!-- 🌟 今日營業已關帳：全螢幕鎖定畫面 (附帶員工打卡與開始開班按鈕) -->
+  <div id="shift-lock-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.95); z-index:9000; flex-direction:column; justify-content:center; align-items:center; color:#fff; text-align:center; padding:20px;">
+    <div style="font-size:5em; margin-bottom:10px;">🌙</div>
+    <h1 style="font-size:2.8em; margin:0 0 10px 0; color:#f8fafc; font-weight:900;">今日營業已關帳</h1>
+    <p style="font-size:1.25em; color:#94a3b8; margin-bottom:35px; font-weight:bold;">POS 系統處於打烊鎖定狀態，如需開始營業請先進行開班。</p>
     
+    <div style="display:flex; gap:18px; flex-wrap:wrap; justify-content:center;">
+      <button onclick="openClockModal()" style="padding:18px 40px; background:#3b82f6; color:#fff; font-size:1.5em; font-weight:900; border:none; border-radius:16px; cursor:pointer; box-shadow:0 8px 25px rgba(59, 130, 246, 0.4); transition:0.2s;">
+        🕒 員工打卡
+      </button>
+      <button onclick="openOpenShiftModal()" style="padding:18px 45px; background:#10b981; color:#fff; font-size:1.5em; font-weight:900; border:none; border-radius:16px; cursor:pointer; box-shadow:0 8px 25px rgba(16, 185, 129, 0.4); transition:0.2s;">
+        ☀️ 開始今日開班
+      </button>
+    </div>
+  </div>
 
-    ws.onmessage = (event) => {
-      const msg = JSON.parse(event.data);
-      if (msg.type === 'TABLE_UPDATED' || msg.type === 'ORDER_CREATED') {
-        loadTables();
-      }
-    };
+  <!-- 🌟 開店開班備用金確認視窗 Modal -->
+  <div id="open-shift-modal" class="modal-overlay" style="z-index:9500;">
+    <div class="modal-box" style="max-width: 460px; padding: 30px; text-align: center;">
+      <div style="font-size: 3em; margin-bottom: 5px;">☀️</div>
+      <h3 style="margin: 0 0 10px 0; font-size: 1.8em; color: #0f172a; font-weight: 900;">開店開班確認</h3>
+      <p style="font-size: 1.05em; color: #64748b; margin-bottom: 20px; font-weight: bold;">請確認錢櫃內的開店備用金金額：</p>
+      
+      <div style="margin-bottom: 25px;">
+        <label style="display:block; text-align:left; font-weight:bold; color:#334155; margin-bottom:6px;">開店備用金 (元)：</label>
+        <input type="number" id="open-shift-float-input" value="6000" inputmode="numeric" onfocus="this.select()" class="sys-input" style="font-size:2em; text-align:center; font-weight:900; color:#0f172a; padding:15px; border:2px solid #3b82f6;">
+      </div>
 
-    async function init() {
-      await loadTables();
-      await loadMenu();
-      renderRightPanel();
-    }
+      <div style="display: flex; gap: 12px;">
+        <button class="btn-finish" style="background:#94a3b8; flex:1; font-size:1.2em; padding:15px; box-shadow:none;" onclick="closeOpenShiftModal()">取 消</button>
+        <button class="btn-finish" style="background:#10b981; flex:2; font-size:1.3em; padding:15px;" onclick="submitOpenShift()">✔ 確認開班</button>
+      </div>
+    </div>
+  </div>
+<!-- ---------------------------------------- [關帳日結盤點視窗 Modal] 結束 ---------------------------------------- -->
 
-    async function loadTables() {
-      const res = await fetch('/api/tables');
-      const tables = await res.json();
-      const grid = document.getElementById('tablesGrid');
-      grid.innerHTML = '';
 
-      tables.forEach(t => {
-        const isDining = t.status === 'DINING' && t.current_order_id;
-        const card = document.createElement('div');
-        card.className = `p-4 rounded-2xl border-2 transition cursor-pointer flex flex-col justify-between h-36 ${
-          isDining ? 'bg-amber-50/80 border-amber-300 shadow-sm hover:border-amber-400' : 'bg-slate-50 border-slate-200 hover:border-emerald-500'
-        }`;
-        card.onclick = () => onSelectTable(t);
-
-        card.innerHTML = `
-          <div class="flex justify-between items-start">
-            <span class="text-base font-black text-slate-800">${t.table_name}</span>
-            <span class="px-2 py-0.5 rounded-md text-xs font-bold ${isDining ? 'bg-amber-200 text-amber-900' : 'bg-emerald-100 text-emerald-800'}">
-              ${isDining ? '用餐中' : '空桌'}
-            </span>
-          </div>
-          <div class="text-xs text-slate-500 space-y-0.5">
-            ${isDining ? `
-              <div class="font-mono text-slate-600">單號: ${t.order_number}</div>
-              <div class="font-bold text-amber-700">金額: NT$ ${t.final_amount} (${t.order_items_count}品項)</div>
-            ` : `
-              <div>容納: ${t.capacity} 人</div>
-              <div class="text-slate-400">點擊開桌點餐</div>
-            `}
-          </div>
-          <div class="text-[11px] font-bold ${isDining ? 'text-amber-700' : 'text-emerald-600'} text-right">
-            ${isDining ? '檢視/結帳/加點 &rarr;' : '點選開桌 &rarr;'}
-          </div>
-        `;
-        grid.appendChild(card);
-      });
-    }
-
-    // 點擊桌位處理
-    async function onSelectTable(table) {
-      currentTable = table;
-      cart = []; // 清空新點購物車
-
-      if (table.status === 'DINING' && table.current_order_id) {
-        // 載入該桌已有點單
-        const res = await fetch(`/api/orders/${table.current_order_id}`);
-        currentDiningOrder = await res.json();
-      } else {
-        currentDiningOrder = null;
-        switchView('MENU'); // 空桌直接切到菜單
-      }
-      renderRightPanel();
-    }
-
-    // 外帶直接點餐
-    function startTakeoutOrder() {
-      currentTable = null;
-      currentDiningOrder = null;
-      cart = [];
-      switchView('MENU');
-      renderRightPanel();
-    }
-
-    async function loadMenu() {
-      const res = await fetch('/api/menu');
-      menuData = await res.json();
-      renderCategories();
-    }
-
-    function renderCategories() {
-      const tabs = document.getElementById('categoryTabs');
-      tabs.innerHTML = '';
-      menuData.forEach((cat, idx) => {
-        const btn = document.createElement('button');
-        btn.className = `px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition ${
-          idx === 0 ? 'bg-slate-800 text-white shadow' : 'bg-white text-slate-600 hover:bg-slate-200 border border-slate-200'
-        }`;
-        btn.innerText = cat.name;
-        btn.onclick = () => {
-          document.querySelectorAll('#categoryTabs button').forEach(b => {
-            b.className = 'px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap bg-white text-slate-600 hover:bg-slate-200 border border-slate-200';
-          });
-          btn.className = 'px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap bg-slate-800 text-white shadow';
-          renderProducts(cat.products);
-        };
-        tabs.appendChild(btn);
-      });
-      if (menuData.length > 0) renderProducts(menuData[0].products);
-    }
-
-    function renderProducts(products) {
-      const grid = document.getElementById('productsGrid');
-      grid.innerHTML = '';
-      products.forEach(p => {
-        const item = document.createElement('div');
-        item.className = 'p-3.5 bg-white rounded-2xl border border-slate-200 hover:border-emerald-500 cursor-pointer shadow-sm flex flex-col justify-between h-32 hover:shadow transition';
-        item.onclick = () => onProductClick(p);
-        item.innerHTML = `
-          <div>
-            <div class="font-bold text-sm text-slate-800 leading-tight">${p.name}</div>
-          </div>
-          <div class="flex justify-between items-center mt-2 pt-2 border-t border-slate-50">
-            <span class="text-emerald-600 font-black text-base">NT$ ${p.price}</span>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded ${p.station === 'KITCHEN' ? 'bg-orange-100 text-orange-800' : 'bg-cyan-100 text-cyan-800'}">
-              ${p.station === 'KITCHEN' ? '熟食' : '飲品'}
-            </span>
-          </div>
-        `;
-        grid.appendChild(item);
-      });
-    }
-
-    function onProductClick(product) {
-      if (product.modifier_groups && product.modifier_groups.length > 0) {
-        pendingProduct = { ...product, selectedModifiers: [] };
-        openModifierModal(product);
-      } else {
-        addToCart({
-          product_id: product.id,
-          name: product.name,
-          price: product.price,
-          station: product.station,
-          quantity: 1,
-          modifiers_text: '',
-          modifiers_price: 0
-        });
-      }
-    }
-
-    function openModifierModal(prod) {
-      document.getElementById('modalProductName').innerText = prod.name;
-      document.getElementById('modalProductPrice').innerText = `NT$ ${prod.price}`;
-      const container = document.getElementById('modalModifierContent');
-      container.innerHTML = '';
-
-      prod.modifier_groups.forEach(grp => {
-        const gDiv = document.createElement('div');
-        gDiv.innerHTML = `<h4 class="text-xs font-bold text-slate-600 mb-2">${grp.name} (${grp.is_multiple ? '可多選' : '單選'})</h4>`;
-        const optRow = document.createElement('div');
-        optRow.className = 'flex flex-wrap gap-2';
-
-        grp.options.forEach(opt => {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = `mod-opt-btn px-3 py-1.5 rounded-lg border text-xs font-medium border-slate-200 text-slate-700 hover:border-emerald-500`;
-          btn.innerText = `${opt.name} ${opt.extra_price > 0 ? '(+' + opt.extra_price + ')' : ''}`;
-          btn.onclick = () => {
-            if (!grp.is_multiple) {
-              optRow.querySelectorAll('.mod-opt-btn').forEach(b => b.classList.remove('border-emerald-600', 'bg-emerald-50', 'text-emerald-700', 'font-bold'));
-            }
-            btn.classList.toggle('border-emerald-600');
-            btn.classList.toggle('bg-emerald-50');
-            btn.classList.toggle('text-emerald-700');
-            btn.classList.toggle('font-bold');
-            toggleModifier(grp, opt, grp.is_multiple);
-          };
-          optRow.appendChild(btn);
-        });
-
-        gDiv.appendChild(optRow);
-        container.appendChild(gDiv);
-      });
-
-      document.getElementById('modalModifier').classList.remove('hidden');
-    }
-
-    function toggleModifier(group, opt, isMultiple) {
-      if (!isMultiple) {
-        pendingProduct.selectedModifiers = pendingProduct.selectedModifiers.filter(m => m.groupId !== group.id);
-      }
-      const existingIdx = pendingProduct.selectedModifiers.findIndex(m => m.id === opt.id);
-      if (existingIdx > -1) {
-        pendingProduct.selectedModifiers.splice(existingIdx, 1);
-      } else {
-        pendingProduct.selectedModifiers.push({ ...opt, groupId: group.id });
-      }
-    }
-
-    function confirmAddToCart() {
-      const modText = pendingProduct.selectedModifiers.map(m => m.name + (m.extra_price > 0 ? `(+${m.extra_price})` : '')).join(', ');
-      const modPrice = pendingProduct.selectedModifiers.reduce((acc, m) => acc + m.extra_price, 0);
-
-      addToCart({
-        product_id: pendingProduct.id,
-        name: pendingProduct.name,
-        price: pendingProduct.price,
-        station: pendingProduct.station,
-        quantity: 1,
-        modifiers_text: modText,
-        modifiers_price: modPrice
-      });
-      closeModifierModal();
-    }
-
-    function closeModifierModal() {
-      document.getElementById('modalModifier').classList.add('hidden');
-      pendingProduct = null;
-    }
-
-    function addToCart(item) {
-      const exist = cart.find(c => c.product_id === item.product_id && c.modifiers_text === item.modifiers_text);
-      if (exist) {
-        exist.quantity += 1;
-      } else {
-        cart.push(item);
-      }
-      renderRightPanel();
-    }
-
-    function changeCartQty(idx, delta) {
-      cart[idx].quantity += delta;
-      if (cart[idx].quantity <= 0) {
-        cart.splice(idx, 1);
-      }
-      renderRightPanel();
-    }
-
-    function resetCartOrOrder() {
-      currentTable = null;
-      currentDiningOrder = null;
-      cart = [];
-      renderRightPanel();
-      loadTables();
-      switchView('TABLES');
-    }
-
-    // 核心渲染：右側結帳與明細看板
-    function renderRightPanel() {
-      const container = document.getElementById('itemsContainer');
-      const banner = document.getElementById('activeContextBanner');
-      const btnCancel = document.getElementById('btnCancelOrder');
-      const actionBtns = document.getElementById('actionButtons');
-
-      // 1. 頂部標題與狀態指示
-      if (currentTable) {
-        document.getElementById('panelTitle').innerText = `${currentTable.table_name}`;
-        if (currentDiningOrder) {
-          document.getElementById('panelSubtitle').innerText = `用餐中 · 單號: ${currentDiningOrder.order_number}`;
-          banner.className = 'ml-auto my-auto text-xs px-3 py-1 rounded-md font-bold bg-amber-100 text-amber-800 border border-amber-300';
-          banner.innerText = `${currentTable.table_name} (用餐中)`;
-          banner.classList.remove('hidden');
-          btnCancel.classList.remove('hidden');
-        } else {
-          document.getElementById('panelSubtitle').innerText = `開桌點餐中`;
-          banner.className = 'ml-auto my-auto text-xs px-3 py-1 rounded-md font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
-          banner.innerText = `${currentTable.table_name} (新開桌)`;
-          banner.classList.remove('hidden');
-          btnCancel.classList.add('hidden');
-        }
-      } else {
-        document.getElementById('panelTitle').innerText = `外帶自取 / 現場點餐`;
-        document.getElementById('panelSubtitle').innerText = `隨點即結或送出製作`;
-        banner.className = 'ml-auto my-auto text-xs px-3 py-1 rounded-md font-bold bg-blue-100 text-blue-800 border border-blue-300';
-        banner.innerText = `外帶模式`;
-        banner.classList.remove('hidden');
-        btnCancel.classList.add('hidden');
-      }
-
-      // 2. 清單內容組裝
-      let html = '';
-      let subtotal = 0;
-
-      // 若有用餐中已點餐點
-      if (currentDiningOrder && currentDiningOrder.items) {
-        html += `<div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">已送出製作餐點</div>`;
-        currentDiningOrder.items.forEach(it => {
-          subtotal += it.subtotal;
-          html += `
-            <div class="bg-amber-50/50 p-2.5 rounded-xl border border-amber-200/80 mb-2">
-              <div class="flex justify-between items-start">
-                <span class="font-bold text-xs text-slate-800">${it.product_name}</span>
-                <span class="text-xs font-bold text-slate-900">NT$ ${it.subtotal}</span>
-              </div>
-              ${it.modifiers_text ? `<div class="text-[11px] text-amber-700 font-medium">${it.modifiers_text}</div>` : ''}
-              <div class="flex justify-between items-center text-[10px] text-slate-400 mt-1">
-                <span>單價 $${it.price + (it.modifiers_price || 0)} × ${it.quantity}</span>
-                <span class="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">製作中</span>
-              </div>
-            </div>
-          `;
-        });
-      }
-
-      // 若有本次待送單 (加點或新點)
-      if (cart.length > 0) {
-        if (currentDiningOrder) {
-          html += `<div class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider my-2">本次追加加點項目</div>`;
-        }
-        cart.forEach((it, idx) => {
-          const itemTotal = (it.price + it.modifiers_price) * it.quantity;
-          subtotal += itemTotal;
-          html += `
-            <div class="bg-white p-2.5 rounded-xl border border-emerald-300 shadow-sm mb-2">
-              <div class="flex justify-between items-start">
-                <span class="font-bold text-xs text-slate-800">${it.name}</span>
-                <span class="text-xs font-bold text-emerald-700">NT$ ${itemTotal}</span>
-              </div>
-              ${it.modifiers_text ? `<div class="text-[11px] text-amber-600 font-medium">${it.modifiers_text}</div>` : ''}
-              <div class="flex justify-between items-center mt-2 pt-1 border-t border-slate-50">
-                <span class="text-[11px] text-slate-400">單價 $${it.price + it.modifiers_price}</span>
-                <div class="flex items-center gap-2">
-                  <button onclick="changeCartQty(${idx}, -1)" class="w-5 h-5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-xs">-</button>
-                  <span class="text-xs font-bold px-1">${it.quantity}</span>
-                  <button onclick="changeCartQty(${idx}, 1)" class="w-5 h-5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-xs">+</button>
-                </div>
-              </div>
-            </div>
-          `;
-        });
-      }
-
-      if (!html) {
-        container.innerHTML = `<div class="text-center text-slate-400 text-sm mt-16">請在左側點選菜單加入品項</div>`;
-      } else {
-        container.innerHTML = html;
-      }
-
-      // 3. 金額更新
-      document.getElementById('txtSubtotal').innerText = `NT$ ${subtotal}`;
-      document.getElementById('txtFinal').innerText = `NT$ ${subtotal}`;
-
-      // 4. 按鈕依情境渲染
-      if (currentDiningOrder) {
-        // 用餐中桌位：可「追加送單」或「結帳收款」
-        actionBtns.innerHTML = `
-          <div class="space-y-2">
-            ${cart.length > 0 ? `
-              <button onclick="submitOrder(true)" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded-xl text-xs shadow flex items-center justify-center gap-1.5">
-                🔥 送出追加加點至廚房 (追加 ${cart.length} 項)
-              </button>
-            ` : ''}
-            <button onclick="openPayModalForDining()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-sm shadow flex items-center justify-center gap-2">
-              💳 結帳收款 (NT$ ${subtotal}) & 清桌
-            </button>
-          </div>
-        `;
-      } else {
-        // 全新點餐 (內用空桌或外帶)
-        actionBtns.innerHTML = `
-          <div class="grid grid-cols-2 gap-2">
-            <button onclick="submitOrder(false)" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl text-xs shadow">
-              🛎️ 送單至廚房
-            </button>
-            <button onclick="openPayModalForNew()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs shadow">
-              💳 即時結帳付款
-            </button>
-          </div>
-        `;
-      }
-    }
-
-    // 送單至廚房
-    async function submitOrder(isAppend = false) {
-      if (cart.length === 0) return alert('尚未選取品項！');
-
-      const payload = {
-        table_id: currentTable ? currentTable.id : null,
-        order_type: currentTable ? 'DINE_IN' : 'TAKE_OUT',
-        items: cart
-      };
-
-      const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (data.success) {
-        alert(isAppend ? `追加餐點已送出廚房看板！` : `訂單送出成功！單號: ${data.orderNumber}\n已指派至廚房看板 (KDS)`);
-        cart = [];
-        await loadTables();
-        if (currentTable) {
-          // 重新載入已點單
-          const ordRes = await fetch(`/api/orders/${data.orderId}`);
-          currentDiningOrder = await ordRes.json();
-          renderRightPanel();
-        } else {
-          resetCartOrOrder();
-        }
-      }
-    }
-
-    // 為用餐中桌位開啟結帳彈窗
-    function openPayModalForDining() {
-      if (!currentDiningOrder) return;
-      document.getElementById('payOrderInfo').innerText = `單號: ${currentDiningOrder.order_number}`;
-      document.getElementById('payTableBadge').innerText = currentTable ? currentTable.table_name : '內用';
-      document.getElementById('payFinalAmount').innerText = document.getElementById('txtFinal').innerText;
-      document.getElementById('modalPay').classList.remove('hidden');
-    }
-
-    // 新單直接結帳 (先結後出/快結)
-    async function openPayModalForNew() {
-      if (cart.length === 0) return alert('購物車內尚無品項！');
-      // 先建立訂單
-      const payload = {
-        table_id: currentTable ? currentTable.id : null,
-        order_type: currentTable ? 'DINE_IN' : 'TAKE_OUT',
-        items: cart
-      };
-      const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (data.success) {
-        currentDiningOrder = data.fullOrder;
-        cart = [];
-        openPayModalForDining();
-      }
-    }
-
-    function closePayModal() {
-      document.getElementById('modalPay').classList.add('hidden');
-    }
-
-    function selectPayMethod(method) {
-      selectedPayMethod = method;
-      document.querySelectorAll('.pay-btn').forEach(btn => {
-        btn.className = 'pay-btn border border-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs';
-      });
-      const map = { 'CASH': 'pmCash', 'LINE_PAY': 'pmLine', 'CREDIT_CARD': 'pmCard' };
-      document.getElementById(map[method]).className = 'pay-btn border-2 border-emerald-600 bg-emerald-50 text-emerald-800 font-bold py-2.5 rounded-xl text-xs';
-    }
-
-    // 執行結帳
-    async function executePayment() {
-      if (!currentDiningOrder) return alert('找不到訂單資訊！');
-
-      const carrier = document.getElementById('invoiceCarrierInput').value.trim();
-      const res = await fetch(`/api/orders/${currentDiningOrder.id}/pay`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          payment_method: selectedPayMethod,
-          invoice_carrier: carrier
-        })
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        closePayModal();
-        alert(`結帳成功！\n發票號碼: ${data.invoice.invoiceNumber}\n實收金額: NT$ ${data.order.final_amount}\n桌位已自動釋放為空桌！`);
-        resetCartOrOrder();
-      }
-    }
-
-    // 作廢當前訂單
-    async function cancelCurrentOrder() {
-      if (!currentDiningOrder) return;
-      if (!confirm(`確定要作廢 ${currentDiningOrder.order_number} 這筆訂單並清桌嗎？`)) return;
-
-      const res = await fetch(`/api/orders/${currentDiningOrder.id}/cancel`, { method: 'POST' });
-      if (res.ok) {
-        alert('訂單已作廢，桌位已清空！');
-        resetCartOrOrder();
-      }
-    }
-
-    function switchView(view) {
-      if (view === 'TABLES') {
-        document.getElementById('viewTables').classList.remove('hidden');
-        document.getElementById('viewMenu').classList.add('hidden');
-        document.getElementById('tabTablesBtn').className = 'px-5 py-2.5 font-bold text-sm rounded-t-xl bg-white border-t-2 border-emerald-600 text-emerald-700 shadow-sm';
-        document.getElementById('tabMenuBtn').className = 'px-5 py-2.5 font-bold text-sm rounded-t-xl text-slate-600 hover:text-slate-900';
-      } else {
-        document.getElementById('viewTables').classList.add('hidden');
-        document.getElementById('viewMenu').classList.remove('hidden');
-        document.getElementById('tabMenuBtn').className = 'px-5 py-2.5 font-bold text-sm rounded-t-xl bg-white border-t-2 border-emerald-600 text-emerald-700 shadow-sm';
-        document.getElementById('tabTablesBtn').className = 'px-5 py-2.5 font-bold text-sm rounded-t-xl text-slate-600 hover:text-slate-900';
-      }
-    }
-
-    init();
-  </script>
+<!-- ---------------------------------------- [主模組腳本載入] 開始 ---------------------------------------- -->
+  <script type="module" src="js/pos/main.js"></script>
 </body>
 </html>
+<!-- ---------------------------------------- [主模組腳本載入] 結束 ---------------------------------------- -->

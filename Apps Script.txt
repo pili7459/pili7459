@@ -1,0 +1,465 @@
+function formatOrderNum(numStr) {
+  var s = String(numStr);
+  if (s === "支出" || s === "收入" || s.indexOf("EX-") === 0 || s.indexOf("IN-") === 0) return s;
+  return s.padStart(3, '0');
+}
+
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  
+  try {
+    lock.waitLock(10000); // 最多等待 10 秒鎖定排隊
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var data = JSON.parse(e.postData.contents);
+    var today = new Date(); 
+    var todayStr = Utilities.formatDate(today, "Asia/Taipei", "yyyy-MM-dd");
+    
+    // 1. 員工打卡
+    if (data.action === "clock") {
+        var clockSheet = ss.getSheetByName("員工打卡紀錄");
+        if (!clockSheet) {
+            clockSheet = ss.insertSheet("員工打卡紀錄", 1);
+            clockSheet.appendRow(["打卡時間", "員工姓名", "動作", "系統時間戳記"]);
+            clockSheet.getRange("A1:D1").setFontWeight("bold").setBackground("#d9ead3");
+            clockSheet.setColumnWidth(1, 150);
+        }
+        var timeStr = Utilities.formatDate(today, "Asia/Taipei", "MM/dd HH:mm");
+        clockSheet.appendRow([timeStr, data.employeeName, data.type, today.getTime()]);
+        return ContentService.createTextOutput(JSON.stringify({"result": "success"})).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // 2. 客服訊息寫入 (支援 sendMsg 與 sendCustomerMessage)
+    if (data.action === "sendMsg" || data.action === "sendCustomerMessage") {
+        var chatSheet = ss.getSheetByName("客服紀錄");
+        if (!chatSheet) {
+            chatSheet = ss.insertSheet("客服紀錄", 1);
+            chatSheet.appendRow(["時間", "姓名", "電話", "傳送者", "內容", "系統時間戳記"]);
+            chatSheet.getRange("A1:F1").setFontWeight("bold").setBackground("#d9ead3");
+        }
+        var timeStr = Utilities.formatDate(today, "Asia/Taipei", "yyyy/MM/dd HH:mm");
+        var safePhone = "'" + String(data.customerPhone || '').replace(/\D/g, ''); 
+        var sender = data.sender || "customer";
+        var content = data.content || data.text || "";
+        var name = data.customerName || data.name || "客人";
+        chatSheet.appendRow([timeStr, name, safePhone, sender, content, today.getTime()]);
+        return ContentService.createTextOutput(JSON.stringify({"result": "success"})).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // 3. 更新備註
+    if (data.action === "updateNote") {
+        var sheet = ss.getSheetByName(data.orderDate);
+        if (sheet) {
+            var sheetData = sheet.getDataRange().getDisplayValues();
+            for (var i = sheetData.length - 1; i > 0; i--) {
+                if (formatOrderNum(sheetData[i][0]) === data.orderNumber && sheetData[i][1] === data.time) {
+                    sheet.getRange(i + 1, 4).setValue(data.newNote); 
+                    break;
+                }
+            }
+        }
+        return ContentService.createTextOutput(JSON.stringify({"result": "success"})).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // 4. 更新常用詞清單
+    if (data.action === "updateQuickWords") {
+        var settingSheet = ss.getSheetByName("系統設定");
+        if (settingSheet) {
+            var searchKey = data.type === "income" ? "收入常用詞清單" : "支出常用詞清單";
+            var newValue = Array.isArray(data.words) ? data.words.join(",") : data.words;
+            var setRows = settingSheet.getDataRange().getDisplayValues();
+            var found = false;
+            for (var i = 0; i < setRows.length; i++) {
+                if (setRows[i][0] === searchKey) {
+                    settingSheet.getRange(i + 1, 2).setValue(newValue);
+                    found = true; break;
+                }
+            }
+            if (!found) settingSheet.appendRow([searchKey, newValue]);
+        }
+        return ContentService.createTextOutput(JSON.stringify({"result": "success"})).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // 5. 更新系統設定
+    if (data.action === "updateSettings") {
+        var settingSheet = ss.getSheetByName("系統設定");
+        if (settingSheet) {
+            var setRows = settingSheet.getDataRange().getDisplayValues();
+            var settingsData = data.settings; 
+            for(var k = 0; k < settingsData.length; k++) {
+                var pKey = settingsData[k].key;
+                var pVal = settingsData[k].value;
+                var found = false;
+                for (var i = 0; i < setRows.length; i++) {
+                    if (setRows[i][0] === pKey) {
+                        settingSheet.getRange(i + 1, 2).setValue(pVal);
+                        found = true; break;
+                    }
+                }
+                if (!found) { settingSheet.appendRow([pKey, pVal]); setRows.push([pKey, pVal]); }
+            }
+        }
+        return ContentService.createTextOutput(JSON.stringify({"result": "success"})).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // 🌟 6. 優化：更新菜單（完整覆寫客製化規格選項，解決「改複選存檔後變單選」問題）
+    if (data.action === "updateMenu") {
+        var menuSheet = ss.getSheetByName("菜單管理");
+        if (menuSheet) {
+            var newMenuData = data.menu;
+            var sheetData = menuSheet.getDataRange().getDisplayValues();
+            var maxCols = menuSheet.getLastColumn();
+            
+            var nameToRow = {};
+            for (var r = 1; r < sheetData.length; r++) {
+                if (sheetData[r][1]) {
+                    nameToRow[sheetData[r][1].trim()] = r + 1;
+                }
+            }
+            
+            for (var j = 0; j < newMenuData.length; j++) {
+                var m = newMenuData[j];
+                var cleanName = (m.name || "").split(/\r?\n/)[0].trim();
+                
+                // 組裝規格選項字串 (例如: 複選:加料=加起司+10,加蛋+10)
+                var optCells = [];
+                if (m.options && m.options.length > 0) {
+                    for (var o = 0; o < m.options.length; o++) {
+                        var opt = m.options[o];
+                        var cleanTitle = (opt.title || "").replace(/^(必選|單選|複選|多選)[:：]?/, '').trim() || "選項";
+                        
+                        var typeStr = "單選";
+                        if (opt.type === "必選" || opt.required === true || opt.type === "required_radio" || (opt.title && opt.title.indexOf("必選") === 0)) {
+                            typeStr = "必選";
+                        } else if (opt.type === "複選" || opt.multiple === true || opt.type === "checkbox" || (opt.title && opt.title.indexOf("複選") === 0)) {
+                            typeStr = "複選";
+                        }
+                        
+                        var itemStrs = [];
+                        if (opt.items && opt.items.length > 0) {
+                            for (var idx = 0; idx < opt.items.length; idx++) {
+                                var it = opt.items[idx];
+                                if (!it.name) continue;
+                                itemStrs.push(parseInt(it.price) > 0 ? (it.name + "+" + it.price) : it.name);
+                            }
+                        }
+                        optCells.push(typeStr + ":" + cleanTitle + "=" + itemStrs.join(","));
+                    }
+                }
+                
+                if (nameToRow[cleanName]) {
+                    var targetRow = nameToRow[cleanName];
+                    menuSheet.getRange(targetRow, 1).setValue(m.category || "未分類");
+                    menuSheet.getRange(targetRow, 3).setValue(m.price || 0);
+                    menuSheet.getRange(targetRow, 4).setValue(m.status || "上架");
+                    
+                    // 清空該行原本的規格欄位
+                    if (maxCols >= 5) {
+                        menuSheet.getRange(targetRow, 5, 1, maxCols - 4).clearContent();
+                    }
+                    // 寫入最新規格選項
+                    if (optCells.length > 0) {
+                        menuSheet.getRange(targetRow, 5, 1, optCells.length).setValues([optCells]);
+                    }
+                } else {
+                    // 全新品項直接附加新列
+                    var newRow = [m.category || "未分類", cleanName, m.price || 0, m.status || "上架"].concat(optCells);
+                    menuSheet.appendRow(newRow);
+                }
+            }
+        }
+        return ContentService.createTextOutput(JSON.stringify({"result": "success"})).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // 7. 日常訂單與收支簿寫入
+    var targetDateStr = data.orderDate || todayStr;
+    if (!data.action && data.diningType && data.diningType.indexOf("明天") !== -1) {
+        var tmr = new Date(today.getTime() + 86400000);
+        targetDateStr = Utilities.formatDate(tmr, "Asia/Taipei", "yyyy-MM-dd");
+    }
+    if (data.action === "addTransaction") { targetDateStr = todayStr; }
+
+    var sheet = ss.getSheetByName(targetDateStr);
+    if (!sheet) {
+      sheet = ss.insertSheet(targetDateStr, ss.getNumSheets());
+      sheet.appendRow(["訂單編號", "時間", "用餐方式", "訂單明細", "總金額", "狀態", "姓名", "電話", "系統時間戳記", "結帳狀態"]);
+      sheet.getRange("A1:J1").setFontWeight("bold").setBackground("#f3f3f3");
+      var rule = SpreadsheetApp.newDataValidation().requireValueInList(["⏳ 新訂單", "👩‍🍳 已接單", "✅ 已完成", "❌ 已取消"], true).build();
+      sheet.getRange("F2:F1000").setDataValidation(rule);
+      sheet.getRange("L1").setValue("💰 本日實收總營收").setFontWeight("bold").setBackground("#fff2cc");
+      sheet.getRange("L2").setFormula('=SUMIFS(E:E, J:J, "✅ 已結帳", F:F, "<>*取消*")'); 
+      sheet.getRange("L2").setFontSize(14).setFontWeight("bold").setFontColor("red");
+      sheet.setColumnWidth(4, 300);
+    }
+
+    var sheetData = sheet.getDataRange().getDisplayValues();
+    var statusCol = -1, payCol = -1;
+    for (var c = 0; c < sheetData[0].length; c++) { 
+        if (sheetData[0][c] === "狀態") statusCol = c + 1; 
+        if (sheetData[0][c] === "結帳狀態") payCol = c + 1; 
+    }
+    if (payCol === -1) payCol = sheetData[0].length;
+
+    if (data.action === "addTransaction") {
+      var timeStr = Utilities.formatDate(today, "Asia/Taipei", "MM/dd HH:mm");
+      var orderNum = data.type === "expense" ? "支出" : "收入";
+      var diningType = data.type === "expense" ? "💸 支出" : "💰 收入";
+      var amount = data.type === "expense" ? -Math.abs(data.amount) : Math.abs(data.amount);
+      sheet.appendRow([orderNum, timeStr, diningType, data.note || "無備註", amount, "✅ 已完成", "店內記帳", "", today.getTime(), "✅ 已結帳"]);
+      return ContentService.createTextOutput(JSON.stringify({"result": "success"})).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (data.action === "pay" || data.action === "cancel" || data.action === "updateStatus") {
+        for (var i = sheetData.length - 1; i > 0; i--) {
+          if (formatOrderNum(sheetData[i][0]) === data.orderNumber) {
+            if (data.action === "pay") {
+                if(payCol > 0) sheet.getRange(i + 1, payCol).setValue("✅ 已結帳").setFontColor("#27ae60").setFontWeight("bold");
+            } else if (data.action === "cancel") {
+                if(statusCol > 0) sheet.getRange(i + 1, statusCol).clearDataValidations().setValue("❌ 已取消").setFontColor("#e74c3c").setFontWeight("bold");
+                if(payCol > 0) sheet.getRange(i + 1, payCol).setValue("已取消訂單").setFontColor("#e74c3c").setFontWeight("bold");
+            } else if (data.action === "updateStatus") {
+                if(statusCol > 0) sheet.getRange(i + 1, statusCol).setValue(data.newStatus);
+                if (data.newStatus === "❌ 已取消") {
+                    if(statusCol > 0) sheet.getRange(i + 1, statusCol).clearDataValidations().setFontColor("#e74c3c").setFontWeight("bold");
+                    if(payCol > 0) sheet.getRange(i + 1, payCol).setValue("已取消訂單").setFontColor("#e74c3c").setFontWeight("bold");
+                } else {
+                    if(statusCol > 0) sheet.getRange(i + 1, statusCol).setFontColor("#000000").setFontWeight("normal");
+                }
+            }
+            break;
+          }
+        }
+      return ContentService.createTextOutput(JSON.stringify({"result": "success"})).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // 產生三位數每日流水號
+    var lastRow = sheet.getLastRow();
+    var newOrderNumInt = 1;
+    if (lastRow > 1) {
+      var numValues = sheet.getRange(1, 1, lastRow, 1).getDisplayValues();
+      for (var r = lastRow - 1; r >= 0; r--) {
+        var val = String(numValues[r][0]);
+        if (val && val !== "支出" && val !== "收入" && val.indexOf("EX-") === -1 && val.indexOf("IN-") === -1 && val !== "訂單編號") {
+           newOrderNumInt = (parseInt(val, 10) || 0) + 1;
+           break;
+        }
+      }
+    }
+    var orderNum = String(newOrderNumInt).padStart(3, '0');
+    var serverTimeStr = Utilities.formatDate(today, "Asia/Taipei", "MM/dd HH:mm");
+    var type = data.diningType;
+    if (data.tableNumber && data.tableNumber !== "") { type = type.replace("內用", "內用(桌號:" + data.tableNumber + ")"); }
+
+    sheet.appendRow([orderNum, serverTimeStr, type, data.detailsText, data.totalAmount, "⏳ 新訂單", data.customerName || "", data.customerPhone || "", today.getTime(), "尚未結帳"]);
+    
+    // LINE Notify 推播通知 (可選)
+    try {
+      var lineToken = "請把你的_LINE_Token_貼在這裡"; 
+      if (lineToken !== "請把你的_LINE_Token_貼在這裡" && lineToken.trim() !== "") {
+        var contactMsg = (data.customerName ? ("\n👤 聯絡人：" + data.customerName + " (" + data.customerPhone + ")") : "");
+        var targetMMDD = targetDateStr.split('-')[1] + "/" + targetDateStr.split('-')[2];
+        var dayBadge = (targetDateStr !== todayStr) ? " 【📅 " + targetMMDD + " 預訂單】" : "";
+        var message = "\n🔔 收到新訂單囉！" + dayBadge + "\n----------------------\n🏷️ 單號：#" + orderNum + "\n🍽️ 方式：" + type + contactMsg + "\n⏰ 時間：" + serverTimeStr + "\n----------------------\n📝 明細：\n" + data.detailsText + "----------------------\n💰 總計：$" + data.totalAmount;
+        var lineOptions = { "method": "post", "payload": { "message": message }, "headers": { "Authorization": "Bearer " + lineToken } };
+        UrlFetchApp.fetch("https://notify-api.line.me/api/notify", lineOptions);
+      }
+    } catch (lineError) {}
+
+    return ContentService.createTextOutput(JSON.stringify({"result": "success", "orderNumber": orderNum, "orderDate": targetDateStr})).setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({"result": "error", "msg": error.toString()})).setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function doGet(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var today = new Date(); 
+  var todayStr = Utilities.formatDate(today, "Asia/Taipei", "yyyy-MM-dd");
+  var tomorrow = new Date(today.getTime() + 86400000);
+  var tomorrowStr = Utilities.formatDate(tomorrow, "Asia/Taipei", "yyyy-MM-dd");
+
+  // 1. 讀取「客服紀錄」
+  var chatSheet = ss.getSheetByName("客服紀錄");
+  var allMsgs = [];
+  if (chatSheet) {
+      var cData = chatSheet.getDataRange().getDisplayValues();
+      var startRow = Math.max(1, cData.length - 500);
+      for(var i = startRow; i < cData.length; i++){
+          if (!cData[i][0] && !cData[i][1] && !cData[i][2]) continue;
+          allMsgs.push({
+            time: cData[i][0],
+            name: cData[i][1],
+            phone: cData[i][2],
+            sender: cData[i][3],
+            content: cData[i][4],
+            epoch: cData[i][5] || ""
+          });
+      }
+  }
+
+  // 2. 讀取「系統設定」與優惠碼
+  var settingSheet = ss.getSheetByName("系統設定");
+  var settings = {
+    openTime: "06:00",
+    closeTime: "13:00",
+    closedDaysOfWeek: "",
+    closedDates: "",
+    autoAccept: "關閉",
+    enableDelivery: "開啟",
+    promoDiscountCode: "vip8888",
+    promoDiscountRate: 0.9,
+    promoDeductCode: "",
+    promoDeductAmount: 0
+  };
+  var autoAccept = false;
+  var expenseQuickWords = [];
+  var incomeQuickWords = [];
+  var employeeList = [];
+  var systemPassword = "1234";
+  var announcement = "";
+
+  if (settingSheet) {
+    var setRows = settingSheet.getDataRange().getDisplayValues();
+    for (var i = 1; i < setRows.length; i++) {
+      var key = setRows[i][0]; 
+      var val = setRows[i][1];
+      if (key === "營業時間起" && val) settings.openTime = val.toString().trim();
+      if (key === "營業時間迄" && val) settings.closeTime = val.toString().trim();
+      if (key === "每週公休" && val) settings.closedDaysOfWeek = val.toString().trim();
+      if (key === "特定公休日期" && val) settings.closedDates = val.toString().trim();
+      if (key === "自動接單模式") { settings.autoAccept = val.toString().trim(); autoAccept = (val.indexOf("開啟") !== -1); }
+      if (key === "外送服務") settings.enableDelivery = val.toString().trim();
+      if (key === "打折優惠碼" && val) settings.promoDiscountCode = val.toString().trim();
+      if (key === "打折折數" && val) settings.promoDiscountRate = parseFloat(val) || 0.9;
+      if (key === "直扣優惠碼" && val) settings.promoDeductCode = val.toString().trim();
+      if (key === "直扣金額" && val) settings.promoDeductAmount = parseInt(val) || 0;
+      if (key === "支出常用詞清單") { expenseQuickWords = val.split(",").map(function(s){ return s.trim(); }).filter(Boolean); }
+      if (key === "收入常用詞清單") { incomeQuickWords = val.split(",").map(function(s){ return s.trim(); }).filter(Boolean); }
+      if (key === "員工名單" && val) { employeeList = val.split(",").map(function(s){ return s.trim(); }).filter(Boolean); }
+      if (key === "進入系統密碼" && val) { systemPassword = val.toString().trim(); }
+      if (key === "店鋪公告") { announcement = val.toString().trim(); }
+    }
+  }
+
+  if (employeeList.length === 0) employeeList = ["老闆", "店長", "早班夥伴"];
+
+  // 3. 讀取員工打卡狀態
+  var clockStatus = {};
+  var clockSheet = ss.getSheetByName("員工打卡紀錄");
+  if (clockSheet) {
+      var clockData = clockSheet.getDataRange().getDisplayValues();
+      var todayMMDD = Utilities.formatDate(today, "Asia/Taipei", "MM/dd");
+      for (var k = clockData.length - 1; k >= 1; k--) {
+          var recTime = clockData[k][0];
+          var recName = clockData[k][1];
+          var recAction = clockData[k][2];
+          if (recTime && recTime.indexOf(todayMMDD) !== -1) {
+              if (!clockStatus[recName]) { clockStatus[recName] = recAction; }
+          }
+      }
+  }
+
+  // 4. 定時拉取訂單模式
+  if (e && e.parameter && e.parameter.action === "getOrders") {
+    var orders = [];
+    var datesToFetch = [todayStr, tomorrowStr];
+    for (var d = 0; d < datesToFetch.length; d++) {
+        var dStr = datesToFetch[d];
+        var sheet = ss.getSheetByName(dStr);
+        if (sheet) {
+          var data = sheet.getDataRange().getDisplayValues();
+          var isOldSheet = (data[0][3] === "桌號");
+          for (var i = 1; i < data.length; i++) {
+            if (!data[i][0]) continue;
+            var fmtNum = formatOrderNum(data[i][0]);
+            if (isOldSheet) {
+                orders.push({ orderNumber: fmtNum, orderDate: dStr, time: data[i][1], diningType: data[i][2] + (data[i][3] ? " (桌號:" + data[i][3] + ")" : ""), detailsText: data[i][4], totalAmount: data[i][5], status: data[i][6], customerName: data[i][7], customerPhone: data[i][8], paymentStatus: data[i][10] || "尚未結帳" });
+            } else {
+                orders.push({ orderNumber: fmtNum, orderDate: dStr, time: data[i][1], diningType: data[i][2], detailsText: data[i][3], totalAmount: data[i][4], status: data[i][5], customerName: data[i][6], customerPhone: data[i][7], paymentStatus: data[i][9] || "尚未結帳" });
+            }
+          }
+        }
+    }
+    return ContentService.createTextOutput(JSON.stringify({
+      "result": "success",
+      "orders": orders,
+      "expenseQuickWords": expenseQuickWords,
+      "incomeQuickWords": incomeQuickWords,
+      "messages": allMsgs,
+      "employees": employeeList,
+      "clockStatus": clockStatus,
+      "systemPassword": systemPassword,
+      "announcement": announcement,
+      "settings": settings
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // 5. 讀取菜單
+  var menuSheet = ss.getSheetByName("菜單管理");
+  var menuData = [];
+  if (menuSheet) {
+      var menuRows = menuSheet.getDataRange().getDisplayValues();
+      for (var m = 1; m < menuRows.length; m++) {
+        var row = menuRows[m];
+        if (!row[0] || row[0] === "" || !row[1] || row[1] === "") continue; 
+        
+        var category = row[0]; var name = row[1]; var price = parseInt(row[2]) || 0; var status = row[3];
+        var options = [];
+        for (var col = 4; col < row.length; col++) {
+          if (row[col]) {
+            var parts = row[col].split("=");
+            if (parts.length === 2) {
+              var prefix = parts[0].split(":");
+              var typeStr = prefix[0].trim();
+              
+              var type = "單選";
+              var isRequired = false;
+              var isMultiple = false;
+              
+              if (typeStr === "必選") {
+                type = "必選";
+                isRequired = true;
+              } else if (typeStr === "複選" || typeStr === "多選") {
+                type = "複選";
+                isMultiple = true;
+              } else {
+                type = "單選";
+              }
+
+              var itemsStr = parts[1].split(","); 
+              var itemsList = [];
+              for (var k = 0; k < itemsStr.length; k++) {
+                var itemParts = itemsStr[k].split("+"); 
+                itemsList.push({name: itemParts[0].trim(), price: parseInt(itemParts[1]) || 0});
+              }
+              
+              var cleanTitle = prefix[1] ? prefix[1].trim() : parts[0].trim();
+              options.push({
+                title: typeStr + ":" + cleanTitle,
+                name: cleanTitle,
+                type: type,
+                required: isRequired,
+                multiple: isMultiple,
+                items: itemsList
+              });
+            }
+          }
+        }
+        menuData.push({id: m, category: category, name: name, price: price, status: status, options: options});
+      }
+  }
+
+  // 🌟 6. 預設同步回傳：補齊 messages、clockStatus 與所有優惠碼
+  return ContentService.createTextOutput(JSON.stringify({
+      settings: settings, 
+      menu: menuData, 
+      systemPassword: systemPassword, 
+      announcement: announcement,
+      expenseQuickWords: expenseQuickWords,
+      incomeQuickWords: incomeQuickWords,
+      employees: employeeList,
+      clockStatus: clockStatus,
+      messages: allMsgs
+  })).setMimeType(ContentService.MimeType.JSON);
+}

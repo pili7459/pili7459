@@ -1,52 +1,187 @@
+<!-- ---------------------------------------- [文檔結構與頭部宣告] 開始 ---------------------------------------- -->
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>肚肚風格餐飲 POS 系統</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>線上點餐系統</title>
+    <link rel="stylesheet" href="css/order.css">
+    <link rel="icon" href="data:,">
 </head>
-<body class="bg-slate-100 min-h-screen flex flex-col items-center justify-center p-6 font-sans">
-  <div class="max-w-4xl w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
-    <div class="flex items-center gap-4 mb-6 pb-6 border-b border-slate-200">
-      <div class="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center text-white text-3xl font-black shadow-md">
-        D
-      </div>
-      <div>
-        <h1 class="text-2xl font-bold text-slate-800">小森食光坊 · 全端餐飲 POS 系統 (v2.1)</h1>
-        <p class="text-slate-500 text-sm mt-1">內建桌況連動、菜單規格加料視覺化編輯器、KDS 廚房看板與歷史日結對帳</p>
-      </div>
-    </div>
+<body>
+<!-- ---------------------------------------- [文檔結構與頭部宣告] 結束 ---------------------------------------- -->
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <a href="/pos.html" class="group block p-6 bg-slate-50 hover:bg-emerald-50 rounded-xl border border-slate-200 hover:border-emerald-300 transition shadow-sm hover:shadow-md">
-        <div class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-lg flex items-center justify-center font-bold text-xl mb-4 group-hover:scale-110 transition">🛒</div>
-        <h2 class="text-lg font-bold text-slate-800 group-hover:text-emerald-700">前台點餐 / 收銀 (POS)</h2>
-        <p class="text-xs text-slate-500 mt-2 leading-relaxed">桌況地圖、客製加料彈窗、用餐中桌位即時結帳、追加加點與外帶快結。</p>
-        <span class="inline-block mt-4 text-xs font-semibold text-emerald-600">進入前台點餐 &rarr;</span>
-      </a>
 
-      <a href="/kds.html" class="group block p-6 bg-slate-50 hover:bg-amber-50 rounded-xl border border-slate-200 hover:border-amber-300 transition shadow-sm hover:shadow-md">
-        <div class="w-12 h-12 bg-amber-100 text-amber-700 rounded-lg flex items-center justify-center font-bold text-xl mb-4 group-hover:scale-110 transition">🍳</div>
-        <h2 class="text-lg font-bold text-slate-800 group-hover:text-amber-700">廚房即時看板 (KDS)</h2>
-        <p class="text-xs text-slate-500 mt-2 leading-relaxed">WebSocket 實時推播接單、提示音效、追加菜色高亮與出餐劃線。</p>
-        <span class="inline-block mt-4 text-xs font-semibold text-amber-600">進入廚房螢幕 &rarr;</span>
-      </a>
+    <div class="app-container">
+<!-- ---------------------------------------- [頂部置頂橫幅區] 開始 ---------------------------------------- -->
+        <div class="top-fixed-banners">
+            <div id="customer-announcement-banner" class="announcement-banner" style="display:none;">
+                📢 最新公告：<span id="customer-announcement-text"></span>
+            </div>
+            <div id="closed-banner-container"></div>
+        </div>
+<!-- ---------------------------------------- [頂部置頂橫幅區] 結束 ---------------------------------------- -->
 
-      <a href="/admin.html" class="group block p-6 bg-slate-50 hover:bg-blue-50 rounded-xl border border-slate-200 hover:border-blue-300 transition shadow-sm hover:shadow-md">
-        <div class="w-12 h-12 bg-blue-100 text-blue-700 rounded-lg flex items-center justify-center font-bold text-xl mb-4 group-hover:scale-110 transition">⚙️</div>
-        <h2 class="text-lg font-bold text-slate-800 group-hover:text-blue-700">後台管理與日結 (Admin)</h2>
-        <p class="text-xs text-slate-500 mt-2 leading-relaxed">菜單登錄、<strong>規格加料視覺化編輯</strong>、桌位管理、歷史營收與日結封帳。</p>
-        <span class="inline-block mt-4 text-xs font-semibold text-blue-600">進入管理後台 &rarr;</span>
-      </a>
-    </div>
+        <div class="main-body-wrapper">
+<!-- ---------------------------------------- [左側分類導航列] 開始 ---------------------------------------- -->
+            <div class="side-nav" id="side-nav"></div>
+<!-- ---------------------------------------- [左側分類導航列] 結束 ---------------------------------------- -->
+            
+            <div class="main-content" id="main-content">
+<!-- ---------------------------------------- [菜單展示與購物車結帳區] 開始 ---------------------------------------- -->
+                <div id="menu-view" style="display:none;">
+                    <div class="menu-side">
+                        <div class="menu-container" id="menu"></div>
+                    </div>
+                    
+                    <div class="cart" id="cart-section" style="display: none;">
+                        <h2 style="margin-top: 0;">🛒 結帳與送出訂單</h2>
+                        <div id="cart-items"><p style="text-align:center; color:#999;">目前購物車是空的喔！</p></div>
+                        
+                        <div class="total">
+                            總計: <span id="display-subtotal" style="display:none; text-decoration:line-through; font-size:0.7em; color:#999; margin-right:5px;"></span>$<span id="total-price">0</span>
+                        </div>
+                        <div id="discount-display" style="text-align:right; font-size:0.9em; color:#10b981; font-weight:bold; margin-top:5px;"></div>
+                        
+                        <div class="checkout-options" id="checkout-options" style="display: none;">
+                            <h3 style="margin-top:0;">🍽️ 用餐方式：自取外帶</h3>
 
-    <div class="mt-8 pt-6 border-t border-slate-200 bg-slate-50 rounded-xl p-4 text-xs text-slate-600 space-y-1.5">
-      <div class="font-bold text-slate-700">✨ v2.1 規格加料視覺化功能：</div>
-      <div>✓ <strong>規格群組視覺化維護</strong>：支援單選 (甜度/冰塊) 與多選 (加料加蛋) 群組切換。</div>
-      <div>✓ <strong>加價細項即時調整</strong>：直接在後台輸入加料名稱與自訂加價金額 (+15, +20 等)。</div>
-      <div>✓ <strong>一鍵套用通用模板</strong>：提供「經典早午餐加料」與「茶飲甜度冰量」一鍵快速配置。</div>
-    </div>
-  </div>
+                            <div id="datetime-container" style="background: #fff; padding: 14px; border-radius: 10px; margin-top: 15px; border: 2px solid #93c5fd;">
+                                <h3 style="margin-top:0; border-bottom: none; padding-bottom:0; color:#1e3a8a;">⏰ 請選擇取餐時間 (必選)</h3>
+                                
+                                <div class="radio-group" id="time-selection">
+                                    <label id="label-asap">
+                                        <input type="radio" name="timeType" value="ASAP" onchange="handleTimeTypeChange()"> 盡快取餐
+                                    </label>
+                                    <label id="label-specific">
+                                        <input type="radio" name="timeType" value="SPECIFIC" onchange="handleTimeTypeChange()"> 指定預約時間
+                                    </label>
+                                </div>
+
+                                <div id="specific-time-container" style="display:none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #cbd5e1;">
+                                    <div style="font-weight:bold; color:#475569; margin-bottom:6px;">預約取餐日期：</div>
+                                    <div class="radio-group" id="date-selection" style="margin-bottom: 12px;"></div>
+                                    
+                                    <div style="font-weight:bold; color:#475569; margin-bottom:6px;">預約取餐時間：</div>
+                                    <select id="pickup-time" class="table-input" style="background:#fff; margin-top:0;">
+                                        <option value="" disabled selected>👉 請選擇時間</option>
+                                    </select>
+                                    <div style="font-size:0.85em; color:#ea580c; margin-top:6px; font-weight:bold;" id="shop-hours-text"></div>
+                                </div>
+                            </div>
+
+                            <div id="contact-info-container" style="margin-top: 15px;">
+                                <input type="text" id="customer-name" placeholder="👉 請輸入您的姓名" class="table-input">
+                                <input type="tel" id="customer-phone" placeholder="👉 請輸入您的手機號碼" class="table-input" style="margin-top: 10px;">
+                            </div>
+
+                            <h3 style="margin-top:20px;">🎟️ 優惠碼</h3>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <input type="text" id="promo-code-input" placeholder="輸入優惠碼" class="table-input" style="margin-top: 0; flex: 1;">
+                                <button type="button" class="add-btn" style="background:#ea580c; padding: 12px 18px; border-radius:8px; border:none; color:white; font-weight:bold; cursor:pointer;" onclick="applyPromoCode()">套用</button>
+                            </div>
+                            <div id="promo-message" style="font-size:0.9em; margin-top:5px; font-weight:bold;"></div>
+
+                            <div id="cutlery-container" style="margin-top: 15px;">
+                                <label style="font-size: 1.1em; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; color: #334155;">
+                                    <input type="checkbox" id="need-cutlery" checked style="width: 20px; height: 20px;"> 提供餐具與吸管
+                                </label>
+                            </div>
+
+                            <h3 style="margin-top:20px;">📝 訂單備註</h3>
+                            <textarea id="order-notes" class="table-input" rows="2" placeholder="備註說明 (例如: 漢堡不要洋蔥)"></textarea>
+                        </div>
+                        <button class="submit-btn" id="btn-submit-order" onclick="submitOrder()">送出自取訂單</button>
+                    </div>
+                </div>
+<!-- ---------------------------------------- [菜單展示與購物車結帳區] 結束 ---------------------------------------- -->
+
+<!-- ---------------------------------------- [點餐進度與號碼牌畫面] 開始 ---------------------------------------- -->
+                <div id="order-status-view">
+                    <h2 style="margin-top:0;">📝 點餐進度與號碼牌</h2>
+                    <div id="orders-list"></div>
+                    <button class="continue-btn" onclick="continueOrdering()">➕ 我還要加點</button>
+                </div>
+<!-- ---------------------------------------- [點餐進度與號碼牌畫面] 結束 ---------------------------------------- -->
+            </div>
+        </div>
+
+<!-- ---------------------------------------- [懸浮操作按鈕群組 FAB] 開始 ---------------------------------------- -->
+        <div class="fab-container">
+            <div class="fab-btn fab-ticket" id="fab-ticket" onclick="showStatusView()" title="查看點餐進度">
+                📋
+                <span class="fab-badge" id="ticket-badge" style="display:none;">1</span>
+            </div>
+            <div class="fab-btn fab-cart" id="fab-cart" onclick="filterCategory('購物車')">
+                🛒
+                <span class="fab-badge" id="cart-badge">0</span>
+            </div>
+            <div class="fab-btn fab-chat" onclick="openChat()">
+                💬
+                <span class="fab-badge" id="fab-badge" style="display:none;">N</span>
+            </div>
+        </div>
+<!-- ---------------------------------------- [懸浮操作按鈕群組 FAB] 結束 ---------------------------------------- -->
+
+<!-- ---------------------------------------- [客服對話視窗 Modal] 開始 ---------------------------------------- -->
+        <div id="chat-modal">
+            <div class="chat-header">
+                <span>💬 聯絡店家</span>
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <span onclick="logoutChat()" style="cursor:pointer; font-size:0.8em; background:rgba(255,255,255,0.2); padding:4px 10px; border-radius:15px;">切換身份</span>
+                    <span onclick="closeChat()" style="cursor:pointer; font-size:1.5em; line-height:1;">×</span>
+                </div>
+            </div>
+            
+            <div id="chat-login-area" style="padding: 25px; display: flex; flex-direction: column; gap: 15px; margin-top: 40px;">
+                <h3 style="text-align:center; color:#1e293b; margin:0;">請先輸入聯絡資訊</h3>
+                <input type="text" id="chat-name" class="table-input" placeholder="您的姓名">
+                <input type="tel" id="chat-phone" class="table-input" placeholder="您的手機號碼">
+                <button class="submit-btn" style="background:#3b82f6;" onclick="startChat()">開始對話</button>
+            </div>
+
+            <div id="chat-messages-area" class="chat-body" style="display:none;"></div>
+            
+            <div id="chat-input-area" class="chat-footer" style="display:none;">
+                <input type="text" id="chat-text" class="chat-input" placeholder="請輸入訊息..." onkeypress="if(event.key==='Enter') sendChatMsg()">
+                <button class="chat-send-btn" onclick="sendChatMsg()">➤</button>
+            </div>
+        </div>
+<!-- ---------------------------------------- [客服對話視窗 Modal] 結束 ---------------------------------------- -->
+
+<!-- ---------------------------------------- [餐點規格選項彈窗 Modal] 開始 ---------------------------------------- -->
+        <div id="option-modal" class="modal-overlay" onclick="handleModalOverlayClick(event)">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <div>
+                        <h3 id="modal-item-name" style="margin:0; font-size:1.35em;">商品名稱</h3>
+                        <span id="modal-base-price" style="color:#ea580c; font-weight:900; font-size:1.2em;">$0</span>
+                    </div>
+                    <button class="close-btn" onclick="closeModal()">✖</button>
+                </div>
+                <div id="modal-options-container"></div>
+                <div style="margin-top: 20px;">
+                    <button class="confirm-modal-btn" onclick="confirmOptions()">加入購物車 (小計 $<span id="modal-calc-price">0</span>)</button>
+                </div>
+            </div>
+        </div>
+<!-- ---------------------------------------- [餐點規格選項彈窗 Modal] 結束 ---------------------------------------- -->
+
+<!-- ---------------------------------------- [連線同步加載遮罩] 開始 ---------------------------------------- -->
+        <div id="loading-screen" style="position:absolute; top:0; left:0; width:100%; height:100%; background:#fff; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+            <h2>🔄 正在與店家連線...</h2>
+            <p style="color:#64748b;">同步今日菜單資訊中</p>
+        </div>
+<!-- ---------------------------------------- [連線同步加載遮罩] 結束 ---------------------------------------- -->
+    </div> 
+
+<!-- ---------------------------------------- [前端腳本載入區塊] 開始 ---------------------------------------- -->
+    <script src="js/order-app.js"></script>
+    <script src="js/index/order-menu.js"></script>
+    <script src="js/index/order-cart.js"></script>
+    <script src="js/index/order-status.js"></script>
+    <script src="js/index/order-chat.js"></script>
+    <script src="js/index/order-app.js"></script>
 </body>
 </html>
+<!-- ---------------------------------------- [前端腳本載入區塊] 結束 ---------------------------------------- -->
