@@ -154,14 +154,16 @@ export function renderPosMenu() {
     let isSoldOut = item.status === "售完" || (item.status && item.status.includes("完售")) || item.status === "停售";
     let hasOptions = item.options && item.options.length > 0;
 
-    // 解析主標題（例如：一號餐）與副標題/食材明細（例如：嫩煎雞腿蛋餅、飲料、炸物雙拼）
-    const nameLines = (item.name || '').split(/\r?\n/);
-    const mainTitle = nameLines[0];
-    const subTitle = nameLines.slice(1).join('、');
+    let rawName = (item.name || '').trim();
+    if (!rawName.includes('\n') && rawName.includes('+')) {
+      rawName = rawName.split('+').join('\n');
+    }
+    const nameLines = rawName.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    const mainTitle = nameLines[0] || '';
+    const subLines = nameLines.slice(1);
 
     const card = document.createElement('div');
     card.className = `pos-menu-item ${isSoldOut ? 'sold-out' : ''}`;
-    card.style.cssText = "min-height: 72px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;";
 
     card.onclick = () => {
       if (isSoldOut) {
@@ -182,13 +184,25 @@ export function renderPosMenu() {
 
     let priceText = isSoldOut ? '售完' : `$${item.price}`;
 
-    card.innerHTML = `
-      <div class="pos-menu-item-title" style="flex: 1; text-align: left; padding-right: 8px;">
-        <div style="font-size: 1.15em; font-weight: 800; color: #0f172a; line-height: 1.2;">${mainTitle}</div>
-        ${subTitle ? `<div style="font-size: 0.82em; color: #64748b; font-weight: 500; margin-top: 3px; line-height: 1.3;">${subTitle}</div>` : ''}
-      </div>
-      <div class="pos-menu-item-price" style="font-size: 1.25em; font-weight: 900; color: #ea580c; white-space: nowrap;">${priceText}</div>
-    `;
+    if (subLines.length > 0) {
+      // 僅套餐（含有食材清單者）適度增高，食材採一行一項垂直排列（與點餐端完全一致）
+      card.style.cssText = "padding: 8px 12px; display: flex; justify-content: space-between; align-items: center;";
+      const subHtml = subLines.map(s => `<div style="font-size: 0.8em; color: #64748b; font-weight: 500; line-height: 1.25;">${s}</div>`).join('');
+      card.innerHTML = `
+        <div class="pos-menu-item-title" style="flex: 1; text-align: left;">
+          <div style="font-size: 1.05em; font-weight: 800; color: #0f172a; margin-bottom: 2px;">${mainTitle}</div>
+          ${subHtml}
+        </div>
+        <div class="pos-menu-item-price" style="font-size: 1.15em; font-weight: 900; color: #ea580c; white-space: nowrap; margin-left: 8px;">${priceText}</div>
+      `;
+    } else {
+      // 一般餐點（蛋餅、漢堡、小點等）不套用任何額外樣式，完全還原為原始緊湊大小
+      card.innerHTML = `
+        <div class="pos-menu-item-title">${mainTitle}</div>
+        <div class="pos-menu-item-price">${priceText}</div>
+      `;
+    }
+
     grid.appendChild(card);
   });
 }
@@ -293,11 +307,15 @@ export function updateCartUI() {
     let itemTotal = effectiveUnitPrice * item.qty;
     subtotal += itemTotal;
 
-    const nameLines = (item.name || '').split(/\r?\n/);
-    const mainTitle = nameLines[0];
-    const subTitle = nameLines.slice(1).join('、');
+    let rawName = (item.name || '').trim();
+    if (!rawName.includes('\n') && rawName.includes('+')) {
+      rawName = rawName.split('+').join('\n');
+    }
+    const nameLines = rawName.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    const mainTitle = nameLines[0] || '';
+    const subLines = nameLines.slice(1);
 
-    let subHtml = subTitle ? `<div style="font-size:0.85em; color:#64748b; margin-top:2px;">${subTitle}</div>` : '';
+    const subHtml = subLines.map(s => `<div style="font-size:0.8em; color:#64748b; line-height:1.2;">- ${s}</div>`).join('');
     let optHtml = item.optionsText ? `<div class="cart-item-options">${item.optionsText}</div>` : '';
     let safeNameStr = JSON.stringify(item.name);
     let safeOptsStr = JSON.stringify(item.optionsText || "");
