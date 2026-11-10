@@ -185,18 +185,18 @@ export function renderPosMenu() {
     let priceText = isSoldOut ? '售完' : `$${item.price}`;
 
     if (subLines.length > 0) {
-      // 僅套餐（含有食材清單者）適度增高，食材採一行一項垂直排列（與點餐端完全一致）
-      card.style.cssText = "padding: 8px 12px; display: flex; justify-content: space-between; align-items: center;";
-      const subHtml = subLines.map(s => `<div style="font-size: 0.8em; color: #64748b; font-weight: 500; line-height: 1.25;">${s}</div>`).join('');
+      // 🌟【此處調整套餐高度】：已將高度設為緊湊適中的 105px，文字上下均勻置中
+      card.style.cssText = "height: 105px; min-height: 105px; padding: 6px 14px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;";
+      const subHtml = subLines.map(s => `<div style="font-size: 0.76em; color: #64748b; font-weight: 500; line-height: 1.2;">${s}</div>`).join('');
       card.innerHTML = `
-        <div class="pos-menu-item-title" style="flex: 1; text-align: left;">
+        <div class="pos-menu-item-title" style="flex: 1; text-align: left; display: flex; flex-direction: column; justify-content: center;">
           <div style="font-size: 1.05em; font-weight: 800; color: #0f172a; margin-bottom: 2px;">${mainTitle}</div>
           ${subHtml}
         </div>
-        <div class="pos-menu-item-price" style="font-size: 1.15em; font-weight: 900; color: #ea580c; white-space: nowrap; margin-left: 8px;">${priceText}</div>
+        <div class="pos-menu-item-price" style="font-size: 1.2em; font-weight: 900; color: #ea580c; white-space: nowrap; margin-left: 8px;">${priceText}</div>
       `;
     } else {
-      // 一般餐點（蛋餅、漢堡、小點等）不套用任何額外樣式，完全還原為原始緊湊大小
+      // 一般餐點（蛋餅、漢堡、小點等）維持原樣式標準尺寸
       card.innerHTML = `
         <div class="pos-menu-item-title">${mainTitle}</div>
         <div class="pos-menu-item-price">${priceText}</div>
