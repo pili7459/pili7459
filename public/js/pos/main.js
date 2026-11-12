@@ -809,7 +809,6 @@ window.updatePrintPreviewRender = utils.updatePrintPreviewRender;
 
 window.syncMenuFromSheets = async () => {
   try {
-    await api.triggerSheetsSync();
     await initApp();
     utils.showToast('✅ 菜單、員工名單、客服與設定已成功同步！');
   } catch (e) {
@@ -1212,9 +1211,17 @@ window.renderOrderDetailsHtml = function(detailsText) {
 
 // ---------------------------------------- [系統初始化 App] 開始 ----------------------------------------
 async function initApp() {
+  const loader = document.getElementById("sync-loader");
   try {
+    if (loader) {
+      loader.style.display = "block";
+      loader.innerText = "🔄 正在與 Google 試算表後台同步最新資料...";
+    }
+
+    // 每次重新開啟 POS 端，必先強制向 Google 試算表同步完成後再讀取資料
+    await api.triggerSheetsSync();
+
     const data = await api.fetchInitialData();
-    const loader = document.getElementById("sync-loader");
     if (loader) loader.style.display = "none";
 
     if (data.menu && data.menu.length > 0) {
@@ -1250,7 +1257,6 @@ async function initApp() {
     await loadOrders();
     switchMainView('ordering');
   } catch (e) {
-    const loader = document.getElementById("sync-loader");
     if (loader) loader.innerText = "⚠️ 無法連線至伺服器";
   }
 }
