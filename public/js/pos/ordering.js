@@ -845,7 +845,7 @@ function buildOrderDetailsPayload() {
       discountAmt = Math.min(subtotal, state.appliedPromo.amount);
     }
     finalTotal = Math.max(0, subtotal - discountAmt);
-    details += `優惠折抵 (${state.appliedPromo.code}) ::: -$${discountAmt}${nl}`;
+    details += `優惠折抵 (${state.appliedPromo.text}) ::: -$${discountAmt}${nl}`;
     details += `----------------------${nl}`;
   }
 

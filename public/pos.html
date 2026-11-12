@@ -241,12 +241,12 @@
                 <option value="盡快取餐" selected>時間</option>
               </select>
 
-              <div style="flex: 1; min-width: 0; display: flex; gap: 4px;">
-                <input type="text" id="promo-code-input" placeholder="優惠碼" style="flex: 1; min-width: 0; padding: 8px 6px; border: 2px solid #cbd5e1; border-radius: 8px; font-weight: bold; font-size: 0.95em;">
+              <div style="display: flex; gap: 4px; flex-shrink: 0;">
+                <input type="text" id="promo-code-input" placeholder="優惠碼" style="width: 92px; padding: 8px 6px; border: 2px solid #cbd5e1; border-radius: 8px; font-weight: bold; font-size: 0.95em;">
                 <button type="button" onclick="applyPromoCode()" style="background: #3b82f6; color: white; border: none; padding: 0 8px; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap; flex-shrink: 0;">套用</button>
               </div>
 
-              <div class="pos-cart-total" style="margin: 0; font-size: 1.35em; white-space: nowrap; flex-shrink: 0; width: 135px; text-align: right;">
+              <div class="pos-cart-total" style="margin: 0; font-size: 1.3em; white-space: nowrap; flex: 1; text-align: right; min-width: 0;">
                 <span id="display-subtotal" style="display:none; font-size:0.7em; color:#94a3b8; text-decoration:line-through; margin-right:2px;"></span>
                 總計: $<span id="pos-total-price">0</span>
               </div>

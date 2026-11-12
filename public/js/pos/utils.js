@@ -216,14 +216,34 @@ function getPreviewSampleData() {
     const diningType = document.getElementById('pos-dining-type')?.value || '內用';
     const tableNum = document.getElementById('pos-table-number')?.value || '5';
     const parsedItems = cartKeys.map(k => parseCartItemForPrint(state.cart[k]));
-    const total = parsedItems.reduce((sum, i) => sum + i.totalPrice, 0);
+    const subtotal = parsedItems.reduce((sum, i) => sum + i.totalPrice, 0);
+
+    let finalTotal = subtotal;
+    let promoLabel = '';
+    let discountAmt = 0;
+
+    if (state.appliedPromo && subtotal > 0) {
+      if (state.appliedPromo.type === 'discount') {
+        discountAmt = Math.round(subtotal * (1 - state.appliedPromo.rate));
+        const foldVal = +(state.appliedPromo.rate * 10).toFixed(1);
+        promoLabel = `${foldVal}折`;
+      } else if (state.appliedPromo.type === 'deduct') {
+        discountAmt = Math.min(subtotal, state.appliedPromo.amount);
+        promoLabel = `折抵$${discountAmt}`;
+      }
+      finalTotal = Math.max(0, subtotal - discountAmt);
+    }
+
     return {
       sourceLabel: '資料來源：目前購物車餐點',
       orderNum: '018',
       diningType: diningType === '內用' ? `內用(桌號:${tableNum})` : diningType,
       time: getFormattedTime(),
       parsedItems,
-      total
+      subtotal,
+      promoLabel,
+      discountAmt,
+      total: finalTotal
     };
   }
 
@@ -231,14 +251,29 @@ function getPreviewSampleData() {
     const rawLines = state.selectedOrder.detailsText.split(/\r?\n/);
     const parsedItems = [];
     let cur = null;
+    let parsedSubtotal = 0;
+    let parsedPromoLabel = '';
+    let parsedDiscountAmt = 0;
 
     rawLines.forEach(rawLine => {
       const t = rawLine.trim();
       if (!t || t.includes('---')) return;
 
-      if (t.includes(':::') && !t.includes('小計') && !t.includes('總額') && !t.includes('優惠')) {
-        if (cur) parsedItems.push(cur);
+      if (t.includes(':::')) {
         const [left, right] = t.split(':::');
+        if (left.includes('小計')) {
+          parsedSubtotal = parseInt((right || '').replace(/[^0-9]/g, ''), 10) || 0;
+          return;
+        }
+        if (left.includes('優惠')) {
+          parsedDiscountAmt = parseInt((right || '').replace(/[^0-9]/g, ''), 10) || 0;
+          const foldMatch = left.match(/(\d+(\.\d+)?折)/);
+          parsedPromoLabel = foldMatch ? foldMatch[1] : `折抵$${parsedDiscountAmt}`;
+          return;
+        }
+        if (left.includes('總額') || left.includes('總計')) return;
+
+        if (cur) parsedItems.push(cur);
         const qtyMatch = left.trim().match(/^(\d+)x\s*(.*)$/);
         const qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
         const title = qtyMatch ? qtyMatch[2].trim() : left.trim();
@@ -287,12 +322,16 @@ function getPreviewSampleData() {
     if (cur) parsedItems.push(cur);
 
     if (parsedItems.length > 0) {
+      const calcSub = parsedSubtotal || parsedItems.reduce((sum, i) => sum + i.totalPrice, 0);
       return {
         sourceLabel: `資料來源：目前選取訂單 (#${state.selectedOrder.orderNumber})`,
         orderNum: state.selectedOrder.orderNumber || '001',
         diningType: state.selectedOrder.diningType || '內用',
         time: state.selectedOrder.time || getFormattedTime(),
         parsedItems,
+        subtotal: calcSub,
+        promoLabel: parsedPromoLabel,
+        discountAmt: parsedDiscountAmt,
         total: Math.abs(parseInt(state.selectedOrder.totalAmount || 0, 10))
       };
     }
@@ -333,11 +372,13 @@ function getPreviewSampleData() {
         totalPrice: 100
       }
     ],
+    subtotal: 343,
+    promoLabel: '',
+    discountAmt: 0,
     total: 343
   };
 }
 
-// 依據貼紙寬高計算單張可容納的客製化字數上限，超出自動拆出「(續)餐點名稱」且沿用原本餐點序號
 function splitTicketIfOverflow(rawTicket, wMm, hMm, itemIndex, totalItems) {
   const mods = rawTicket.mods || [];
   const countBadge = `${itemIndex}/${totalItems}`;
@@ -644,6 +685,19 @@ export function updatePrintPreviewRender() {
       `;
     }).join('');
 
+    const promoHtml = data.promoLabel
+      ? `
+        <div style="border-top:1px dashed #000; padding-top:3px; margin-top:4px; display:flex; justify-content:space-between; font-size:10px; font-weight:bold;">
+          <span>小計</span>
+          <span>$${data.subtotal}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:10.5px; font-weight:900; margin-top:2px;">
+          <span>優惠：${data.promoLabel}</span>
+          <span>-$${data.discountAmt}</span>
+        </div>
+      `
+      : '';
+
     const paper = document.createElement('div');
     paper.style.cssText = `
       width: ${wPx}px;
@@ -669,6 +723,7 @@ export function updatePrintPreviewRender() {
         時間：${data.time}
       </div>
       ${itemsHtml}
+      ${promoHtml}
       <div style="border-top:1px dashed #000; padding-top:4px; margin-top:4px; display:flex; justify-content:space-between; font-size:13px; font-weight:900;">
         <span>合計金額</span>
         <span>$${data.total}</span>
