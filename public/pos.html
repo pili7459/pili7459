@@ -424,6 +424,7 @@
       <button class="tool-btn" id="btn-nav-drawer" onclick="openCashDrawer()">開錢櫃</button>
       <button class="tool-btn" id="btn-nav-system" onclick="openSystemUI()">系統</button>
       <button class="tool-btn" id="btn-nav-test" onclick="testPrint()">測試</button>
+      <button class="tool-btn" id="btn-nav-print-preview" onclick="openPrintPreviewModal()">列印預覽</button>
       <div style="flex-grow: 1;"></div>
       <button class="tool-btn" id="btn-nav-back" style="background:#334155; color:#fff;" onclick="toggleToolbarPage('main')">返回</button>
     </div>
@@ -660,6 +661,59 @@
     </div>
   </div>
 <!-- ---------------------------------------- [關帳日結盤點視窗 Modal] 結束 ---------------------------------------- -->
+
+
+<!-- ---------------------------------------- [列印排版預覽視窗 Modal] 開始 ---------------------------------------- -->
+  <div id="print-preview-modal" class="modal-overlay" style="z-index: 3600;">
+    <div class="modal-box" style="width: 95%; max-width: 720px; max-height: 92vh; display: flex; flex-direction: column; padding: 24px; text-align: left;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 12px; margin-bottom: 14px;">
+        <h3 style="margin:0; font-size:1.5em; color:#0f172a; font-weight:900;">🖨️ 出單紙張大小與排版預覽</h3>
+        <button class="close-btn" onclick="closePrintPreviewModal()">✖</button>
+      </div>
+
+      <!-- 控制列：紙張類型 / 型號尺寸 / 檢視倍率 -->
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; background: #f8fafc; padding: 12px 14px; border-radius: 12px; border: 1px solid #cbd5e1; margin-bottom: 12px; align-items: center;">
+        <div style="display: flex; gap: 6px;">
+          <button type="button" id="btn-pp-type-sticker" onclick="switchPrintPreviewType('sticker')" style="padding: 8px 14px; border-radius: 8px; border: 2px solid #3b82f6; background: #3b82f6; color: #fff; font-weight: 800; cursor: pointer;">🏷️ 標籤貼紙</button>
+          <button type="button" id="btn-pp-type-receipt" onclick="switchPrintPreviewType('receipt')" style="padding: 8px 14px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; color: #334155; font-weight: 800; cursor: pointer;">🧾 熱感紙</button>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <label style="font-weight: bold; color: #475569; font-size: 0.95em;">型號規格：</label>
+          <select id="pp-model-select" onchange="updatePrintPreviewRender()" style="padding: 8px 10px; border-radius: 8px; border: 2px solid #cbd5e1; font-weight: 800; font-size: 0.95em; background: #fff; color: #0f172a; cursor: pointer;">
+            <option value="32x25" selected>32*25 (32mm × 25mm)</option>
+            <option value="40x30">40*30 (40mm × 30mm)</option>
+            <option value="50x30">50*30 (50mm × 30mm)</option>
+          </select>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
+          <label style="font-weight: bold; color: #475569; font-size: 0.95em;">顯示比例：</label>
+          <select id="pp-zoom-select" onchange="updatePrintPreviewRender()" style="padding: 8px 10px; border-radius: 8px; border: 2px solid #cbd5e1; font-weight: 800; font-size: 0.95em; background: #fff; color: #0f172a; cursor: pointer;">
+            <option value="1">100% (實體 1:1)</option>
+            <option value="1.5" selected>150% (放大檢視)</option>
+            <option value="2">200% (細節檢視)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 尺寸與裁切狀態提示列 -->
+      <div id="pp-status-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 8px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a8a; font-weight: bold; font-size: 0.92em; margin-bottom: 12px;">
+        <span id="pp-dim-info">目前尺寸：寬 32mm × 高 25mm</span>
+        <span id="pp-overflow-warning">✅ 文字在安全範圍內</span>
+      </div>
+
+      <!-- 預覽畫布區（模擬真實黑白熱感列印） -->
+      <div id="pp-canvas-wrapper" style="flex: 1; min-height: 280px; max-height: 52vh; overflow: auto; background: #cbd5e1; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 18px; border: inset 2px solid #94a3b8;">
+      </div>
+
+      <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+        <span id="pp-source-info" style="font-size: 0.88em; color: #64748b; font-weight: bold;">資料來源：範例測試餐點</span>
+        <button class="btn-finish" style="width: auto; padding: 10px 28px; font-size: 1.15em;" onclick="closePrintPreviewModal()">關 閉</button>
+      </div>
+    </div>
+  </div>
+<!-- ---------------------------------------- [列印排版預覽視窗 Modal] 結束 ---------------------------------------- -->
 
 
 <!-- ---------------------------------------- [主模組腳本載入] 開始 ---------------------------------------- -->

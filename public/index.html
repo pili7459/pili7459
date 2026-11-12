@@ -49,22 +49,14 @@
                             <div id="datetime-container" style="background: #fff; padding: 14px; border-radius: 10px; margin-top: 15px; border: 2px solid #93c5fd;">
                                 <h3 style="margin-top:0; border-bottom: none; padding-bottom:0; color:#1e3a8a;">⏰ 取餐時間 (必選)</h3>
                                 
-                                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
-                                    <div class="radio-group" id="time-selection" style="margin-top: 0;">
-                                        <label id="label-asap">
-                                            <input type="radio" name="timeType" value="ASAP" onchange="handleTimeTypeChange()"> 立即
-                                        </label>
-                                        <label id="label-specific">
-                                            <input type="radio" name="timeType" value="SPECIFIC" onchange="handleTimeTypeChange()"> 指定預約時間
-                                        </label>
-                                    </div>
-
-                                    <div style="display: flex; gap: 6px; align-items: center; flex: 1; min-width: 180px;">
-                                        <input type="text" id="promo-code-input" placeholder="輸入優惠碼" class="table-input" style="margin-top: 0; flex: 1; min-width: 0; padding: 10px 12px;">
-                                        <button type="button" class="add-btn" style="background:#ea580c; padding: 11px 16px; border-radius:8px; border:none; color:white; font-weight:bold; cursor:pointer; white-space: nowrap; flex-shrink: 0;" onclick="applyPromoCode()">套用</button>
-                                    </div>
+                                <div class="radio-group" id="time-selection" style="margin-top: 0;">
+                                    <label id="label-asap">
+                                        <input type="radio" name="timeType" value="ASAP" onchange="handleTimeTypeChange()"> 立即
+                                    </label>
+                                    <label id="label-specific">
+                                        <input type="radio" name="timeType" value="SPECIFIC" onchange="handleTimeTypeChange()"> 指定預約時間
+                                    </label>
                                 </div>
-                                <div id="promo-message" style="font-size:0.9em; margin-top:5px; font-weight:bold; text-align:right;"></div>
 
                                 <div id="specific-time-container" style="display:none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #cbd5e1;">
                                     <div style="font-weight:bold; color:#475569; margin-bottom:6px;">預約取餐日期：</div>
@@ -78,9 +70,9 @@
                                 </div>
                             </div>
 
-                            <div id="contact-info-container" style="margin-top: 15px; display: flex; gap: 10px;">
-                                <input type="text" id="customer-name" placeholder="👉 請輸入您的姓名" class="table-input" style="margin-top: 0; flex: 1;">
-                                <input type="tel" id="customer-phone" placeholder="👉 請輸入您的手機號碼" class="table-input" style="margin-top: 0; flex: 1;">
+                            <div id="contact-info-container" style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
+                                <input type="text" id="customer-name" placeholder="👉 姓名" class="table-input" style="margin-top: 0;">
+                                <input type="tel" id="customer-phone" placeholder="👉 手機" class="table-input" style="margin-top: 0;">
                             </div>
 
                             <div id="cutlery-container" style="margin-top: 15px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
@@ -93,7 +85,13 @@
                             </div>
 
                             <h3 style="margin-top:20px;">📝 訂單備註</h3>
-                            <textarea id="order-notes" class="table-input" rows="2" placeholder="備註說明 (例如: 漢堡不要洋蔥)"></textarea>
+                            <textarea id="order-notes" class="table-input" rows="2" style="resize: none;" placeholder="備註說明 (例如: 漢堡不要洋蔥)"></textarea>
+
+                            <div style="display: flex; gap: 6px; align-items: center; margin-top: 15px;">
+                                <input type="text" id="promo-code-input" placeholder="輸入優惠碼" class="table-input" style="margin-top: 0; flex: 1; min-width: 0; padding: 10px 12px;">
+                                <button type="button" class="add-btn" style="background:#ea580c; padding: 11px 16px; border-radius:8px; border:none; color:white; font-weight:bold; cursor:pointer; white-space: nowrap; flex-shrink: 0;" onclick="applyPromoCode()">套用</button>
+                            </div>
+                            <div id="promo-message" style="font-size:0.9em; margin-top:5px; font-weight:bold; text-align:right;"></div>
                         </div>
                         <button class="submit-btn" id="btn-submit-order" onclick="submitOrder()">送出自取訂單</button>
                     </div>

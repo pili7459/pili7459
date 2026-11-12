@@ -802,6 +802,10 @@ window.addOptGroup = system.addOptGroup;
 
 window.openCashDrawer = utils.openCashDrawer;
 window.testPrint = utils.testPrint;
+window.openPrintPreviewModal = utils.openPrintPreviewModal;
+window.closePrintPreviewModal = utils.closePrintPreviewModal;
+window.switchPrintPreviewType = utils.switchPrintPreviewType;
+window.updatePrintPreviewRender = utils.updatePrintPreviewRender;
 
 window.syncMenuFromSheets = async () => {
   try {

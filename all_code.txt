@@ -780,14 +780,22 @@ server.listen(PORT, '0.0.0.0', async () => {
                             <div id="datetime-container" style="background: #fff; padding: 14px; border-radius: 10px; margin-top: 15px; border: 2px solid #93c5fd;">
                                 <h3 style="margin-top:0; border-bottom: none; padding-bottom:0; color:#1e3a8a;">⏰ 取餐時間 (必選)</h3>
                                 
-                                <div class="radio-group" id="time-selection">
-                                    <label id="label-asap">
-                                        <input type="radio" name="timeType" value="ASAP" onchange="handleTimeTypeChange()"> 立即
-                                    </label>
-                                    <label id="label-specific">
-                                        <input type="radio" name="timeType" value="SPECIFIC" onchange="handleTimeTypeChange()"> 指定預約時間
-                                    </label>
+                                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                                    <div class="radio-group" id="time-selection" style="margin-top: 0;">
+                                        <label id="label-asap">
+                                            <input type="radio" name="timeType" value="ASAP" onchange="handleTimeTypeChange()"> 立即
+                                        </label>
+                                        <label id="label-specific">
+                                            <input type="radio" name="timeType" value="SPECIFIC" onchange="handleTimeTypeChange()"> 指定預約時間
+                                        </label>
+                                    </div>
+
+                                    <div style="display: flex; gap: 6px; align-items: center; flex: 1; min-width: 180px;">
+                                        <input type="text" id="promo-code-input" placeholder="輸入優惠碼" class="table-input" style="margin-top: 0; flex: 1; min-width: 0; padding: 10px 12px;">
+                                        <button type="button" class="add-btn" style="background:#ea580c; padding: 11px 16px; border-radius:8px; border:none; color:white; font-weight:bold; cursor:pointer; white-space: nowrap; flex-shrink: 0;" onclick="applyPromoCode()">套用</button>
+                                    </div>
                                 </div>
+                                <div id="promo-message" style="font-size:0.9em; margin-top:5px; font-weight:bold; text-align:right;"></div>
 
                                 <div id="specific-time-container" style="display:none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #cbd5e1;">
                                     <div style="font-weight:bold; color:#475569; margin-bottom:6px;">預約取餐日期：</div>
@@ -801,21 +809,17 @@ server.listen(PORT, '0.0.0.0', async () => {
                                 </div>
                             </div>
 
-                            <div id="contact-info-container" style="margin-top: 15px;">
-                                <input type="text" id="customer-name" placeholder="👉 請輸入您的姓名" class="table-input">
-                                <input type="tel" id="customer-phone" placeholder="👉 請輸入您的手機號碼" class="table-input" style="margin-top: 10px;">
+                            <div id="contact-info-container" style="margin-top: 15px; display: flex; gap: 10px;">
+                                <input type="text" id="customer-name" placeholder="👉 姓名" class="table-input" style="margin-top: 0; flex: 1;">
+                                <input type="tel" id="customer-phone" placeholder="👉 手機" class="table-input" style="margin-top: 0; flex: 1;">
                             </div>
 
-                            <h3 style="margin-top:20px;">🎟️ 優惠碼</h3>
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <input type="text" id="promo-code-input" placeholder="輸入優惠碼" class="table-input" style="margin-top: 0; flex: 1;">
-                                <button type="button" class="add-btn" style="background:#ea580c; padding: 12px 18px; border-radius:8px; border:none; color:white; font-weight:bold; cursor:pointer;" onclick="applyPromoCode()">套用</button>
-                            </div>
-                            <div id="promo-message" style="font-size:0.9em; margin-top:5px; font-weight:bold;"></div>
-
-                            <div id="cutlery-container" style="margin-top: 15px;">
+                            <div id="cutlery-container" style="margin-top: 15px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
                                 <label style="font-size: 1.1em; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; color: #334155;">
-                                    <input type="checkbox" id="need-cutlery" checked style="width: 20px; height: 20px;"> 提供餐具與吸管
+                                    <input type="checkbox" id="need-cutlery" checked style="width: 20px; height: 20px;"> 提供餐具
+                                </label>
+                                <label style="font-size: 1.1em; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; color: #334155;">
+                                    <input type="checkbox" id="need-straw" checked style="width: 20px; height: 20px;"> 提供吸管
                                 </label>
                             </div>
 
@@ -1701,7 +1705,18 @@ h1, h2 { text-align: center; color: #2c3e50; margin-top: 15px; }
 .fab-chat { background: #6366f1; }
 .fab-ticket { background: #10b981; display: none; }
 .fab-badge { position: absolute; top: -4px; right: -4px; background: #ef4444; color: white; border-radius: 50%; width: 24px; height: 24px; font-size: 0.75em; display: flex; justify-content: center; align-items: center; font-weight: 900; border: 2px solid #fff; }
+@keyframes fabChatPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.5); }
+  50% { transform: scale(1.1); box-shadow: 0 0 20px 6px rgba(239, 68, 68, 0.85); }
+}
+.fab-chat.has-unread {
+  background: #ef4444 !important;
+  animation: fabChatPulse 1.2s infinite;
+}
 /* ---------------------------------------- [懸浮操作按鈕 FAB] 結束 ---------------------------------------- */
+
+
+
 
 
 /* ---------------------------------------- [客服對話視窗 Modal] 開始 ---------------------------------------- */
@@ -2172,6 +2187,45 @@ body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-
 /* ---------------------------------------- [系統管理介面樣式] 結束 ---------------------------------------- */
 
 
+/* ---------------------------------------- [POS端客服聊天介面樣式] 開始 ---------------------------------------- */
+.chat-header-pos { background: #1e293b; color: white; padding: 18px 20px; font-weight: 800; font-size: 1.3em; }
+.chat-body-pos { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; background: #f0f2f5; }
+.chat-row { display: flex; width: 100%; align-items: flex-end; gap: 8px; }
+.chat-row.owner-side { justify-content: flex-end; }
+.chat-row.customer-side { justify-content: flex-start; }
+.chat-bubble { max-width: 72%; padding: 12px 16px; border-radius: 18px; line-height: 1.45; word-break: break-word; font-size: 1.1em; font-weight: 600; }
+.chat-bubble.owner { background: #3b82f6; color: #ffffff; border-bottom-right-radius: 3px; }
+.chat-bubble.customer { background: #ffffff; color: #1e293b; border-bottom-left-radius: 3px; border: 1px solid #e2e8f0; }
+.chat-time { font-size: 0.8em; color: #64748b; white-space: nowrap; }
+.chat-footer-pos { display: flex; gap: 10px; align-items: center; border-top: 1px solid #e2e8f0; }
+.chat-input-pos { flex: 1; padding: 12px 18px; border: 2px solid #cbd5e1; border-radius: 25px; font-size: 1.1em; outline: none; font-family: inherit; }
+.chat-input-pos:focus { border-color: #3b82f6; }
+.chat-send-btn-pos { background: #3b82f6; color: #ffffff; border: none; padding: 12px 24px; border-radius: 25px; font-size: 1.1em; font-weight: 800; cursor: pointer; }
+/* ---------------------------------------- [POS端客服聊天介面樣式] 結束 ---------------------------------------- */
+
+
+/* ---------------------------------------- [未讀訊息閃爍提示樣式] 開始 ---------------------------------------- */
+@keyframes pulseAlert {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  50% { transform: scale(1.06); box-shadow: 0 0 12px 4px rgba(239, 68, 68, 0.85); }
+}
+.tool-btn.has-unread {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #fca5a5 !important;
+  animation: pulseAlert 1.2s infinite;
+}
+.tool-btn.has-unread .notify-badge {
+  display: flex !important;
+  background: #facc15 !important;
+  color: #0f172a !important;
+  width: 24px;
+  height: 24px;
+  font-size: 0.85em;
+}
+/* ---------------------------------------- [未讀訊息閃爍提示樣式] 結束 ---------------------------------------- */
+
+
 
 ==================== [C:\Users\admin\Desktop\練習\MyPOS\pos-v1.1\public\js\index\order-app.js] ====================
 // ---------------------------------------- [全域常數與狀態變數] 開始 ----------------------------------------
@@ -2390,7 +2444,6 @@ window.updateCart = function(cartKey, delta) {
 
 
 // ---------------------------------------- [更新購物車介面與金額計算] 開始 ----------------------------------------
-// 輔助函式：依照 Excel 格式輸出單行 ● 客製（無主餐/副餐/飲料字樣則省略標題）
 function categorizeCustomerOrderSections(item) {
     const nameLines = (item.name || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
     const comboTitle = nameLines[0] || '';
@@ -2403,7 +2456,7 @@ function categorizeCustomerOrderSections(item) {
     if (subItems.length > 0) {
         let foundDrink = false;
         subItems.forEach(line => {
-            let isDrink = line.includes('飲') || line.includes('茶') || line.includes('咖啡') || line.includes('豆漿');
+            let isDrink = line.includes('飲') || line.includes('茶') || line.includes('咖啡') || line.includes('豆漿') || line.includes('拿鐵') || line.includes('冬瓜');
             if (isDrink && !foundDrink) {
                 drinkItemName = line;
                 foundDrink = true;
@@ -2427,7 +2480,7 @@ function categorizeCustomerOrderSections(item) {
     const opts = item.structuredOptions || [];
     opts.forEach(opt => {
         const title = opt.groupTitle || '';
-        let extraText = opt.price > 0 ? ` +${opt.price}` : '';
+        let extraText = opt.price > 0 ? `+${opt.price}` : '';
         let displayMod = `${opt.name}${extraText}`;
 
         if (title.includes('主餐')) {
@@ -2457,37 +2510,24 @@ function categorizeCustomerOrderSections(item) {
         }
     });
 
-    let mainLine = '';
-    if (mainItemName) {
-        mainLine = mainItemName + (mainModifiers.length > 0 ? '●' + mainModifiers.join('●') : '');
-    }
-
-    let drinkLine = '';
-    if (drinkItemName) {
-        let drinkPriceText = drinkPriceAdd > 0 ? ` +${drinkPriceAdd}` : '';
-        drinkLine = drinkItemName + drinkPriceText + (drinkModifiers.length > 0 ? '●' + drinkModifiers.join('●') : '');
-    }
-
-    let sideLines = [];
+    let sideList = [];
     let maxSideCount = Math.max(rawSideItems.length, Object.keys(sideGroupsMap).length);
     for (let i = 1; i <= maxSideCount; i++) {
         let name = rawSideItems[i - 1] || (Object.keys(sideGroupsMap).length > 1 ? `副餐${i}` : '副餐');
         let mods = sideGroupsMap[i] || [];
-        let sLine = name + (mods.length > 0 ? '●' + mods.join('●') : '');
-        sideLines.push(sLine);
-    }
-
-    let addonLine = '';
-    if (extraAddons.length > 0) {
-        addonLine = '加購●' + extraAddons.join('●');
+        sideList.push({ name, mods });
     }
 
     return {
+        isCombo: subItems.length > 0,
         comboTitle: subItems.length > 0 ? comboTitle : '',
-        mainLine,
-        drinkLine,
-        sideLines,
-        addonLine,
+        mainItemName,
+        mainModifiers,
+        drinkItemName,
+        drinkPriceAdd,
+        drinkModifiers,
+        sideList,
+        extraAddons,
         note: item.note || ''
     };
 }
@@ -2528,33 +2568,60 @@ window.updateCartUI = function() {
         subtotal += itemTotal;
         
         const sec = categorizeCustomerOrderSections(item);
-
         let lines = [];
-        if (sec.comboTitle) lines.push(`<div style="font-size:1.15em; font-weight:900; color:#0f172a;">${sec.comboTitle}</div>`);
-        if (sec.mainLine) lines.push(`<div style="font-size:0.95em; font-weight:700; color:#1e293b;">${sec.mainLine}</div>`);
-        if (sec.drinkLine) lines.push(`<div style="font-size:0.95em; font-weight:700; color:#1e293b;">${sec.drinkLine}</div>`);
-        if (sec.sideLines && sec.sideLines.length > 0) {
-            sec.sideLines.forEach(s => lines.push(`<div style="font-size:0.95em; font-weight:700; color:#1e293b;">${s}</div>`));
+
+        if (sec.isCombo) {
+            lines.push(`<div style="font-size:1.15em; font-weight:900; color:#0f172a; margin-bottom:4px;">${sec.comboTitle}</div>`);
+            if (sec.mainItemName) {
+                lines.push(`<div style="font-size:0.95em; font-weight:800; color:#1e293b; padding-left:6px;">▸ ${sec.mainItemName}</div>`);
+                if (sec.mainModifiers.length > 0) {
+                    lines.push(`<div style="font-size:0.88em; font-weight:700; color:#475569; padding-left:20px; margin-bottom:2px;">└ ${sec.mainModifiers.join(' / ')}</div>`);
+                }
+            }
+        } else {
+            lines.push(`<div style="font-size:1.1em; font-weight:900; color:#0f172a; margin-bottom:2px;">${sec.mainItemName}</div>`);
+            if (sec.mainModifiers.length > 0) {
+                lines.push(`<div style="font-size:0.9em; font-weight:700; color:#475569; padding-left:12px; margin-bottom:2px;">└ ${sec.mainModifiers.join(' / ')}</div>`);
+            }
         }
-        if (sec.addonLine) lines.push(`<div style="font-size:0.95em; font-weight:700; color:#ea580c;">${sec.addonLine}</div>`);
-        if (sec.note) lines.push(`<div style="font-size:0.88em; color:#0284c7; font-weight:bold; margin-top:2px;">備註：${sec.note}</div>`);
+
+        if (sec.drinkItemName) {
+            let drinkAdd = sec.drinkPriceAdd > 0 ? ` +${sec.drinkPriceAdd}` : '';
+            lines.push(`<div style="font-size:0.95em; font-weight:800; color:#1e293b; padding-left:${sec.isCombo ? '6px' : '0'};">▸ ${sec.drinkItemName}${drinkAdd}</div>`);
+            if (sec.drinkModifiers.length > 0) {
+                lines.push(`<div style="font-size:0.88em; font-weight:700; color:#475569; padding-left:${sec.isCombo ? '20px' : '12px'}; margin-bottom:2px;">└ ${sec.drinkModifiers.join(' / ')}</div>`);
+            }
+        }
+
+        sec.sideList.forEach(s => {
+            lines.push(`<div style="font-size:0.95em; font-weight:800; color:#1e293b; padding-left:${sec.isCombo ? '6px' : '0'};">▸ ${s.name}</div>`);
+            if (s.mods.length > 0) {
+                lines.push(`<div style="font-size:0.88em; font-weight:700; color:#475569; padding-left:${sec.isCombo ? '20px' : '12px'}; margin-bottom:2px;">└ ${s.mods.join(' / ')}</div>`);
+            }
+        });
+
+        if (sec.extraAddons.length > 0) {
+            lines.push(`<div style="font-size:0.9em; font-weight:800; color:#ea580c; margin-top:3px;">＋加購：${sec.extraAddons.join(' / ')}</div>`);
+        }
+
+        if (sec.note) {
+            lines.push(`<div style="font-size:0.88em; color:#0284c7; font-weight:bold; margin-top:4px;">※ 備註：${sec.note}</div>`);
+        }
 
         let blockHtml = lines.join('');
 
         cartDiv.innerHTML += `
-            <div class="cart-item" style="padding:12px; border-bottom:1px solid #e2e8f0;">
-                <div class="cart-item-main" style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <div style="flex:1; line-height:1.6; word-break:break-all;">
-                        ${blockHtml}
+            <div class="cart-item" style="padding:12px 4px; border-bottom:1px solid #e2e8f0;">
+                <div style="width:100%; line-height:1.55; word-break:break-word;">
+                    ${blockHtml}
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1px dashed #f1f5f9;">
+                    <div class="qty-control" style="display:flex; align-items:center; gap:8px;">
+                        <button class="qty-btn" onclick="updateCart('${cartKey}', -1)">-</button>
+                        <span class="qty-number" style="min-width:24px; text-align:center; font-weight:bold;">${item.qty}</span>
+                        <button class="qty-btn" onclick="updateCart('${cartKey}', 1)">+</button>
                     </div>
-                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px; margin-left:12px; flex-shrink:0;">
-                        <div class="qty-control" style="display:flex; align-items:center; gap:6px;">
-                            <button class="qty-btn" onclick="updateCart('${cartKey}', -1)">-</button>
-                            <span class="qty-number" style="min-width:20px; text-align:center; font-weight:bold;">${item.qty}</span>
-                            <button class="qty-btn" onclick="updateCart('${cartKey}', 1)">+</button>
-                        </div>
-                        <div style="font-weight: 900; font-size: 1.15em; color:#ea580c; text-align:right;">$${itemTotal}</div>
-                    </div>
+                    <div style="font-weight: 900; font-size: 1.2em; color:#ea580c;">$${itemTotal}</div>
                 </div>
             </div>`;
     }
@@ -2722,16 +2789,34 @@ window.submitOrder = function() {
         subtotal += itemTotal;
 
         const sec = categorizeCustomerOrderSections(item);
-        let headerName = sec.comboTitle || sec.mainLine;
+        let headerName = sec.isCombo ? sec.comboTitle : sec.mainItemName;
         details += `${item.qty}x ${headerName} ::: $${itemTotal}${nl}`;
 
-        if (sec.comboTitle && sec.mainLine) details += `  ${sec.mainLine}${nl}`;
-        if (sec.drinkLine) details += `  ${sec.drinkLine}${nl}`;
-        if (sec.sideLines && sec.sideLines.length > 0) {
-            sec.sideLines.forEach(s => details += `  ${s}${nl}`);
+        if (sec.isCombo) {
+            if (sec.mainItemName) {
+                details += `  ▸ ${sec.mainItemName}${nl}`;
+                if (sec.mainModifiers.length > 0) details += `    └ ${sec.mainModifiers.join(' / ')}${nl}`;
+            }
+        } else {
+            if (sec.mainModifiers.length > 0) details += `  └ ${sec.mainModifiers.join(' / ')}${nl}`;
         }
-        if (sec.addonLine) details += `  ${sec.addonLine}${nl}`;
-        if (sec.note) details += `  備註：${sec.note}${nl}`;
+
+        if (sec.drinkItemName) {
+            let drinkAdd = sec.drinkPriceAdd > 0 ? ` +${sec.drinkPriceAdd}` : '';
+            details += `  ▸ ${sec.drinkItemName}${drinkAdd}${nl}`;
+            if (sec.drinkModifiers.length > 0) details += `    └ ${sec.drinkModifiers.join(' / ')}${nl}`;
+        }
+
+        sec.sideList.forEach(s => {
+            details += `  ▸ ${s.name}${nl}`;
+            if (s.mods.length > 0) details += `    └ ${s.mods.join(' / ')}${nl}`;
+        });
+
+        if (sec.extraAddons.length > 0) {
+            details += `  ＋加購：${sec.extraAddons.join(' / ')}${nl}`;
+        }
+
+        if (sec.note) details += `  ※ 備註：${sec.note}${nl}`;
     }
     details += `----------------------${nl}`;
     details += `小計 ::: $${subtotal}${nl}`;
@@ -2740,13 +2825,14 @@ window.submitOrder = function() {
     if (appliedPromo && subtotal > 0) {
         let discountAmt = appliedPromo.type === 'discount' ? Math.round(subtotal * (1 - appliedPromo.rate)) : Math.min(subtotal, appliedPromo.amount);
         finalTotal = Math.max(0, subtotal - discountAmt);
-        details += `🎟️ 優惠折抵 ::: -$${discountAmt}${nl}`;
+        details += `優惠折抵 ::: -$${discountAmt}${nl}`;
         details += `----------------------${nl}`;
     }
     details += `總額 ::: $${finalTotal}${nl}`;
 
     const needCutlery = document.getElementById("need-cutlery").checked ? "提供餐具" : "不提供餐具";
-    details += `🍴 ${needCutlery}${nl}`;
+    const needStraw = document.getElementById("need-straw").checked ? "提供吸管" : "不提供吸管";
+    details += `🍴 ${needCutlery} / 🥤 ${needStraw}${nl}`;
 
     const notes = document.getElementById("order-notes").value.trim();
     if (notes) details += `📝 全單備註：${notes}${nl}`;
@@ -2808,6 +2894,23 @@ window.submitOrder = function() {
 
 ==================== [C:\Users\admin\Desktop\練習\MyPOS\pos-v1.1\public\js\index\order-chat.js] ====================
 // ---------------------------------------- [顧客端客服系統] 開始 ----------------------------------------
+function parseChatDateAndTime(rawTime) {
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
+    const nowTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    if (!rawTime) return { date: todayStr, time: nowTimeStr };
+
+    const str = String(rawTime).trim();
+    const parts = str.split(/\s+/);
+    if (parts.length >= 2) {
+        let d = parts[0];
+        if (/^\d{1,2}\/\d{1,2}$/.test(d)) d = `${now.getFullYear()}/${d}`;
+        let t = parts[1].slice(0, 5);
+        return { date: d, time: t };
+    }
+    return { date: todayStr, time: str.slice(0, 5) };
+}
+
 // 1. 開啟客服對話視窗
 window.openChat = function() {
     const modal = document.getElementById("chat-modal");
@@ -2817,8 +2920,11 @@ window.openChat = function() {
     isChatOpen = true;
 
     // 清除右上角新訊息紅點提示
-    const badge = document.getElementById("fab-badge");
-    if (badge) badge.style.display = "none";
+    // 清除右上角新訊息紅點與閃爍提示
+  const badge = document.getElementById("fab-badge");
+  const chatFab = document.querySelector(".fab-chat");
+  if (badge) badge.style.display = "none";
+  if (chatFab) chatFab.classList.remove("has-unread");
 
     const savedPhone = localStorage.getItem('chatCustomerPhone') || localStorage.getItem('savedCustomerPhone') || "";
     const savedName = localStorage.getItem('chatCustomerName') || localStorage.getItem('savedCustomerName') || "";
@@ -2888,18 +2994,49 @@ window.loadMsgs = function(showBadge = true) {
                 const msgs = data.messages;
                 const msgBox = document.getElementById("chat-messages-area");
 
-                if (msgs.length > lastMsgCount && !isChatOpen && showBadge) {
-                    const badge = document.getElementById("fab-badge");
-                    if (badge) badge.style.display = "flex";
+		const ownerMsgsCount = msgs.filter(m => m.sender === 'owner').length;
+                const savedReadOwnerCount = parseInt(localStorage.getItem('chatReadOwnerCount') || '-1', 10);
+                const chatFab = document.querySelector(".fab-chat");
+                const badge = document.getElementById("fab-badge");
+
+                if (isChatOpen) {
+                    localStorage.setItem('chatReadOwnerCount', String(ownerMsgsCount));
+                    if (badge) badge.style.display = "none";
+                    if (chatFab) chatFab.classList.remove("has-unread");
+                } else {
+                    const baseCount = savedReadOwnerCount === -1 ? (showBadge ? lastMsgCount : ownerMsgsCount) : savedReadOwnerCount;
+                    const unread = Math.max(0, ownerMsgsCount - baseCount);
+                    if (unread > 0) {
+                        if (badge) {
+                            badge.innerText = unread > 99 ? '99+' : unread;
+                            badge.style.display = "flex";
+                        }
+                        if (chatFab) chatFab.classList.add("has-unread");
+                    }
                 }
 
                 if (isChatOpen && msgBox) {
                     let html = "";
+                    let lastDate = "";
                     msgs.forEach(m => {
                         const isOwner = (m.sender === 'owner');
+                        const { date, time } = parseChatDateAndTime(m.time || m.timestamp || m.date);
+
+                        if (date !== lastDate) {
+                            lastDate = date;
+                            html += `
+                                <div style="display:flex; justify-content:center; margin:8px 0;">
+                                    <span style="background:rgba(15,23,42,0.12); color:#475569; font-size:0.8em; font-weight:bold; padding:4px 14px; border-radius:16px;">${date}</span>
+                                </div>
+                            `;
+                        }
+
                         html += `
                             <div class="chat-row ${isOwner ? 'owner-side' : 'customer-side'}">
-                                ${isOwner ? `<div class="chat-bubble owner">🏪 ${m.text || m.content}</div>` : `<div class="chat-bubble customer">${m.text || m.content}</div>`}
+                                ${isOwner 
+                                    ? `<div class="chat-bubble owner">🏪 ${m.text || m.content}</div><div style="font-size:0.75em; color:#64748b; white-space:nowrap;">${time}</div>` 
+                                    : `<div style="font-size:0.75em; color:#64748b; white-space:nowrap;">${time}</div><div class="chat-bubble customer">${m.text || m.content}</div>`
+                                }
                             </div>
                         `;
                     });
@@ -2921,13 +3058,22 @@ window.sendChatMsg = function() {
 
     const phone = localStorage.getItem('chatCustomerPhone') || localStorage.getItem('savedCustomerPhone') || "";
     const name = localStorage.getItem('chatCustomerName') || localStorage.getItem('savedCustomerName') || "客人";
+    const { date, time } = parseChatDateAndTime("");
 
     input.value = "";
 
     const msgBox = document.getElementById("chat-messages-area");
     if (msgBox) {
+        if (!msgBox.innerHTML.includes(`>${date}</span>`)) {
+            msgBox.innerHTML += `
+                <div style="display:flex; justify-content:center; margin:8px 0;">
+                    <span style="background:rgba(15,23,42,0.12); color:#475569; font-size:0.8em; font-weight:bold; padding:4px 14px; border-radius:16px;">${date}</span>
+                </div>
+            `;
+        }
         msgBox.innerHTML += `
             <div class="chat-row customer-side">
+                <div style="font-size:0.75em; color:#64748b; white-space:nowrap;">${time}</div>
                 <div class="chat-bubble customer">${text}</div>
             </div>
         `;
@@ -4798,6 +4944,7 @@ export function switchMainView(viewName) {
     if (mainWrapper) mainWrapper.style.width = '100%';
     const chatEl = document.getElementById('chat-main-container');
     if (chatEl) chatEl.style.display = 'flex';
+    resetChatSelection();
     renderChatList();
   }
 }
@@ -5067,6 +5214,63 @@ window.syncMenuFromSheets = async () => {
 
 
 // ---------------------------------------- [客服訊息處理與渲染] 開始 ----------------------------------------
+let posReadCountsMap = JSON.parse(localStorage.getItem('posReadCountsMap') || 'null');
+
+function savePosReadCountsMap() {
+  if (posReadCountsMap) {
+    localStorage.setItem('posReadCountsMap', JSON.stringify(posReadCountsMap));
+  }
+}
+
+function parsePosChatDateAndTime(rawTime) {
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
+  const nowTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  if (!rawTime) return { date: todayStr, time: nowTimeStr };
+
+  const str = String(rawTime).trim();
+  const parts = str.split(/\s+/);
+  if (parts.length >= 2) {
+    let d = parts[0];
+    if (/^\d{1,2}\/\d{1,2}$/.test(d)) d = `${now.getFullYear()}/${d}`;
+    let t = parts[1].slice(0, 5);
+    return { date: d, time: t };
+  }
+  return { date: todayStr, time: str.slice(0, 5) };
+}
+
+function updatePosChatUnreadBadge() {
+  const chatBtn = document.getElementById('btn-nav-chat');
+  const chatBadge = document.getElementById('chat-badge');
+  if (!chatBtn || !chatBadge) return;
+
+  let totalUnread = 0;
+  Object.keys(state.chatGroups || {}).forEach(k => {
+    const custCount = state.chatGroups[k].messages.filter(m => m.sender !== 'owner').length;
+    const readCount = (posReadCountsMap && posReadCountsMap[k] !== undefined) ? posReadCountsMap[k] : 0;
+    totalUnread += Math.max(0, custCount - readCount);
+  });
+
+  if (totalUnread > 0) {
+    chatBtn.classList.add('has-unread');
+    chatBadge.innerText = totalUnread > 99 ? '99+' : totalUnread;
+    chatBadge.style.display = 'flex';
+  } else {
+    chatBtn.classList.remove('has-unread');
+    chatBadge.style.display = 'none';
+  }
+}
+
+export function resetChatSelection() {
+  state.currentChatPhone = null;
+  const titleEl = document.getElementById('chat-customer-title');
+  const historyBox = document.getElementById('chat-history-box');
+  const inputBox = document.getElementById('chat-input-box');
+  if (titleEl) titleEl.innerText = '💬 請從左側選擇一位客人開始對話';
+  if (historyBox) historyBox.innerHTML = '<div class="empty-state" style="margin-top: 150px;">等待選擇對話...</div>';
+  if (inputBox) inputBox.style.display = 'none';
+}
+
 export function processMessages(messages) {
   state.allMessages = messages || [];
   state.chatGroups = {};
@@ -5095,7 +5299,24 @@ export function processMessages(messages) {
     });
   });
 
+  if (posReadCountsMap === null) {
+    posReadCountsMap = {};
+    Object.keys(state.chatGroups).forEach(k => {
+      posReadCountsMap[k] = state.chatGroups[k].messages.filter(m => m.sender !== 'owner').length;
+    });
+    savePosReadCountsMap();
+  }
+
+  if (state.currentView === 'chat' && state.currentChatPhone && state.chatGroups[state.currentChatPhone]) {
+    posReadCountsMap[state.currentChatPhone] = state.chatGroups[state.currentChatPhone].messages.filter(m => m.sender !== 'owner').length;
+    savePosReadCountsMap();
+  }
+
+  updatePosChatUnreadBadge();
   renderChatList();
+  if (state.currentView === 'chat' && state.currentChatPhone && state.chatGroups[state.currentChatPhone]) {
+    selectChatCustomer(state.currentChatPhone);
+  }
 }
 
 export function renderChatList() {
@@ -5112,20 +5333,44 @@ export function renderChatList() {
   keys.forEach(k => {
     const group = state.chatGroups[k];
     const lastMsg = group.messages[group.messages.length - 1];
-    const isSelected = (state.currentChatPhone === k) ? 'border-left: 5px solid #3b82f6; background:#eff6ff;' : 'background:#fff;';
+    const custCount = group.messages.filter(m => m.sender !== 'owner').length;
+    const readCount = (posReadCountsMap && posReadCountsMap[k] !== undefined) ? posReadCountsMap[k] : 0;
+    const unread = (state.currentView === 'chat' && state.currentChatPhone === k) ? 0 : Math.max(0, custCount - readCount);
+
+    let cardStyle = 'background:#fff; border: 1px solid #e2e8f0;';
+    if (state.currentChatPhone === k) {
+      cardStyle = 'border: 1px solid #bfdbfe; border-left: 5px solid #3b82f6; background:#eff6ff;';
+    } else if (unread > 0) {
+      cardStyle = 'border: 2px solid #fca5a5; border-left: 5px solid #ef4444; background:#fef2f2;';
+    }
+
+    let senderPrefix = '';
+    if (lastMsg) {
+      const isOwner = (lastMsg.sender === 'owner' || lastMsg['傳送者'] === 'owner');
+      senderPrefix = isOwner ? '店家：' : `${group.name}：`;
+    }
+
+    const unreadBadgeHtml = unread > 0
+      ? `<span style="background:#ef4444; color:#fff; font-size:0.75em; font-weight:900; padding:2px 8px; border-radius:12px; flex-shrink:0;">未讀 ${unread}</span>`
+      : '';
 
     const card = document.createElement('div');
-    card.style.cssText = `padding: 14px; border-radius: 10px; margin-bottom: 8px; cursor: pointer; border: 1px solid #e2e8f0; transition: 0.15s; ${isSelected}`;
+    card.style.cssText = `padding: 14px; border-radius: 10px; margin-bottom: 8px; cursor: pointer; transition: 0.15s; ${cardStyle}`;
     card.onclick = () => selectChatCustomer(k);
 
     card.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <strong style="font-size:1.15em; color:#1e293b;">${group.name}</strong>
-        <span style="font-size:0.75em; color:#94a3b8;">${lastMsg ? (lastMsg.time || '') : ''}</span>
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
+        <div style="display:flex; align-items:baseline; gap:8px; overflow:hidden; white-space:nowrap;">
+          <strong style="font-size:1.15em; color:#1e293b;">${group.name}</strong>
+          <span style="font-size:0.9em; color:#64748b; font-weight:bold;">📱 ${group.phone}</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+          ${unreadBadgeHtml}
+          <span style="font-size:0.75em; color:#94a3b8;">${lastMsg ? (lastMsg.time || '') : ''}</span>
+        </div>
       </div>
-      <div style="font-size:0.85em; color:#64748b; font-weight:bold; margin-bottom:4px;">📱 ${group.phone}</div>
-      <div style="font-size:0.9em; color:#475569; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-        ${lastMsg ? (lastMsg.text || '') : ''}
+      <div style="font-size:0.95em; color:#475569; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+        ${lastMsg ? `<span style="font-weight:bold; color:#334155;">${senderPrefix}</span>${lastMsg.text || ''}` : ''}
       </div>
     `;
     box.appendChild(card);
@@ -5134,10 +5379,15 @@ export function renderChatList() {
 
 export function selectChatCustomer(phoneKey) {
   state.currentChatPhone = phoneKey;
-  renderChatList();
 
   const group = state.chatGroups[phoneKey];
   if (!group) return;
+
+  if (!posReadCountsMap) posReadCountsMap = {};
+  posReadCountsMap[phoneKey] = group.messages.filter(m => m.sender !== 'owner').length;
+  savePosReadCountsMap();
+  updatePosChatUnreadBadge();
+  renderChatList();
 
   const titleEl = document.getElementById('chat-customer-title');
   const historyBox = document.getElementById('chat-history-box');
@@ -5148,10 +5398,19 @@ export function selectChatCustomer(phoneKey) {
 
   if (historyBox) {
     historyBox.innerHTML = '';
+    let lastDate = '';
     group.messages.forEach(m => {
       const isOwner = (m.sender === 'owner' || m['傳送者'] === 'owner');
       const text = m.text || '';
-      const time = m.time || '';
+      const { date, time } = parsePosChatDateAndTime(m.time);
+
+      if (date !== lastDate) {
+        lastDate = date;
+        const dateDiv = document.createElement('div');
+        dateDiv.style.cssText = 'display:flex; justify-content:center; margin:8px 0;';
+        dateDiv.innerHTML = `<span style="background:rgba(15,23,42,0.12); color:#475569; font-size:0.85em; font-weight:bold; padding:4px 14px; border-radius:16px;">${date}</span>`;
+        historyBox.appendChild(dateDiv);
+      }
 
       const row = document.createElement('div');
       row.className = `chat-row ${isOwner ? 'owner-side' : 'customer-side'}`;
@@ -5159,12 +5418,11 @@ export function selectChatCustomer(phoneKey) {
       if (isOwner) {
         row.innerHTML = `
           <div class="chat-time">${time}</div>
-          <div class="chat-bubble owner">${text}</div>
+          <div class="chat-bubble owner">🏪 ${text}</div>
         `;
       } else {
         row.innerHTML = `
-          <div style="width:34px; height:34px; border-radius:50%; background:#e2e8f0; display:flex; align-items:center; justify-content:center; font-size:1.1em; flex-shrink:0;">👤</div>
-          <div class="chat-bubble customer">${text}</div>
+          <div class="chat-bubble customer">👤 ${text}</div>
           <div class="chat-time">${time}</div>
         `;
       }
@@ -5181,12 +5439,13 @@ export async function sendOwnerMsg() {
   if (!msgText) return;
 
   const group = state.chatGroups[state.currentChatPhone];
+  const { date, time } = parsePosChatDateAndTime('');
   const newMsg = {
     customerName: group ? group.name : '客人',
     customerPhone: state.currentChatPhone,
     sender: 'owner',
     text: msgText,
-    time: utils.getFormattedTime()
+    time: `${date} ${time}`
   };
 
   if (!group.messages) group.messages = [];
@@ -5218,7 +5477,7 @@ window.renderOrderDetailsHtml = function(detailsText) {
   if (!detailsText) return '<div class="empty-state">無餐點項目</div>';
 
   let lines = detailsText.split(/\r?\n/);
-  let html = '<div class="detail-list-wrapper" style="display:flex; flex-direction:column; gap:8px;">';
+  let html = '<div class="detail-list-wrapper" style="display:flex; flex-direction:column; gap:6px;">';
 
   lines.forEach(line => {
     let t = line.trim();
@@ -5266,13 +5525,34 @@ window.renderOrderDetailsHtml = function(detailsText) {
       let nameStr = match ? match[2] : left;
 
       html += `
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; padding:4px 0;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; padding:6px 0 2px 0;">
           <div style="display:flex; align-items:center; gap:8px; flex:1;">
             <span style="font-size:1.1em; font-weight:900; color:#2563eb; background:#eff6ff; padding:2px 8px; border-radius:6px; min-width:36px; text-align:center;">${qtyStr || '1x'}</span>
-            <span style="font-size:1.25em; font-weight:800; color:#0f172a;">${nameStr}</span>
+            <span style="font-size:1.25em; font-weight:900; color:#0f172a;">${nameStr}</span>
           </div>
           <span style="font-size:1.3em; font-weight:900; color:#ea580c; flex-shrink:0; margin-left:15px;">${right}</span>
         </div>`;
+      return;
+    }
+
+    if (t.startsWith('▸')) {
+      html += `<div style="padding-left:44px; font-size:1.05em; font-weight:800; color:#1e293b;">${t}</div>`;
+      return;
+    }
+
+    if (t.startsWith('└')) {
+      const indent = line.startsWith('    ') ? '58px' : '44px';
+      html += `<div style="padding-left:${indent}; font-size:0.95em; font-weight:700; color:#475569;">${t}</div>`;
+      return;
+    }
+
+    if (t.startsWith('＋加購')) {
+      html += `<div style="padding-left:44px; font-size:0.95em; font-weight:800; color:#ea580c; margin-top:2px;">${t}</div>`;
+      return;
+    }
+
+    if (t.startsWith('※ 備註')) {
+      html += `<div style="padding-left:44px; font-size:0.95em; font-weight:bold; color:#0284c7; margin-top:2px;">${t}</div>`;
       return;
     }
 
@@ -5727,13 +6007,11 @@ window.applyPromoCode = applyPromoCode;
 
 
 // ---------------------------------------- [更新購物車介面UI] 開始 ----------------------------------------
-// 輔助函式：依照「主餐 -> 飲料 -> 各副餐 -> 加購 -> 備註」層次解析結構，產出 Excel 單行排版
 function categorizeOrderSections(item) {
   const nameLines = (item.name || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
   const comboTitle = nameLines[0] || '';
   const subItems = nameLines.slice(1);
 
-  // 1. 拆解套餐名稱子行：識別主餐、飲料、副餐
   let mainItemName = '';
   let drinkItemName = '';
   let rawSideItems = [];
@@ -5741,7 +6019,7 @@ function categorizeOrderSections(item) {
   if (subItems.length > 0) {
     let foundDrink = false;
     subItems.forEach(line => {
-      let isDrink = line.includes('飲') || line.includes('茶') || line.includes('咖啡') || line.includes('豆漿');
+      let isDrink = line.includes('飲') || line.includes('茶') || line.includes('咖啡') || line.includes('豆漿') || line.includes('拿鐵') || line.includes('冬瓜');
       if (isDrink && !foundDrink) {
         drinkItemName = line;
         foundDrink = true;
@@ -5756,7 +6034,6 @@ function categorizeOrderSections(item) {
     mainItemName = comboTitle;
   }
 
-  // 2. 依照標籤分類各項客製化
   let mainModifiers = [];
   let drinkModifiers = [];
   let drinkPriceAdd = 0;
@@ -5766,7 +6043,7 @@ function categorizeOrderSections(item) {
   const opts = item.structuredOptions || [];
   opts.forEach(opt => {
     const title = opt.groupTitle || '';
-    let extraText = opt.price > 0 ? ` +${opt.price}` : '';
+    let extraText = opt.price > 0 ? `+${opt.price}` : '';
     let displayMod = `${opt.name}${extraText}`;
 
     if (title.includes('主餐')) {
@@ -5785,7 +6062,6 @@ function categorizeOrderSections(item) {
       if (!sideGroupsMap[sideIdx]) sideGroupsMap[sideIdx] = [];
       sideGroupsMap[sideIdx].push(displayMod);
     } else {
-      // 若標題未包含特定名詞，依關鍵字容錯分類
       if (title.includes('口感') || title.includes('加料') || title.includes('熟度')) {
         mainModifiers.push(displayMod);
       } else if (title.includes('冰') || title.includes('糖')) {
@@ -5797,41 +6073,24 @@ function categorizeOrderSections(item) {
     }
   });
 
-  // 3. 組合主餐行：嫩煎雞腿蛋餅●焦一點●加起司 +10...
-  let mainLine = '';
-  if (mainItemName) {
-    mainLine = mainItemName + (mainModifiers.length > 0 ? '●' + mainModifiers.join('●') : '');
-  }
-
-  // 4. 組合飲料行：豆漿 +5●有糖●冰
-  let drinkLine = '';
-  if (drinkItemName) {
-    let drinkPriceText = drinkPriceAdd > 0 ? ` +${drinkPriceAdd}` : '';
-    drinkLine = drinkItemName + drinkPriceText + (drinkModifiers.length > 0 ? '●' + drinkModifiers.join('●') : '');
-  }
-
-  // 5. 組合副餐各行
-  let sideLines = [];
+  let sideList = [];
   let maxSideCount = Math.max(rawSideItems.length, Object.keys(sideGroupsMap).length);
   for (let i = 1; i <= maxSideCount; i++) {
     let name = rawSideItems[i - 1] || (Object.keys(sideGroupsMap).length > 1 ? `副餐${i}` : '副餐');
     let mods = sideGroupsMap[i] || [];
-    let sLine = name + (mods.length > 0 ? '●' + mods.join('●') : '');
-    sideLines.push(sLine);
-  }
-
-  // 6. 組合加購行：加購●熱狗 +16
-  let addonLine = '';
-  if (extraAddons.length > 0) {
-    addonLine = '加購●' + extraAddons.join('●');
+    sideList.push({ name, mods });
   }
 
   return {
+    isCombo: subItems.length > 0,
     comboTitle: subItems.length > 0 ? comboTitle : '',
-    mainLine,
-    drinkLine,
-    sideLines,
-    addonLine,
+    mainItemName,
+    mainModifiers,
+    drinkItemName,
+    drinkPriceAdd,
+    drinkModifiers,
+    sideList,
+    extraAddons,
     note: item.note || ''
   };
 }
@@ -5860,17 +6119,45 @@ export function updateCartUI() {
     subtotal += itemTotal;
 
     const sec = categorizeOrderSections(item);
-
-    // 依照 Excel 格式一行行輸出，不換行，每個選項前加●
     let lines = [];
-    if (sec.comboTitle) lines.push(`<div style="font-size:1.15em; font-weight:900; color:#0f172a;">${sec.comboTitle}</div>`);
-    if (sec.mainLine) lines.push(`<div style="font-size:0.95em; font-weight:700; color:#1e293b;">${sec.mainLine}</div>`);
-    if (sec.drinkLine) lines.push(`<div style="font-size:0.95em; font-weight:700; color:#1e293b;">${sec.drinkLine}</div>`);
-    if (sec.sideLines && sec.sideLines.length > 0) {
-      sec.sideLines.forEach(s => lines.push(`<div style="font-size:0.95em; font-weight:700; color:#1e293b;">${s}</div>`));
+
+    if (sec.isCombo) {
+      lines.push(`<div style="font-size:1.15em; font-weight:900; color:#0f172a; margin-bottom:4px;">${sec.comboTitle}</div>`);
+      if (sec.mainItemName) {
+        lines.push(`<div style="font-size:0.95em; font-weight:800; color:#1e293b; padding-left:6px;">▸ ${sec.mainItemName}</div>`);
+        if (sec.mainModifiers.length > 0) {
+          lines.push(`<div style="font-size:0.88em; font-weight:700; color:#475569; padding-left:20px; margin-bottom:2px;">└ ${sec.mainModifiers.join(' / ')}</div>`);
+        }
+      }
+    } else {
+      lines.push(`<div style="font-size:1.1em; font-weight:900; color:#0f172a; margin-bottom:2px;">${sec.mainItemName}</div>`);
+      if (sec.mainModifiers.length > 0) {
+        lines.push(`<div style="font-size:0.9em; font-weight:700; color:#475569; padding-left:12px; margin-bottom:2px;">└ ${sec.mainModifiers.join(' / ')}</div>`);
+      }
     }
-    if (sec.addonLine) lines.push(`<div style="font-size:0.95em; font-weight:700; color:#ea580c;">${sec.addonLine}</div>`);
-    if (sec.note) lines.push(`<div class="cart-item-note-text" style="font-size:0.88em; color:#0284c7; font-weight:bold; margin-top:2px;">備註：${sec.note}</div>`);
+
+    if (sec.drinkItemName) {
+      let drinkAdd = sec.drinkPriceAdd > 0 ? ` +${sec.drinkPriceAdd}` : '';
+      lines.push(`<div style="font-size:0.95em; font-weight:800; color:#1e293b; padding-left:${sec.isCombo ? '6px' : '0'};">▸ ${sec.drinkItemName}${drinkAdd}</div>`);
+      if (sec.drinkModifiers.length > 0) {
+        lines.push(`<div style="font-size:0.88em; font-weight:700; color:#475569; padding-left:${sec.isCombo ? '20px' : '12px'}; margin-bottom:2px;">└ ${sec.drinkModifiers.join(' / ')}</div>`);
+      }
+    }
+
+    sec.sideList.forEach(s => {
+      lines.push(`<div style="font-size:0.95em; font-weight:800; color:#1e293b; padding-left:${sec.isCombo ? '6px' : '0'};">▸ ${s.name}</div>`);
+      if (s.mods.length > 0) {
+        lines.push(`<div style="font-size:0.88em; font-weight:700; color:#475569; padding-left:${sec.isCombo ? '20px' : '12px'}; margin-bottom:2px;">└ ${s.mods.join(' / ')}</div>`);
+      }
+    });
+
+    if (sec.extraAddons.length > 0) {
+      lines.push(`<div style="font-size:0.9em; font-weight:800; color:#ea580c; margin-top:3px;">＋加購：${sec.extraAddons.join(' / ')}</div>`);
+    }
+
+    if (sec.note) {
+      lines.push(`<div style="font-size:0.88em; color:#0284c7; font-weight:bold; margin-top:3px;">※ 備註：${sec.note}</div>`);
+    }
 
     let orderBlockHtml = lines.join('');
 
@@ -5885,7 +6172,7 @@ export function updateCartUI() {
     cartDiv.innerHTML += `
       <div class="cart-item-row" style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px; margin-bottom:10px;">
         <div class="cart-item-main" style="display:flex; justify-content:space-between; align-items:flex-start;">
-          <div style="flex:1; line-height:1.6; word-break:break-all;">
+          <div style="flex:1; line-height:1.55; word-break:break-word;">
             ${orderBlockHtml}
           </div>
           <div style="display: flex; flex-direction:column; align-items: flex-end; gap: 8px; flex-shrink:0; margin-left:12px;">
@@ -5928,7 +6215,7 @@ export function updateCartUI() {
     name: i.name.split('\n')[0],
     qty: i.qty,
     price: i.isComp ? 0 : i.price,
-    options: (i.structuredOptions || []).map(o => o.name).join(' ● '),
+    options: (i.structuredOptions || []).map(o => o.name).join(' / '),
     note: i.note || ''
   }));
   cartBroadcast.postMessage({
@@ -6206,21 +6493,37 @@ function buildOrderDetailsPayload() {
     let itemTotal = effectivePrice * item.qty;
     subtotal += itemTotal;
 
-    let compTag = item.isComp ? " (🎁招待)" : "";
+    let compTag = item.isComp ? " (招待)" : "";
     const sec = categorizeOrderSections(item);
 
-    // 套餐單號行
-    let headerName = sec.comboTitle || sec.mainLine;
+    let headerName = sec.isCombo ? sec.comboTitle : sec.mainItemName;
     details += `${item.qty}x ${headerName}${compTag} ::: $${itemTotal}${nl}`;
 
-    // 依序輸出主餐、飲料、副餐、加購、備註（Excel 一行化排版）
-    if (sec.comboTitle && sec.mainLine) details += `  ${sec.mainLine}${nl}`;
-    if (sec.drinkLine) details += `  ${sec.drinkLine}${nl}`;
-    if (sec.sideLines && sec.sideLines.length > 0) {
-      sec.sideLines.forEach(s => details += `  ${s}${nl}`);
+    if (sec.isCombo) {
+      if (sec.mainItemName) {
+        details += `  ▸ ${sec.mainItemName}${nl}`;
+        if (sec.mainModifiers.length > 0) details += `    └ ${sec.mainModifiers.join(' / ')}${nl}`;
+      }
+    } else {
+      if (sec.mainModifiers.length > 0) details += `  └ ${sec.mainModifiers.join(' / ')}${nl}`;
     }
-    if (sec.addonLine) details += `  ${sec.addonLine}${nl}`;
-    if (sec.note) details += `  備註：${sec.note}${nl}`;
+
+    if (sec.drinkItemName) {
+      let drinkAdd = sec.drinkPriceAdd > 0 ? ` +${sec.drinkPriceAdd}` : '';
+      details += `  ▸ ${sec.drinkItemName}${drinkAdd}${nl}`;
+      if (sec.drinkModifiers.length > 0) details += `    └ ${sec.drinkModifiers.join(' / ')}${nl}`;
+    }
+
+    sec.sideList.forEach(s => {
+      details += `  ▸ ${s.name}${nl}`;
+      if (s.mods.length > 0) details += `    └ ${s.mods.join(' / ')}${nl}`;
+    });
+
+    if (sec.extraAddons.length > 0) {
+      details += `  ＋加購：${sec.extraAddons.join(' / ')}${nl}`;
+    }
+
+    if (sec.note) details += `  ※ 備註：${sec.note}${nl}`;
   }
 
   details += `----------------------${nl}`;
@@ -6235,7 +6538,7 @@ function buildOrderDetailsPayload() {
       discountAmt = Math.min(subtotal, state.appliedPromo.amount);
     }
     finalTotal = Math.max(0, subtotal - discountAmt);
-    details += `🎟️ 優惠折抵 (${state.appliedPromo.code}) ::: -$${discountAmt}${nl}`;
+    details += `優惠折抵 (${state.appliedPromo.code}) ::: -$${discountAmt}${nl}`;
     details += `----------------------${nl}`;
   }
 

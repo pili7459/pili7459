@@ -467,22 +467,20 @@ export function updateCartUI() {
 
     cartDiv.innerHTML += `
       <div class="cart-item-row" style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px; margin-bottom:10px;">
-        <div class="cart-item-main" style="display:flex; justify-content:space-between; align-items:flex-start;">
-          <div style="flex:1; line-height:1.55; word-break:break-word;">
-            ${orderBlockHtml}
-          </div>
-          <div style="display: flex; flex-direction:column; align-items: flex-end; gap: 8px; flex-shrink:0; margin-left:12px;">
-            <button type="button" onclick="toggleItemComp('${cartKey}')" title="0.5秒內連點兩下切換招待" style="background:${compBtnBg}; color:${compBtnColor}; border:${compBorder}; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:0.8em; cursor:pointer;">
-              ${item.isComp ? '🎁 招待中' : '🎁 招待'}
-            </button>
-            <div style="display:flex; align-items:center; gap:10px;">
-              <div class="qty-control" style="display:flex; align-items:center; gap:6px;">
-                <button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '', ${item.price}, '', -1)">-</button>
-                <span class="qty-number" style="font-weight:bold; min-width:20px; text-align:center;">${item.qty}</span>
-                <button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '', ${item.price}, '', 1)">+</button>
-              </div>
-              <div style="font-weight: 900; font-size: 1.2em; color:#ea580c; text-align: right;">${priceDisplay}</div>
+        <div style="width:100%; line-height:1.55; word-break:break-word;">
+          ${orderBlockHtml}
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1px dashed #e2e8f0;">
+          <button type="button" onclick="toggleItemComp('${cartKey}')" title="0.5秒內連點兩下切換招待" style="background:${compBtnBg}; color:${compBtnColor}; border:${compBorder}; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:0.8em; cursor:pointer;">
+            ${item.isComp ? '🎁 招待中' : '🎁 招待'}
+          </button>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div class="qty-control" style="display:flex; align-items:center; gap:6px;">
+              <button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '', ${item.price}, '', -1)">-</button>
+              <span class="qty-number" style="font-weight:bold; min-width:20px; text-align:center;">${item.qty}</span>
+              <button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '', ${item.price}, '', 1)">+</button>
             </div>
+            <div style="font-weight: 900; font-size: 1.2em; color:#ea580c; text-align: right; min-width: 55px;">${priceDisplay}</div>
           </div>
         </div>
       </div>`;
