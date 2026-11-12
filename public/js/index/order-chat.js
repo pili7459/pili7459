@@ -1,4 +1,21 @@
 // ---------------------------------------- [顧客端客服系統] 開始 ----------------------------------------
+function parseChatDateAndTime(rawTime) {
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
+    const nowTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    if (!rawTime) return { date: todayStr, time: nowTimeStr };
+
+    const str = String(rawTime).trim();
+    const parts = str.split(/\s+/);
+    if (parts.length >= 2) {
+        let d = parts[0];
+        if (/^\d{1,2}\/\d{1,2}$/.test(d)) d = `${now.getFullYear()}/${d}`;
+        let t = parts[1].slice(0, 5);
+        return { date: d, time: t };
+    }
+    return { date: todayStr, time: str.slice(0, 5) };
+}
+
 // 1. 開啟客服對話視窗
 window.openChat = function() {
     const modal = document.getElementById("chat-modal");
@@ -8,8 +25,11 @@ window.openChat = function() {
     isChatOpen = true;
 
     // 清除右上角新訊息紅點提示
-    const badge = document.getElementById("fab-badge");
-    if (badge) badge.style.display = "none";
+    // 清除右上角新訊息紅點與閃爍提示
+  const badge = document.getElementById("fab-badge");
+  const chatFab = document.querySelector(".fab-chat");
+  if (badge) badge.style.display = "none";
+  if (chatFab) chatFab.classList.remove("has-unread");
 
     const savedPhone = localStorage.getItem('chatCustomerPhone') || localStorage.getItem('savedCustomerPhone') || "";
     const savedName = localStorage.getItem('chatCustomerName') || localStorage.getItem('savedCustomerName') || "";
@@ -79,18 +99,49 @@ window.loadMsgs = function(showBadge = true) {
                 const msgs = data.messages;
                 const msgBox = document.getElementById("chat-messages-area");
 
-                if (msgs.length > lastMsgCount && !isChatOpen && showBadge) {
-                    const badge = document.getElementById("fab-badge");
-                    if (badge) badge.style.display = "flex";
+		const ownerMsgsCount = msgs.filter(m => m.sender === 'owner').length;
+                const savedReadOwnerCount = parseInt(localStorage.getItem('chatReadOwnerCount') || '-1', 10);
+                const chatFab = document.querySelector(".fab-chat");
+                const badge = document.getElementById("fab-badge");
+
+                if (isChatOpen) {
+                    localStorage.setItem('chatReadOwnerCount', String(ownerMsgsCount));
+                    if (badge) badge.style.display = "none";
+                    if (chatFab) chatFab.classList.remove("has-unread");
+                } else {
+                    const baseCount = savedReadOwnerCount === -1 ? (showBadge ? lastMsgCount : ownerMsgsCount) : savedReadOwnerCount;
+                    const unread = Math.max(0, ownerMsgsCount - baseCount);
+                    if (unread > 0) {
+                        if (badge) {
+                            badge.innerText = unread > 99 ? '99+' : unread;
+                            badge.style.display = "flex";
+                        }
+                        if (chatFab) chatFab.classList.add("has-unread");
+                    }
                 }
 
                 if (isChatOpen && msgBox) {
                     let html = "";
+                    let lastDate = "";
                     msgs.forEach(m => {
                         const isOwner = (m.sender === 'owner');
+                        const { date, time } = parseChatDateAndTime(m.time || m.timestamp || m.date);
+
+                        if (date !== lastDate) {
+                            lastDate = date;
+                            html += `
+                                <div style="display:flex; justify-content:center; margin:8px 0;">
+                                    <span style="background:rgba(15,23,42,0.12); color:#475569; font-size:0.8em; font-weight:bold; padding:4px 14px; border-radius:16px;">${date}</span>
+                                </div>
+                            `;
+                        }
+
                         html += `
                             <div class="chat-row ${isOwner ? 'owner-side' : 'customer-side'}">
-                                ${isOwner ? `<div class="chat-bubble owner">🏪 ${m.text || m.content}</div>` : `<div class="chat-bubble customer">${m.text || m.content}</div>`}
+                                ${isOwner 
+                                    ? `<div class="chat-bubble owner">🏪 ${m.text || m.content}</div><div style="font-size:0.75em; color:#64748b; white-space:nowrap;">${time}</div>` 
+                                    : `<div style="font-size:0.75em; color:#64748b; white-space:nowrap;">${time}</div><div class="chat-bubble customer">${m.text || m.content}</div>`
+                                }
                             </div>
                         `;
                     });
@@ -112,13 +163,22 @@ window.sendChatMsg = function() {
 
     const phone = localStorage.getItem('chatCustomerPhone') || localStorage.getItem('savedCustomerPhone') || "";
     const name = localStorage.getItem('chatCustomerName') || localStorage.getItem('savedCustomerName') || "客人";
+    const { date, time } = parseChatDateAndTime("");
 
     input.value = "";
 
     const msgBox = document.getElementById("chat-messages-area");
     if (msgBox) {
+        if (!msgBox.innerHTML.includes(`>${date}</span>`)) {
+            msgBox.innerHTML += `
+                <div style="display:flex; justify-content:center; margin:8px 0;">
+                    <span style="background:rgba(15,23,42,0.12); color:#475569; font-size:0.8em; font-weight:bold; padding:4px 14px; border-radius:16px;">${date}</span>
+                </div>
+            `;
+        }
         msgBox.innerHTML += `
             <div class="chat-row customer-side">
+                <div style="font-size:0.75em; color:#64748b; white-space:nowrap;">${time}</div>
                 <div class="chat-bubble customer">${text}</div>
             </div>
         `;

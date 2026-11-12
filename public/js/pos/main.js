@@ -27,6 +27,19 @@ window.handleToolbarCheckout = function() {
     switchMainView('checkout');
   }
 };
+
+window.toggleToolbarPage = function(page) {
+  const mainPage = document.getElementById('toolbar-page-main');
+  const morePage = document.getElementById('toolbar-page-more');
+  if (!mainPage || !morePage) return;
+  if (page === 'more') {
+    mainPage.style.display = 'none';
+    morePage.style.display = 'flex';
+  } else {
+    morePage.style.display = 'none';
+    mainPage.style.display = 'flex';
+  }
+};
 // ---------------------------------------- [工具列結帳點擊導航] 結束 ----------------------------------------
 
 
@@ -533,6 +546,7 @@ export function switchMainView(viewName) {
     if (mainWrapper) mainWrapper.style.width = '100%';
     const chatEl = document.getElementById('chat-main-container');
     if (chatEl) chatEl.style.display = 'flex';
+    resetChatSelection();
     renderChatList();
   }
 }
@@ -802,6 +816,63 @@ window.syncMenuFromSheets = async () => {
 
 
 // ---------------------------------------- [客服訊息處理與渲染] 開始 ----------------------------------------
+let posReadCountsMap = JSON.parse(localStorage.getItem('posReadCountsMap') || 'null');
+
+function savePosReadCountsMap() {
+  if (posReadCountsMap) {
+    localStorage.setItem('posReadCountsMap', JSON.stringify(posReadCountsMap));
+  }
+}
+
+function parsePosChatDateAndTime(rawTime) {
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
+  const nowTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  if (!rawTime) return { date: todayStr, time: nowTimeStr };
+
+  const str = String(rawTime).trim();
+  const parts = str.split(/\s+/);
+  if (parts.length >= 2) {
+    let d = parts[0];
+    if (/^\d{1,2}\/\d{1,2}$/.test(d)) d = `${now.getFullYear()}/${d}`;
+    let t = parts[1].slice(0, 5);
+    return { date: d, time: t };
+  }
+  return { date: todayStr, time: str.slice(0, 5) };
+}
+
+function updatePosChatUnreadBadge() {
+  const chatBtn = document.getElementById('btn-nav-chat');
+  const chatBadge = document.getElementById('chat-badge');
+  if (!chatBtn || !chatBadge) return;
+
+  let totalUnread = 0;
+  Object.keys(state.chatGroups || {}).forEach(k => {
+    const custCount = state.chatGroups[k].messages.filter(m => m.sender !== 'owner').length;
+    const readCount = (posReadCountsMap && posReadCountsMap[k] !== undefined) ? posReadCountsMap[k] : 0;
+    totalUnread += Math.max(0, custCount - readCount);
+  });
+
+  if (totalUnread > 0) {
+    chatBtn.classList.add('has-unread');
+    chatBadge.innerText = totalUnread > 99 ? '99+' : totalUnread;
+    chatBadge.style.display = 'flex';
+  } else {
+    chatBtn.classList.remove('has-unread');
+    chatBadge.style.display = 'none';
+  }
+}
+
+export function resetChatSelection() {
+  state.currentChatPhone = null;
+  const titleEl = document.getElementById('chat-customer-title');
+  const historyBox = document.getElementById('chat-history-box');
+  const inputBox = document.getElementById('chat-input-box');
+  if (titleEl) titleEl.innerText = '💬 請從左側選擇一位客人開始對話';
+  if (historyBox) historyBox.innerHTML = '<div class="empty-state" style="margin-top: 150px;">等待選擇對話...</div>';
+  if (inputBox) inputBox.style.display = 'none';
+}
+
 export function processMessages(messages) {
   state.allMessages = messages || [];
   state.chatGroups = {};
@@ -830,7 +901,24 @@ export function processMessages(messages) {
     });
   });
 
+  if (posReadCountsMap === null) {
+    posReadCountsMap = {};
+    Object.keys(state.chatGroups).forEach(k => {
+      posReadCountsMap[k] = state.chatGroups[k].messages.filter(m => m.sender !== 'owner').length;
+    });
+    savePosReadCountsMap();
+  }
+
+  if (state.currentView === 'chat' && state.currentChatPhone && state.chatGroups[state.currentChatPhone]) {
+    posReadCountsMap[state.currentChatPhone] = state.chatGroups[state.currentChatPhone].messages.filter(m => m.sender !== 'owner').length;
+    savePosReadCountsMap();
+  }
+
+  updatePosChatUnreadBadge();
   renderChatList();
+  if (state.currentView === 'chat' && state.currentChatPhone && state.chatGroups[state.currentChatPhone]) {
+    selectChatCustomer(state.currentChatPhone);
+  }
 }
 
 export function renderChatList() {
@@ -847,20 +935,44 @@ export function renderChatList() {
   keys.forEach(k => {
     const group = state.chatGroups[k];
     const lastMsg = group.messages[group.messages.length - 1];
-    const isSelected = (state.currentChatPhone === k) ? 'border-left: 5px solid #3b82f6; background:#eff6ff;' : 'background:#fff;';
+    const custCount = group.messages.filter(m => m.sender !== 'owner').length;
+    const readCount = (posReadCountsMap && posReadCountsMap[k] !== undefined) ? posReadCountsMap[k] : 0;
+    const unread = (state.currentView === 'chat' && state.currentChatPhone === k) ? 0 : Math.max(0, custCount - readCount);
+
+    let cardStyle = 'background:#fff; border: 1px solid #e2e8f0;';
+    if (state.currentChatPhone === k) {
+      cardStyle = 'border: 1px solid #bfdbfe; border-left: 5px solid #3b82f6; background:#eff6ff;';
+    } else if (unread > 0) {
+      cardStyle = 'border: 2px solid #fca5a5; border-left: 5px solid #ef4444; background:#fef2f2;';
+    }
+
+    let senderPrefix = '';
+    if (lastMsg) {
+      const isOwner = (lastMsg.sender === 'owner' || lastMsg['傳送者'] === 'owner');
+      senderPrefix = isOwner ? '店家：' : `${group.name}：`;
+    }
+
+    const unreadBadgeHtml = unread > 0
+      ? `<span style="background:#ef4444; color:#fff; font-size:0.75em; font-weight:900; padding:2px 8px; border-radius:12px; flex-shrink:0;">未讀 ${unread}</span>`
+      : '';
 
     const card = document.createElement('div');
-    card.style.cssText = `padding: 14px; border-radius: 10px; margin-bottom: 8px; cursor: pointer; border: 1px solid #e2e8f0; transition: 0.15s; ${isSelected}`;
+    card.style.cssText = `padding: 14px; border-radius: 10px; margin-bottom: 8px; cursor: pointer; transition: 0.15s; ${cardStyle}`;
     card.onclick = () => selectChatCustomer(k);
 
     card.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <strong style="font-size:1.15em; color:#1e293b;">${group.name}</strong>
-        <span style="font-size:0.75em; color:#94a3b8;">${lastMsg ? (lastMsg.time || '') : ''}</span>
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
+        <div style="display:flex; align-items:baseline; gap:8px; overflow:hidden; white-space:nowrap;">
+          <strong style="font-size:1.15em; color:#1e293b;">${group.name}</strong>
+          <span style="font-size:0.9em; color:#64748b; font-weight:bold;">📱 ${group.phone}</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+          ${unreadBadgeHtml}
+          <span style="font-size:0.75em; color:#94a3b8;">${lastMsg ? (lastMsg.time || '') : ''}</span>
+        </div>
       </div>
-      <div style="font-size:0.85em; color:#64748b; font-weight:bold; margin-bottom:4px;">📱 ${group.phone}</div>
-      <div style="font-size:0.9em; color:#475569; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-        ${lastMsg ? (lastMsg.text || '') : ''}
+      <div style="font-size:0.95em; color:#475569; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+        ${lastMsg ? `<span style="font-weight:bold; color:#334155;">${senderPrefix}</span>${lastMsg.text || ''}` : ''}
       </div>
     `;
     box.appendChild(card);
@@ -869,10 +981,15 @@ export function renderChatList() {
 
 export function selectChatCustomer(phoneKey) {
   state.currentChatPhone = phoneKey;
-  renderChatList();
 
   const group = state.chatGroups[phoneKey];
   if (!group) return;
+
+  if (!posReadCountsMap) posReadCountsMap = {};
+  posReadCountsMap[phoneKey] = group.messages.filter(m => m.sender !== 'owner').length;
+  savePosReadCountsMap();
+  updatePosChatUnreadBadge();
+  renderChatList();
 
   const titleEl = document.getElementById('chat-customer-title');
   const historyBox = document.getElementById('chat-history-box');
@@ -883,10 +1000,19 @@ export function selectChatCustomer(phoneKey) {
 
   if (historyBox) {
     historyBox.innerHTML = '';
+    let lastDate = '';
     group.messages.forEach(m => {
       const isOwner = (m.sender === 'owner' || m['傳送者'] === 'owner');
       const text = m.text || '';
-      const time = m.time || '';
+      const { date, time } = parsePosChatDateAndTime(m.time);
+
+      if (date !== lastDate) {
+        lastDate = date;
+        const dateDiv = document.createElement('div');
+        dateDiv.style.cssText = 'display:flex; justify-content:center; margin:8px 0;';
+        dateDiv.innerHTML = `<span style="background:rgba(15,23,42,0.12); color:#475569; font-size:0.85em; font-weight:bold; padding:4px 14px; border-radius:16px;">${date}</span>`;
+        historyBox.appendChild(dateDiv);
+      }
 
       const row = document.createElement('div');
       row.className = `chat-row ${isOwner ? 'owner-side' : 'customer-side'}`;
@@ -894,12 +1020,11 @@ export function selectChatCustomer(phoneKey) {
       if (isOwner) {
         row.innerHTML = `
           <div class="chat-time">${time}</div>
-          <div class="chat-bubble owner">${text}</div>
+          <div class="chat-bubble owner">🏪 ${text}</div>
         `;
       } else {
         row.innerHTML = `
-          <div style="width:34px; height:34px; border-radius:50%; background:#e2e8f0; display:flex; align-items:center; justify-content:center; font-size:1.1em; flex-shrink:0;">👤</div>
-          <div class="chat-bubble customer">${text}</div>
+          <div class="chat-bubble customer">👤 ${text}</div>
           <div class="chat-time">${time}</div>
         `;
       }
@@ -916,12 +1041,13 @@ export async function sendOwnerMsg() {
   if (!msgText) return;
 
   const group = state.chatGroups[state.currentChatPhone];
+  const { date, time } = parsePosChatDateAndTime('');
   const newMsg = {
     customerName: group ? group.name : '客人',
     customerPhone: state.currentChatPhone,
     sender: 'owner',
     text: msgText,
-    time: utils.getFormattedTime()
+    time: `${date} ${time}`
   };
 
   if (!group.messages) group.messages = [];

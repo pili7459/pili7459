@@ -8,6 +8,11 @@ let menuLongPressTimer = null;
 // ---------------------------------------- [模組引入與長按計時器] 結束 ----------------------------------------
 
 
+// ---------------------------------------- [副螢幕廣播通道初始化] 開始 ----------------------------------------
+const cartBroadcast = new BroadcastChannel('pos_cart_channel');
+// ---------------------------------------- [副螢幕廣播通道初始化] 結束 ----------------------------------------
+
+
 // ---------------------------------------- [渲染內用桌號選單] 開始 ----------------------------------------
 export function renderTableOptions() {
   const sel = document.getElementById('pos-table-number');
@@ -17,7 +22,7 @@ export function renderTableOptions() {
   const end = parseInt(s.tableNumberEnd || s['內用桌號迄']) || 8;
 
   const currentVal = sel.value;
-  sel.innerHTML = '<option value="" disabled selected>👉 請選擇桌號</option>';
+  sel.innerHTML = '<option value="" disabled selected>桌號</option>';
   for (let i = start; i <= end; i++) {
     sel.innerHTML += `<option value="${i}">${i} 號桌</option>`;
   }
@@ -40,13 +45,13 @@ export function renderPosTimeOptions() {
   const [openH, openM] = openTime.split(':').map(Number);
   const [closeH, closeM] = closeTime.split(':').map(Number);
 
-  sel.innerHTML = '<option value="盡快取餐" selected>⏰ 盡快取餐</option>';
+  sel.innerHTML = '<option value="盡快取餐" selected>時間</option>';
 
   let h = openH;
   let m = openM;
   while (h < closeH || (h === closeH && m <= closeM)) {
     const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-    sel.innerHTML += `<option value="${timeStr}">⏰ ${timeStr}</option>`;
+    sel.innerHTML += `<option value="${timeStr}">${timeStr}</option>`;
     m += 15;
     if (m >= 60) {
       m = 0;
@@ -59,7 +64,7 @@ export function renderPosTimeOptions() {
 
 // ---------------------------------------- [切換桌號或取餐時間輸入] 開始 ----------------------------------------
 export function togglePosTableOrTime() {
-  const diningType = document.querySelector('input[name="posDiningType"]:checked')?.value || '內用';
+  const diningType = document.getElementById('pos-dining-type')?.value || '內用';
   const tableSel = document.getElementById('pos-table-number');
   const timeSel = document.getElementById('pos-pickup-time');
 
@@ -463,12 +468,14 @@ export function updateCartUI() {
             <button type="button" onclick="toggleItemComp('${cartKey}')" title="0.5秒內連點兩下切換招待" style="background:${compBtnBg}; color:${compBtnColor}; border:${compBorder}; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:0.8em; cursor:pointer;">
               ${item.isComp ? '🎁 招待中' : '🎁 招待'}
             </button>
-            <div class="qty-control" style="display:flex; align-items:center; gap:6px;">
-              <button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '', ${item.price}, '', -1)">-</button>
-              <span class="qty-number" style="font-weight:bold; min-width:20px; text-align:center;">${item.qty}</span>
-              <button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '', ${item.price}, '', 1)">+</button>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="qty-control" style="display:flex; align-items:center; gap:6px;">
+                <button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '', ${item.price}, '', -1)">-</button>
+                <span class="qty-number" style="font-weight:bold; min-width:20px; text-align:center;">${item.qty}</span>
+                <button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '', ${item.price}, '', 1)">+</button>
+              </div>
+              <div style="font-weight: 900; font-size: 1.2em; color:#ea580c; text-align: right;">${priceDisplay}</div>
             </div>
-            <div style="font-weight: 900; font-size: 1.2em; color:#ea580c; text-align: right;">${priceDisplay}</div>
           </div>
         </div>
       </div>`;
@@ -493,6 +500,18 @@ export function updateCartUI() {
   }
 
   totalSpan.innerText = finalTotal;
+  const cartList = Object.values(state.cart).map(i => ({
+    name: i.name.split('\n')[0],
+    qty: i.qty,
+    price: i.isComp ? 0 : i.price,
+    options: (i.structuredOptions || []).map(o => o.name).join(' ● '),
+    note: i.note || ''
+  }));
+  cartBroadcast.postMessage({
+    items: cartList,
+    total: finalTotal,
+    status: '請確認點餐明細'
+  });
 }
 // ---------------------------------------- [更新購物車介面UI] 結束 ----------------------------------------
 
@@ -809,7 +828,7 @@ export async function submitPosUnpaidOrder() {
     showToast("⚠️ 購物車是空的！");
     return;
   }
-  let diningType = document.querySelector('input[name="posDiningType"]:checked')?.value || '內用';
+  let diningType = document.getElementById('pos-dining-type')?.value || '內用';
   let tableNum = document.getElementById("pos-table-number")?.value || '';
   let pickupTime = document.getElementById("pos-pickup-time")?.value || '盡快取餐';
 
@@ -886,7 +905,7 @@ export function preparePosCheckout() {
     showToast("⚠️ 購物車是空的！");
     return;
   }
-  let diningType = document.querySelector('input[name="posDiningType"]:checked')?.value || '內用';
+  let diningType = document.getElementById('pos-dining-type')?.value || '內用';
   let tableNum = document.getElementById("pos-table-number")?.value || '';
   let pickupTime = document.getElementById("pos-pickup-time")?.value || '盡快取餐';
 

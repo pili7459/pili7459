@@ -101,14 +101,14 @@ export function renderSystemMenu() {
 
   (state.menuData || []).forEach((item, idx) => {
     let rawStatus = item.status || '上架';
-    let statusLabel = '🟢 上架';
+    let normalizedStatus = '上架';
     let statusColor = '#059669';
 
     if (rawStatus.includes('售完') || rawStatus.includes('完售')) {
-      statusLabel = '🟡 售完';
+      normalizedStatus = '完售';
       statusColor = '#d97706';
     } else if (rawStatus.includes('停售')) {
-      statusLabel = '🔴 停售';
+      normalizedStatus = '停售';
       statusColor = '#dc2626';
     }
 
@@ -120,14 +120,30 @@ export function renderSystemMenu() {
         <div style="display:flex; align-items:center; gap:16px; flex-shrink:0;">
           <span style="color:#ea580c; font-weight:900; font-size:1.1em; min-width:55px; text-align:right;">($${item.price})</span>
           <span style="color:#64748b; font-size:0.95em; font-weight:bold; min-width:70px; text-align:center; background:#f1f5f9; padding:4px 8px; border-radius:6px;">[${item.category}]</span>
-          <span style="width:85px; text-align:center; font-weight:800; font-size:0.95em; color:${statusColor}; background:#f8fafc; padding:6px 0; border-radius:8px; border:1px solid #e2e8f0; display:inline-block;">
-            ${statusLabel}
-          </span>
+          <select onchange="changeSysMenuStatus(${idx}, this.value)" style="width:115px; text-align:center; font-weight:800; font-size:0.95em; color:${statusColor}; background:#f8fafc; padding:6px 4px; border-radius:8px; border:1px solid #cbd5e1; cursor:pointer; outline:none;">
+            <option value="上架" ${normalizedStatus === '上架' ? 'selected' : ''}>🟢 上架</option>
+            <option value="完售" ${normalizedStatus === '完售' ? 'selected' : ''}>🟡 完售</option>
+            <option value="停售" ${normalizedStatus === '停售' ? 'selected' : ''}>🔴 停售</option>
+          </select>
           <button class="sys-btn-edit" onclick="openItemEditor(${idx})" style="padding:7px 14px; cursor:pointer;">✏️ 編輯</button>
         </div>
       </div>`;
   });
 }
+
+window.changeSysMenuStatus = async function(idx, newStatus) {
+  const item = state.menuData[idx];
+  if (!item) return;
+  item.status = newStatus;
+  renderSystemMenu();
+  ordering.renderPosMenu();
+  try {
+    await sendMenuUpdate(state.menuData);
+    showToast(`✅ 「${item.name.split('\n')[0]}」已修改為【${newStatus}】`);
+  } catch (err) {
+    showToast('⚠️ 狀態同步試算表失敗');
+  }
+};
 // ---------------------------------------- [渲染系統菜單管理清單] 結束 ----------------------------------------
 
 
@@ -245,10 +261,6 @@ export function openItemEditor(idx) {
   document.getElementById('edit-item-price').value = state.currentEditItem.price;
   document.getElementById('edit-item-cat').value = state.currentEditItem.category;
 
-  let st = state.currentEditItem.status || '上架';
-  if (st.includes('完售')) st = '售完';
-  document.getElementById('edit-item-status').value = st;
-
   renderOptGroupsEditor();
   document.getElementById('sys-item-edit-modal').style.display = 'flex';
 }
@@ -329,7 +341,7 @@ export async function saveItemEditor() {
   state.currentEditItem.name = document.getElementById('edit-item-name').value.trim();
   state.currentEditItem.price = parseInt(document.getElementById('edit-item-price').value) || 0;
   state.currentEditItem.category = document.getElementById('edit-item-cat').value.trim();
-  state.currentEditItem.status = document.getElementById('edit-item-status').value;
+  state.currentEditItem.status = state.currentEditItem.status || '上架';
 
   const newOptions = [];
   const groupCards = document.querySelectorAll('#edit-item-options-container .sys-opt-group-card');

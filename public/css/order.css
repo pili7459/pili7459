@@ -106,7 +106,18 @@ h1, h2 { text-align: center; color: #2c3e50; margin-top: 15px; }
 .fab-chat { background: #6366f1; }
 .fab-ticket { background: #10b981; display: none; }
 .fab-badge { position: absolute; top: -4px; right: -4px; background: #ef4444; color: white; border-radius: 50%; width: 24px; height: 24px; font-size: 0.75em; display: flex; justify-content: center; align-items: center; font-weight: 900; border: 2px solid #fff; }
+@keyframes fabChatPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.5); }
+  50% { transform: scale(1.1); box-shadow: 0 0 20px 6px rgba(239, 68, 68, 0.85); }
+}
+.fab-chat.has-unread {
+  background: #ef4444 !important;
+  animation: fabChatPulse 1.2s infinite;
+}
 /* ---------------------------------------- [懸浮操作按鈕 FAB] 結束 ---------------------------------------- */
+
+
+
 
 
 /* ---------------------------------------- [客服對話視窗 Modal] 開始 ---------------------------------------- */

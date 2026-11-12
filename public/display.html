@@ -1,0 +1,268 @@
+<!-- ---------------------------------------- [副螢幕顧客對帳與輪播介面] 開始 ---------------------------------------- -->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日十。客顯副螢幕</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* 左側輪播展示區 (佔約 55%) */
+    .left-promo {
+      flex: 1.2;
+      height: 100%;
+      background: #000;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-right: 3px solid #334155;
+    }
+    .promo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+    .promo-img.active { opacity: 1; }
+    .promo-default {
+      text-align: center;
+      color: #94a3b8;
+    }
+    .promo-default h1 { font-size: 2.5em; color: #38bdf8; margin-bottom: 10px; }
+
+    /* 右側購物車對帳區 (佔約 45%) */
+    .right-cart {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: #1e293b;
+    }
+
+    /* 頂部店名與狀態 */
+    .cart-header {
+      padding: 16px 20px;
+      background: #0f172a;
+      border-bottom: 2px solid #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .store-brand { font-size: 1.4em; font-weight: 900; color: #38bdf8; }
+    .status-badge {
+      background: #0284c7;
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      font-weight: bold;
+    }
+
+    /* 餐點列表清單 */
+    .cart-items {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .cart-empty {
+      margin: auto;
+      text-align: center;
+      color: #64748b;
+    }
+    .cart-empty .icon { font-size: 4em; margin-bottom: 10px; }
+    .cart-empty .text { font-size: 1.5em; font-weight: bold; }
+
+    .item-card {
+      background: #334155;
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #475569;
+    }
+    .item-info { flex: 1; padding-right: 12px; }
+    .item-name { font-size: 1.25em; font-weight: 900; color: #fff; line-height: 1.3; }
+    .item-options { font-size: 0.9em; color: #f59e0b; font-weight: bold; margin-top: 4px; }
+    .item-note { font-size: 0.85em; color: #38bdf8; margin-top: 2px; }
+    .item-qty {
+      font-size: 1.25em;
+      font-weight: 900;
+      color: #60a5fa;
+      background: #0f172a;
+      padding: 4px 10px;
+      border-radius: 8px;
+      margin: 0 12px;
+    }
+    .item-price { font-size: 1.35em; font-weight: 900; color: #ea580c; }
+
+    /* 底部總額結算 */
+    .cart-footer {
+      background: #0f172a;
+      border-top: 2px solid #334155;
+      padding: 16px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-left { font-size: 1.15em; color: #94a3b8; font-weight: bold; }
+    .footer-right { display: flex; align-items: baseline; gap: 8px; }
+    .total-title { font-size: 1.3em; font-weight: 900; color: #cbd5e1; }
+    .total-price { font-size: 3em; font-weight: 900; color: #22c55e; line-height: 1; }
+  </style>
+</head>
+<body>
+
+  <!-- 左邊：圖片輪播區 -->
+  <div class="left-promo" id="promo-container">
+    <div class="promo-default" id="promo-default">
+      <h1>日十。台中大里店</h1>
+      <p>新鮮原型食物・保留古早味</p>
+    </div>
+  </div>
+
+  <!-- 右邊：購物車對帳明細區 -->
+  <div class="right-cart">
+    <div class="cart-header">
+      <div class="store-brand">日十。大里店</div>
+      <div class="status-badge" id="screen-status">點餐中</div>
+    </div>
+
+    <div class="cart-items" id="items-box">
+      <div class="cart-empty">
+        <div class="icon">🍳</div>
+        <div class="text">歡迎光臨！請確認點餐明細</div>
+      </div>
+    </div>
+
+    <div class="cart-footer">
+      <div class="footer-left" id="qty-total">共 0 項餐點</div>
+      <div class="footer-right">
+        <span class="total-title">合計：</span>
+        <span class="total-price" id="total-val">$0</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 1. 取得試算表中的圖片網址並每 6 秒自動輪播
+    let promoImages = [];
+    let currentIdx = 0;
+
+    async function initPromo() {
+      try {
+        const res = await fetch('/api/pos?t=' + Date.now());
+        const data = await res.json();
+        const settings = data.settings || {};
+        const urlsStr = settings['副螢幕輪播圖'] || settings.customerDisplayImages || '';
+
+        if (urlsStr) {
+          promoImages = urlsStr.split(',').map(u => u.trim()).filter(Boolean);
+          startCarousel();
+        }
+      } catch (err) {
+        console.warn('輪播圖加載失敗:', err);
+      }
+    }
+
+    function startCarousel() {
+      const container = document.getElementById('promo-container');
+      const defBox = document.getElementById('promo-default');
+      if (promoImages.length === 0) return;
+
+      if (defBox) defBox.style.display = 'none';
+      container.innerHTML = '';
+
+      promoImages.forEach((url, i) => {
+        const img = document.createElement('img');
+        img.src = url;
+        img.className = 'promo-img' + (i === 0 ? ' active' : '');
+        container.appendChild(img);
+      });
+
+      if (promoImages.length > 1) {
+        setInterval(() => {
+          const imgs = container.querySelectorAll('.promo-img');
+          if (imgs.length === 0) return;
+          imgs[currentIdx].classList.remove('active');
+          currentIdx = (currentIdx + 1) % imgs.length;
+          imgs[currentIdx].classList.add('active');
+        }, 6000);
+      }
+    }
+
+    initPromo();
+
+    // 2. 監聽點餐購物車資料同步
+    const cartChannel = new BroadcastChannel('pos_cart_channel');
+
+    cartChannel.onmessage = (e) => {
+      renderCart(e.data);
+    };
+
+    function renderCart(data) {
+      const box = document.getElementById('items-box');
+      const totalVal = document.getElementById('total-val');
+      const qtyTotal = document.getElementById('qty-total');
+      const statusBadge = document.getElementById('screen-status');
+
+      if (!data || !data.items || data.items.length === 0) {
+        box.innerHTML = `
+          <div class="cart-empty">
+            <div class="icon">🍳</div>
+            <div class="text">歡迎光臨！請確認點餐明細</div>
+          </div>`;
+        totalVal.innerText = '$0';
+        qtyTotal.innerText = '共 0 項餐點';
+        statusBadge.innerText = data?.status || '點餐中';
+        return;
+      }
+
+      statusBadge.innerText = data.status || '請核對餐點';
+      let html = '';
+      let sumQty = 0;
+
+      data.items.forEach(it => {
+        sumQty += it.qty;
+        let optText = it.options ? `<div class="item-options">${it.options}</div>` : '';
+        let noteText = it.note ? `<div class="item-note">備註：${it.note}</div>` : '';
+        html += `
+          <div class="item-card">
+            <div class="item-info">
+              <div class="item-name">${it.name}</div>
+              ${optText}
+              ${noteText}
+            </div>
+            <div class="item-qty">${it.qty}x</div>
+            <div class="item-price">$${it.price * it.qty}</div>
+          </div>
+        `;
+      });
+
+      box.innerHTML = html;
+      qtyTotal.innerText = `共 ${sumQty} 份餐點`;
+      totalVal.innerText = `$${data.total || 0}`;
+    }
+  </script>
+</body>
+</html>
+<!-- ---------------------------------------- [副螢幕顧客對帳與輪播介面] 結束 ---------------------------------------- -->

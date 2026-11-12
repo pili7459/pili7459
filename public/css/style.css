@@ -437,3 +437,42 @@ body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-
 .sys-btn-edit:hover { background: #e2e8f0; }
 .sys-input { width: 100%; padding: 12px; font-size: 1.1em; border: 1px solid #cbd5e1; border-radius: 8px; margin-top: 5px; outline: none; font-family: inherit; font-weight: bold; }
 /* ---------------------------------------- [系統管理介面樣式] 結束 ---------------------------------------- */
+
+
+/* ---------------------------------------- [POS端客服聊天介面樣式] 開始 ---------------------------------------- */
+.chat-header-pos { background: #1e293b; color: white; padding: 18px 20px; font-weight: 800; font-size: 1.3em; }
+.chat-body-pos { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; background: #f0f2f5; }
+.chat-row { display: flex; width: 100%; align-items: flex-end; gap: 8px; }
+.chat-row.owner-side { justify-content: flex-end; }
+.chat-row.customer-side { justify-content: flex-start; }
+.chat-bubble { max-width: 72%; padding: 12px 16px; border-radius: 18px; line-height: 1.45; word-break: break-word; font-size: 1.1em; font-weight: 600; }
+.chat-bubble.owner { background: #3b82f6; color: #ffffff; border-bottom-right-radius: 3px; }
+.chat-bubble.customer { background: #ffffff; color: #1e293b; border-bottom-left-radius: 3px; border: 1px solid #e2e8f0; }
+.chat-time { font-size: 0.8em; color: #64748b; white-space: nowrap; }
+.chat-footer-pos { display: flex; gap: 10px; align-items: center; border-top: 1px solid #e2e8f0; }
+.chat-input-pos { flex: 1; padding: 12px 18px; border: 2px solid #cbd5e1; border-radius: 25px; font-size: 1.1em; outline: none; font-family: inherit; }
+.chat-input-pos:focus { border-color: #3b82f6; }
+.chat-send-btn-pos { background: #3b82f6; color: #ffffff; border: none; padding: 12px 24px; border-radius: 25px; font-size: 1.1em; font-weight: 800; cursor: pointer; }
+/* ---------------------------------------- [POS端客服聊天介面樣式] 結束 ---------------------------------------- */
+
+
+/* ---------------------------------------- [未讀訊息閃爍提示樣式] 開始 ---------------------------------------- */
+@keyframes pulseAlert {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  50% { transform: scale(1.06); box-shadow: 0 0 12px 4px rgba(239, 68, 68, 0.85); }
+}
+.tool-btn.has-unread {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #fca5a5 !important;
+  animation: pulseAlert 1.2s infinite;
+}
+.tool-btn.has-unread .notify-badge {
+  display: flex !important;
+  background: #facc15 !important;
+  color: #0f172a !important;
+  width: 24px;
+  height: 24px;
+  font-size: 0.85em;
+}
+/* ---------------------------------------- [未讀訊息閃爍提示樣式] 結束 ---------------------------------------- */

@@ -1,951 +1,4 @@
 {
-  "store_info": {
-    "name": "小森食光坊",
-    "phone": "04-24920000",
-    "address": "台中市大里區中湖路6-3號",
-    "tax_id": "80069119"
-  },
-  "tables": [
-    {
-      "id": 1,
-      "table_code": "T01",
-      "table_name": "桌號 1",
-      "capacity": 2,
-      "status": "IDLE",
-      "current_order_id": null
-    },
-    {
-      "id": 2,
-      "table_code": "T02",
-      "table_name": "桌號 2",
-      "capacity": 4,
-      "status": "IDLE",
-      "current_order_id": null
-    },
-    {
-      "id": 3,
-      "table_code": "T03",
-      "table_name": "桌號 3",
-      "capacity": 4,
-      "status": "IDLE",
-      "current_order_id": null
-    },
-    {
-      "id": 4,
-      "table_code": "T04",
-      "table_name": "桌號 4",
-      "capacity": 4,
-      "status": "IDLE",
-      "current_order_id": null
-    },
-    {
-      "id": 5,
-      "table_code": "T05",
-      "table_name": "桌號 5",
-      "capacity": 6,
-      "status": "IDLE",
-      "current_order_id": null
-    }
-  ],
-  "categories": [
-    {
-      "id": 1,
-      "name": "手作粉漿蛋餅",
-      "sort_order": 1
-    },
-    {
-      "id": 2,
-      "name": "經典漢堡 / 吐司",
-      "sort_order": 2
-    },
-    {
-      "id": 3,
-      "name": "飲品茶飲",
-      "sort_order": 3
-    }
-  ],
-  "products": [
-    {
-      "id": 1,
-      "category_id": 1,
-      "name": "原味粉漿蛋餅",
-      "price": 35,
-      "station": "KITCHEN",
-      "is_active": 1
-    },
-    {
-      "id": 2,
-      "category_id": 1,
-      "name": "起司粉漿蛋餅",
-      "price": 45,
-      "station": "KITCHEN",
-      "is_active": 1
-    },
-    {
-      "id": 3,
-      "category_id": 1,
-      "name": "蔥花九層塔蛋餅",
-      "price": 50,
-      "station": "KITCHEN",
-      "is_active": 1
-    },
-    {
-      "id": 4,
-      "category_id": 2,
-      "name": "特製里肌豬排蛋堡",
-      "price": 65,
-      "station": "KITCHEN",
-      "is_active": 1
-    },
-    {
-      "id": 5,
-      "category_id": 2,
-      "name": "咔啦雞腿蛋吐司",
-      "price": 75,
-      "station": "KITCHEN",
-      "is_active": 1
-    },
-    {
-      "id": 6,
-      "category_id": 3,
-      "name": "南非國寶茶 (無糖)",
-      "price": 30,
-      "station": "BAR",
-      "is_active": 1
-    },
-    {
-      "id": 7,
-      "category_id": 3,
-      "name": "小森經典鮮奶茶",
-      "price": 45,
-      "station": "BAR",
-      "is_active": 1
-    },
-    {
-      "id": 8,
-      "category_id": 3,
-      "name": "特調冷萃咖啡",
-      "price": 50,
-      "station": "BAR",
-      "is_active": 1
-    }
-  ],
-  "modifier_groups": [
-    {
-      "id": 1,
-      "product_id": 1,
-      "name": "加料客製",
-      "is_multiple": 1
-    },
-    {
-      "id": 2,
-      "product_id": 2,
-      "name": "加料客製",
-      "is_multiple": 1
-    },
-    {
-      "id": 3,
-      "product_id": 3,
-      "name": "加料客製",
-      "is_multiple": 1
-    },
-    {
-      "id": 4,
-      "product_id": 6,
-      "name": "冰量選擇",
-      "is_multiple": 0
-    },
-    {
-      "id": 5,
-      "product_id": 6,
-      "name": "甜度選擇",
-      "is_multiple": 0
-    },
-    {
-      "id": 6,
-      "product_id": 7,
-      "name": "冰量選擇",
-      "is_multiple": 0
-    },
-    {
-      "id": 7,
-      "product_id": 7,
-      "name": "甜度選擇",
-      "is_multiple": 0
-    },
-    {
-      "id": 8,
-      "product_id": 8,
-      "name": "冰量選擇",
-      "is_multiple": 0
-    },
-    {
-      "id": 9,
-      "product_id": 8,
-      "name": "甜度選擇",
-      "is_multiple": 0
-    },
-    {
-      "id": 10,
-      "product_id": 1,
-      "name": "口感",
-      "is_multiple": 0
-    },
-    {
-      "id": 11,
-      "product_id": 2,
-      "name": "客製加料",
-      "is_multiple": 1
-    }
-  ],
-  "modifier_options": [
-    {
-      "id": 1,
-      "group_id": 1,
-      "name": "加起司",
-      "extra_price": 15
-    },
-    {
-      "id": 2,
-      "group_id": 1,
-      "name": "加蛋",
-      "extra_price": 15
-    },
-    {
-      "id": 5,
-      "group_id": 2,
-      "name": "加起司",
-      "extra_price": 15
-    },
-    {
-      "id": 6,
-      "group_id": 2,
-      "name": "加蛋",
-      "extra_price": 15
-    },
-    {
-      "id": 7,
-      "group_id": 3,
-      "name": "加起司",
-      "extra_price": 15
-    },
-    {
-      "id": 8,
-      "group_id": 3,
-      "name": "加蛋",
-      "extra_price": 15
-    },
-    {
-      "id": 10,
-      "group_id": 4,
-      "name": "去冰",
-      "extra_price": 0
-    },
-    {
-      "id": 11,
-      "group_id": 5,
-      "name": "無糖",
-      "extra_price": 0
-    },
-    {
-      "id": 13,
-      "group_id": 6,
-      "name": "正常冰",
-      "extra_price": 0
-    },
-    {
-      "id": 14,
-      "group_id": 6,
-      "name": "去冰",
-      "extra_price": 0
-    },
-    {
-      "id": 15,
-      "group_id": 7,
-      "name": "微糖 3分",
-      "extra_price": 0
-    },
-    {
-      "id": 16,
-      "group_id": 7,
-      "name": "半糖 5分",
-      "extra_price": 0
-    },
-    {
-      "id": 17,
-      "group_id": 8,
-      "name": "正常冰",
-      "extra_price": 0
-    },
-    {
-      "id": 18,
-      "group_id": 8,
-      "name": "去冰",
-      "extra_price": 0
-    },
-    {
-      "id": 19,
-      "group_id": 9,
-      "name": "無糖",
-      "extra_price": 0
-    },
-    {
-      "id": 20,
-      "group_id": 1,
-      "name": "加九層塔",
-      "extra_price": 15
-    },
-    {
-      "id": 21,
-      "group_id": 10,
-      "name": "焦一點",
-      "extra_price": 0
-    },
-    {
-      "id": 22,
-      "group_id": 10,
-      "name": "不要焦",
-      "extra_price": 0
-    },
-    {
-      "id": 23,
-      "group_id": 11,
-      "name": "加起司",
-      "extra_price": 15
-    },
-    {
-      "id": 24,
-      "group_id": 11,
-      "name": "加荷包蛋",
-      "extra_price": 15
-    },
-    {
-      "id": 25,
-      "group_id": 11,
-      "name": "加培根",
-      "extra_price": 20
-    },
-    {
-      "id": 26,
-      "group_id": 11,
-      "name": "加泡菜",
-      "extra_price": 20
-    },
-    {
-      "id": 27,
-      "group_id": 11,
-      "name": "多醬油膏",
-      "extra_price": 0
-    },
-    {
-      "id": 28,
-      "group_id": 11,
-      "name": "特製朝天辣椒醬",
-      "extra_price": 0
-    },
-    {
-      "id": 29,
-      "group_id": 4,
-      "name": "溫",
-      "extra_price": 0
-    },
-    {
-      "id": 30,
-      "group_id": 1,
-      "name": "加玉米",
-      "extra_price": 10
-    }
-  ],
-  "orders": [
-    {
-      "id": 1793954867446,
-      "orderNumber": "",
-      "orderDate": "2026-11-06",
-      "time": "11/06 16:47",
-      "diningType": "💸 支出",
-      "customerName": "[日結抽存] 2026-11-06 營收抽存存銀",
-      "detailsText": "支出項目：[日結抽存] 2026-11-06 營收抽存存銀\n金額：$1600",
-      "totalAmount": 1600,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳"
-    },
-    {
-      "id": 1793952292542,
-      "orderNumber": "019",
-      "orderDate": "2026-11-06",
-      "time": "11/06 16:04",
-      "diningType": "外帶 (盡快取餐)",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "1x 經典薯餅蛋餅 ::: $50\n----------------------\n小計 ::: $50\n總額 ::: $50\n",
-      "totalAmount": 50,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "尚未取餐"
-    },
-    {
-      "id": 1793949517734,
-      "orderNumber": "002",
-      "orderDate": "2026-11-07",
-      "time": "11/06 15:18",
-      "diningType": "自取 (預訂: 11/07 08:00)",
-      "tableNumber": "",
-      "customerName": "蔡智偉",
-      "customerPhone": "0923552477",
-      "detailsText": "1x 原味蛋餅 ::: $30\n----------------------\n小計 ::: $30\n總額 ::: $30\n🍴 提供餐具\n",
-      "totalAmount": 30,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "✅ 已取餐"
-    },
-    {
-      "id": 1793949456796,
-      "orderNumber": "018",
-      "orderDate": "2026-11-06",
-      "time": "11/06 15:17",
-      "diningType": "自取 (盡快取餐)",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "1x 雙蛋蛋餅 ::: $40\n----------------------\n小計 ::: $40\n總額 ::: $40\n",
-      "totalAmount": 40,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "✅ 已取餐"
-    },
-    {
-      "id": 1793949073878,
-      "orderNumber": "017",
-      "orderDate": "2026-11-06",
-      "time": "11/06 15:11",
-      "diningType": "外帶 (盡快取餐)",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "1x 經典薯餅蛋餅 ::: $50\n----------------------\n小計 ::: $50\n總額 ::: $50\n",
-      "totalAmount": 50,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "尚未取餐"
-    },
-    {
-      "id": 1793949048112,
-      "orderNumber": "016",
-      "orderDate": "2026-11-06",
-      "time": "11/06 15:10",
-      "diningType": "外帶 (盡快取餐)",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "1x 三杯杏鮑菇蛋餅 ::: $55\n1x 雙蛋蛋餅 ::: $40\n----------------------\n小計 ::: $95\n總額 ::: $95\n",
-      "totalAmount": 95,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "尚未取餐"
-    },
-    {
-      "id": 1793948435040,
-      "orderNumber": "015",
-      "orderDate": "2026-11-06",
-      "time": "11/06 15:00",
-      "diningType": "外帶 (盡快取餐)",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "1x 雙蛋蛋餅 ::: $40\n----------------------\n小計 ::: $40\n總額 ::: $40\n",
-      "totalAmount": 40,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "尚未取餐"
-    },
-    {
-      "id": 1793945494110,
-      "orderNumber": "014",
-      "orderDate": "2026-11-06",
-      "time": "11/06 14:11",
-      "diningType": "外帶 (盡快取餐)",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "1x 九層塔蛋餅 ::: $40\n----------------------\n小計 ::: $40\n總額 ::: $40\n",
-      "totalAmount": 40,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "尚未取餐"
-    },
-    {
-      "id": 1793944443425,
-      "orderNumber": "013",
-      "orderDate": "2026-11-06",
-      "time": "11/06 13:54",
-      "diningType": "外帶 (盡快取餐)",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "1x 經典薯餅蛋餅 ::: $50\n1x 三杯杏鮑菇蛋餅 ::: $55\n----------------------\n小計 ::: $105\n🎟️ 優惠折抵 (vip8888) ::: -$10\n----------------------\n總額 ::: $95\n",
-      "totalAmount": 95,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "尚未取餐"
-    },
-    {
-      "id": 1793943531671,
-      "orderNumber": "001",
-      "orderDate": "2026-11-07",
-      "time": "11/06 13:38",
-      "diningType": "自取 (預訂: 11/07 08:15)",
-      "tableNumber": "",
-      "customerName": "蔡智偉",
-      "customerPhone": "0923552477",
-      "detailsText": "1x 玉米捲餅 ::: $55\n----------------------\n小計 ::: $55\n總額 ::: $55\n🍴 提供餐具\n",
-      "totalAmount": 55,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "✅ 已取餐"
-    },
-    {
-      "id": 1793942152179,
-      "orderNumber": "",
-      "orderDate": "2026-11-06",
-      "time": "11/06 13:15",
-      "diningType": "💰 收入",
-      "customerName": "溢收現金",
-      "detailsText": "收入項目：溢收現金\n金額：$1000",
-      "totalAmount": 1000,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳"
-    },
-    {
-      "id": 1793942151190,
-      "orderNumber": "",
-      "orderDate": "2026-11-06",
-      "time": "11/06 13:15",
-      "diningType": "💸 支出",
-      "customerName": "買封膜",
-      "detailsText": "支出項目：買封膜\n金額：$500",
-      "totalAmount": 500,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳"
-    },
-    {
-      "id": 1793937369394,
-      "orderNumber": "013",
-      "orderDate": "2026-11-06",
-      "time": "11/06 11:56",
-      "diningType": "💸 支出",
-      "customerName": "買蛋",
-      "detailsText": "支出：買蛋\n金額：$600",
-      "totalAmount": 600,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳"
-    },
-    {
-      "id": 1793936843153,
-      "orderNumber": "012",
-      "orderDate": "2026-11-06",
-      "time": "11/06 11:47",
-      "diningType": "外帶",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "1x 經典薯餅蛋餅 ::: $50\n----------------------\n小計 ::: $50\n總額 ::: $50\n",
-      "totalAmount": 50,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "尚未取餐"
-    },
-    {
-      "id": 1793936793253,
-      "orderNumber": "011",
-      "orderDate": "2026-11-06",
-      "time": "11/06 11:46",
-      "diningType": "外帶",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "1x 原味蛋餅 ::: $30\n----------------------\n小計 ::: $30\n總額 ::: $30\n",
-      "totalAmount": 30,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "尚未取餐"
-    },
-    {
-      "id": 1793936674676,
-      "orderNumber": "010",
-      "orderDate": "2026-11-06",
-      "time": "11/06 11:44",
-      "diningType": "自取 (盡快取餐)",
-      "tableNumber": "",
-      "customerName": "蔡智偉",
-      "customerPhone": "0923552477",
-      "detailsText": "1x 小豬里肌蛋餅 ::: $60\n----------------------\n小計 ::: $60\n總額 ::: $60\n🍴 提供餐具\n",
-      "totalAmount": 60,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "✅ 已取餐"
-    },
-    {
-      "id": 1793936342327,
-      "orderNumber": "009",
-      "orderDate": "2026-11-06",
-      "time": "11/06 11:39",
-      "diningType": "自取 (盡快取餐)",
-      "tableNumber": "",
-      "customerName": "蔡智偉",
-      "customerPhone": "0923552477",
-      "detailsText": "1x 香煎雞胸肉蛋堡 ::: $70\n----------------------\n小計 ::: $70\n總額 ::: $70\n🍴 提供餐具\n",
-      "totalAmount": 70,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "✅ 已取餐"
-    },
-    {
-      "id": 1793935486191,
-      "orderNumber": "008",
-      "orderDate": "2026-11-06",
-      "time": "11/06 11:24",
-      "diningType": "自取 (盡快取餐)",
-      "tableNumber": "",
-      "customerName": "蔡智偉",
-      "customerPhone": "0923552477",
-      "detailsText": "1x 鮮蔬蛋吐司 ::: $35\n----------------------\n小計 ::: $35\n總額 ::: $35\n🍴 提供餐具\n",
-      "totalAmount": 35,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "✅ 已取餐"
-    },
-    {
-      "id": 1793935116544,
-      "orderNumber": "007",
-      "orderDate": "2026-11-06",
-      "time": "11/06 11:18",
-      "diningType": "自取 (盡快取餐)",
-      "tableNumber": "",
-      "customerName": "蔡智偉",
-      "customerPhone": "0923552477",
-      "detailsText": "1x 泡菜豬排堡 ::: $70\n1x 炸杏鮑菇 ::: $50\n  ✬ 椒鹽\n1x 銀絲卷 ::: $40\n  ✬ 煉乳\n----------------------\n小計 ::: $160\n總額 ::: $160\n🍴 提供餐具\n",
-      "totalAmount": 160,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "✅ 已取餐"
-    },
-    {
-      "id": 1793935013874,
-      "orderNumber": "006",
-      "orderDate": "2026-11-06",
-      "time": "11/06 11:16",
-      "diningType": "自取 (盡快取餐)",
-      "tableNumber": "",
-      "customerName": "蔡智偉",
-      "customerPhone": "0923552477",
-      "detailsText": "1x 卡啦脆雞堡 ::: $65\n----------------------\n小計 ::: $65\n總額 ::: $65\n🍴 提供餐具\n",
-      "totalAmount": 65,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "✅ 已取餐"
-    },
-    {
-      "id": 1793934257032,
-      "orderNumber": "005",
-      "orderDate": "2026-11-06",
-      "time": "11/06 11:04",
-      "diningType": "自取 (盡快取餐)",
-      "tableNumber": "",
-      "customerName": "蔡智偉",
-      "customerPhone": "0923552477",
-      "detailsText": "1x 玉米布丁酥 ::: $40\n1x 雙層起司蛋餅 ::: $50\n1x 巧克力厚片 ::: $25\n  ✬ 厚片\n1x 銀絲卷 ::: $40\n  ✬ 煉乳\n1x 地瓜脆薯 ::: $40\n  ✬ 梅粉\n----------------------\n小計 ::: $195\n總額 ::: $195\n🍴 提供餐具\n",
-      "totalAmount": 195,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "✅ 已取餐"
-    },
-    {
-      "id": 1793931284835,
-      "orderNumber": "004",
-      "orderDate": "2026-11-06",
-      "time": "11/06 10:14",
-      "diningType": "自取 (盡快取餐)",
-      "tableNumber": "",
-      "customerName": "蔡智偉",
-      "customerPhone": "0923552477",
-      "detailsText": "2x 招牌嫩煎雞腿蛋吐司 ::: $160\n----------------------\n小計 ::: $160\n總額 ::: $160\n🍴 提供餐具\n",
-      "totalAmount": 160,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "✅ 已取餐"
-    },
-    {
-      "id": 1793926835481,
-      "orderNumber": "003",
-      "orderDate": "2026-11-06",
-      "time": "11/06 09:00",
-      "diningType": "自取",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "1x 炸湯圓 ::: $35\n1x 美式脆薯 ::: $40\n2x 蔥抓餅 ::: $90\n  ✬ 不加蛋\n1x 地瓜脆薯 ::: $40\n  ✬ 梅粉\n1x 炸杏鮑菇 ::: $50\n  ✬ 椒鹽\n1x 炸甜不辣 ::: $40\n  ✬ 椒鹽\n----------------------\n小計 ::: $295\n總額 ::: $295\n",
-      "totalAmount": 295,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "✅ 已取餐"
-    },
-    {
-      "id": 1793868870400,
-      "orderNumber": "002",
-      "orderDate": "2026-11-06",
-      "time": "11/05 16:54",
-      "diningType": "自取 (預訂: 11/06 08:30)",
-      "tableNumber": "",
-      "customerName": "蔡智偉",
-      "customerPhone": "0923552477",
-      "detailsText": "1x 鮮蔬蛋漢堡 ::: $35\n----------------------\n小計 ::: $35\n總額 ::: $35\n🍴 提供餐具\n",
-      "totalAmount": 35,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "✅ 已取餐"
-    },
-    {
-      "id": 1793868235849,
-      "orderNumber": "001",
-      "orderDate": "2026-11-06",
-      "time": "11/05 16:43",
-      "diningType": "自取 (預訂: 11/06 08:00)",
-      "tableNumber": "",
-      "customerName": "蔡智偉",
-      "customerPhone": "0923552477",
-      "detailsText": "1x 一號餐 ::: $135\n  ✬ 焦一點, 紅茶, 冰, 無糖\n----------------------\n小計 ::: $135\n總額 ::: $135\n🍴 提供餐具\n",
-      "totalAmount": 135,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "✅ 已取餐"
-    },
-    {
-      "id": 1793867501836,
-      "orderNumber": "011",
-      "orderDate": "2026-11-05",
-      "time": "11/05 16:31",
-      "diningType": "自取",
-      "tableNumber": "",
-      "customerName": "蔡智偉",
-      "customerPhone": "0923552477",
-      "detailsText": "1x 麥克雞塊(5入) ::: $40\n3x 台味鹽酥雞 ::: $135\n1x 人氣炸雞 ::: $45\n----------------------\n小計 ::: $220\n總額 ::: $220\n",
-      "totalAmount": 220,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "✅ 已取餐"
-    },
-    {
-      "id": 1793867155456,
-      "orderNumber": "010",
-      "orderDate": "2026-11-05",
-      "time": "11/05 16:25",
-      "diningType": "自取",
-      "tableNumber": "",
-      "customerName": "蔡智偉",
-      "customerPhone": "0923552477",
-      "detailsText": "1x 原味蔬菜捲餅 ::: $45\n1x 玉米捲餅 ::: $55\n----------------------\n小計 ::: $100\n🎟️ 優惠折抵 ::: -$10\n----------------------\n總額 ::: $90\n",
-      "totalAmount": 90,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "✅ 已取餐"
-    },
-    {
-      "id": 1793865789933,
-      "orderNumber": "009",
-      "orderDate": "2026-11-05",
-      "time": "11/05 16:03",
-      "diningType": "外帶",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "1x 玉米蛋餅 ::: $40\n1x 特調鮪魚蛋餅 ::: $55\n----------------------\n小計 ::: $95\n總額 ::: $95\n",
-      "totalAmount": 95,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳"
-    },
-    {
-      "id": 1793864795353,
-      "orderNumber": "008",
-      "orderDate": "2026-11-05",
-      "time": "11/05 15:46",
-      "diningType": "自取",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "1x 原味蛋餅 ::: $75\n  ✬ 加起司, 加九層塔, 加玉米, 不要蔥, 加蛋\n----------------------\n小計 ::: $75\n總額 ::: $75\n",
-      "totalAmount": 75,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳",
-      "pickupStatus": "尚未取餐"
-    },
-    {
-      "id": 1793861761037,
-      "orderNumber": "011",
-      "orderDate": "2026-11-05",
-      "time": "11/05 14:56",
-      "diningType": "自取",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "1x 原味蛋餅 ::: $65\n  ✬ 焦一點, 加起司, 加九層塔, 加玉米, 不要蔥, 不要蛋, 加辣\n----------------------\n小計 ::: $65\n🎟️ 優惠折抵 ::: -$6\n----------------------\n總額 ::: $59\n",
-      "totalAmount": 59,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳"
-    },
-    {
-      "id": 1793861238187,
-      "orderNumber": "010",
-      "orderDate": "2026-11-05",
-      "time": "11/05 14:47",
-      "diningType": "自取",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "1x 原味蛋餅 ::: $65\n  ✬ 加起司, 加九層塔, 加玉米\n1x 九層塔蛋餅 ::: $40\n1x 經典薯餅蛋餅 ::: $50\n----------------------\n小計 ::: $155\n🎟️ 優惠折抵 ::: -$15\n----------------------\n總額 ::: $140\n",
-      "totalAmount": 140,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳"
-    },
-    {
-      "id": 1793860564814,
-      "orderNumber": "009",
-      "orderDate": "2026-11-05",
-      "time": "11/05 14:36",
-      "diningType": "內用(桌號:8)",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "原味蛋餅 x 1\n  ✬ 焦一點, 加起司, 加九層塔, 加玉米\n----------------------\n🎟️ 優惠碼 (vip8888): -$6\n----------------------\n",
-      "totalAmount": 59,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳"
-    },
-    {
-      "id": 1793855815106,
-      "orderNumber": "008",
-      "orderDate": "2026-11-05",
-      "time": "11/05 13:16",
-      "diningType": "外帶",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "蘿蔔糕煎蛋 x 1\n美式脆薯 x 1\n麥克雞塊(5入) x 1\n----------------------\n",
-      "totalAmount": 135,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳"
-    },
-    {
-      "id": 1793855785386,
-      "orderNumber": "007",
-      "orderDate": "2026-11-05",
-      "time": "11/05 13:16",
-      "diningType": "外帶",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "原味蛋餅 x 1\n  ✬ 焦一點, 加起司, 不要蔥, 加蛋, 加辣\n雙蛋蛋餅 x 1\n  ✬ 焦一點, 加起司\n----------------------\n",
-      "totalAmount": 100,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳"
-    },
-    {
-      "id": 1793850845661,
-      "orderNumber": "006",
-      "orderDate": "2026-11-05",
-      "time": "11/05 11:54",
-      "diningType": "內用(桌號:6)",
-      "tableNumber": "6",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "原味蛋餅 x 3\n  ✬ 焦一點, 加起司, 不要蔥, 加蛋, 加辣\n原味蛋餅 x 1\n  ✬ 不要焦, 加起司, 不要蔥, 加蛋, 加辣\n----------------------\n",
-      "totalAmount": 200,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳"
-    },
-    {
-      "id": 1793847757296,
-      "orderNumber": "005",
-      "orderDate": "2026-11-05",
-      "time": "11/05 11:02",
-      "diningType": "內用(桌號:4)",
-      "tableNumber": "4",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "炸湯圓 x 3\n----------------------\n",
-      "totalAmount": 105,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳"
-    },
-    {
-      "id": 1793777774510,
-      "orderNumber": "004",
-      "orderDate": "2026-11-04",
-      "time": "11/04 15:36",
-      "diningType": "自取",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "港式蘿蔔糕 x 1\n蘿蔔糕煎蛋 x 1\n美式脆薯 x 1\n----------------------\n",
-      "totalAmount": 135,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳"
-    },
-    {
-      "id": 1793777747412,
-      "orderNumber": "003",
-      "orderDate": "2026-11-04",
-      "time": "11/04 15:35",
-      "diningType": "內用(桌號:7)",
-      "tableNumber": "7",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "鮮蔬蛋吐司 x 1\n  ✬加起司+10\n----------------------\n",
-      "totalAmount": 45,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳"
-    },
-    {
-      "id": 1793776396111,
-      "orderNumber": "002",
-      "orderDate": "2026-11-04",
-      "time": "11/04 15:13",
-      "diningType": "內用(桌號:6)",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "蘿蔔糕煎蛋 x 1\n美式脆薯 x 1\n----------------------\n",
-      "totalAmount": 95,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳"
-    },
-    {
-      "id": 1793776371270,
-      "orderNumber": "001",
-      "orderDate": "2026-11-04",
-      "time": "11/04 15:12",
-      "diningType": "外帶",
-      "tableNumber": "",
-      "customerName": "現場客",
-      "customerPhone": "",
-      "detailsText": "炸湯圓 x 1\n港式蘿蔔糕 x 1\n----------------------\n",
-      "totalAmount": 75,
-      "status": "✅ 已完成",
-      "paymentStatus": "✅ 已結帳"
-    }
-  ],
-  "order_items": [],
-  "settlements": [],
-  "auto_ids": {
-    "categories": 4,
-    "products": 9,
-    "tables": 7,
-    "orders": 1,
-    "order_items": 1,
-    "settlements": 1,
-    "modifier_groups": 12,
-    "modifier_options": 31
-  },
   "menu": [
     {
       "id": 1,
@@ -4056,40 +3109,6 @@
           ]
         },
         {
-          "title": "必選:飲料溫度(特定飲料溫度固定)",
-          "name": "飲料溫度(特定飲料溫度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "冰",
-              "price": 0
-            },
-            {
-              "name": "溫",
-              "price": 0
-            }
-          ]
-        },
-        {
-          "title": "必選:飲料甜度(特定飲料甜度固定)",
-          "name": "飲料甜度(特定飲料甜度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "有糖",
-              "price": 0
-            },
-            {
-              "name": "無糖",
-              "price": 0
-            }
-          ]
-        },
-        {
           "title": "複選:加購",
           "name": "加購",
           "type": "複選",
@@ -4195,40 +3214,6 @@
             {
               "name": "輕拿鐵",
               "price": 30
-            }
-          ]
-        },
-        {
-          "title": "必選:飲料溫度(特定飲料溫度固定)",
-          "name": "飲料溫度(特定飲料溫度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "冰",
-              "price": 0
-            },
-            {
-              "name": "溫",
-              "price": 0
-            }
-          ]
-        },
-        {
-          "title": "必選:飲料甜度(特定飲料甜度固定)",
-          "name": "飲料甜度(特定飲料甜度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "有糖",
-              "price": 0
-            },
-            {
-              "name": "無糖",
-              "price": 0
             }
           ]
         },
@@ -4342,40 +3327,6 @@
           ]
         },
         {
-          "title": "必選:飲料溫度(特定飲料溫度固定)",
-          "name": "飲料溫度(特定飲料溫度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "冰",
-              "price": 0
-            },
-            {
-              "name": "溫",
-              "price": 0
-            }
-          ]
-        },
-        {
-          "title": "必選:飲料甜度(特定飲料甜度固定)",
-          "name": "飲料甜度(特定飲料甜度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "有糖",
-              "price": 0
-            },
-            {
-              "name": "無糖",
-              "price": 0
-            }
-          ]
-        },
-        {
           "title": "複選:加購",
           "name": "加購",
           "type": "複選",
@@ -4481,40 +3432,6 @@
             {
               "name": "輕拿鐵",
               "price": 30
-            }
-          ]
-        },
-        {
-          "title": "必選:飲料溫度(特定飲料溫度固定)",
-          "name": "飲料溫度(特定飲料溫度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "冰",
-              "price": 0
-            },
-            {
-              "name": "溫",
-              "price": 0
-            }
-          ]
-        },
-        {
-          "title": "必選:飲料甜度(特定飲料甜度固定)",
-          "name": "飲料甜度(特定飲料甜度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "有糖",
-              "price": 0
-            },
-            {
-              "name": "無糖",
-              "price": 0
             }
           ]
         },
@@ -4628,40 +3545,6 @@
           ]
         },
         {
-          "title": "必選:飲料溫度(特定飲料溫度固定)",
-          "name": "飲料溫度(特定飲料溫度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "冰",
-              "price": 0
-            },
-            {
-              "name": "溫",
-              "price": 0
-            }
-          ]
-        },
-        {
-          "title": "必選:飲料甜度(特定飲料甜度固定)",
-          "name": "飲料甜度(特定飲料甜度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "有糖",
-              "price": 0
-            },
-            {
-              "name": "無糖",
-              "price": 0
-            }
-          ]
-        },
-        {
           "title": "複選:加購",
           "name": "加購",
           "type": "複選",
@@ -4767,40 +3650,6 @@
             {
               "name": "輕拿鐵",
               "price": 30
-            }
-          ]
-        },
-        {
-          "title": "必選:飲料溫度(特定飲料溫度固定)",
-          "name": "飲料溫度(特定飲料溫度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "冰",
-              "price": 0
-            },
-            {
-              "name": "溫",
-              "price": 0
-            }
-          ]
-        },
-        {
-          "title": "必選:飲料甜度(特定飲料甜度固定)",
-          "name": "飲料甜度(特定飲料甜度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "有糖",
-              "price": 0
-            },
-            {
-              "name": "無糖",
-              "price": 0
             }
           ]
         },
@@ -4914,40 +3763,6 @@
           ]
         },
         {
-          "title": "必選:飲料溫度(特定飲料溫度固定)",
-          "name": "飲料溫度(特定飲料溫度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "冰",
-              "price": 0
-            },
-            {
-              "name": "溫",
-              "price": 0
-            }
-          ]
-        },
-        {
-          "title": "必選:飲料甜度(特定飲料甜度固定)",
-          "name": "飲料甜度(特定飲料甜度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "有糖",
-              "price": 0
-            },
-            {
-              "name": "無糖",
-              "price": 0
-            }
-          ]
-        },
-        {
           "title": "複選:加購",
           "name": "加購",
           "type": "複選",
@@ -5053,40 +3868,6 @@
             {
               "name": "輕拿鐵",
               "price": 30
-            }
-          ]
-        },
-        {
-          "title": "必選:飲料溫度(特定飲料溫度固定)",
-          "name": "飲料溫度(特定飲料溫度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "冰",
-              "price": 0
-            },
-            {
-              "name": "溫",
-              "price": 0
-            }
-          ]
-        },
-        {
-          "title": "必選:飲料甜度(特定飲料甜度固定)",
-          "name": "飲料甜度(特定飲料甜度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "有糖",
-              "price": 0
-            },
-            {
-              "name": "無糖",
-              "price": 0
             }
           ]
         },
@@ -5200,40 +3981,6 @@
           ]
         },
         {
-          "title": "必選:飲料溫度(特定飲料溫度固定)",
-          "name": "飲料溫度(特定飲料溫度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "冰",
-              "price": 0
-            },
-            {
-              "name": "溫",
-              "price": 0
-            }
-          ]
-        },
-        {
-          "title": "必選:飲料甜度(特定飲料甜度固定)",
-          "name": "飲料甜度(特定飲料甜度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "有糖",
-              "price": 0
-            },
-            {
-              "name": "無糖",
-              "price": 0
-            }
-          ]
-        },
-        {
           "title": "複選:加購",
           "name": "加購",
           "type": "複選",
@@ -5339,40 +4086,6 @@
             {
               "name": "輕拿鐵",
               "price": 30
-            }
-          ]
-        },
-        {
-          "title": "必選:飲料溫度(特定飲料溫度固定)",
-          "name": "飲料溫度(特定飲料溫度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "冰",
-              "price": 0
-            },
-            {
-              "name": "溫",
-              "price": 0
-            }
-          ]
-        },
-        {
-          "title": "必選:飲料甜度(特定飲料甜度固定)",
-          "name": "飲料甜度(特定飲料甜度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "有糖",
-              "price": 0
-            },
-            {
-              "name": "無糖",
-              "price": 0
             }
           ]
         },
@@ -5486,40 +4199,6 @@
           ]
         },
         {
-          "title": "必選:飲料溫度(特定飲料溫度固定)",
-          "name": "飲料溫度(特定飲料溫度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "冰",
-              "price": 0
-            },
-            {
-              "name": "溫",
-              "price": 0
-            }
-          ]
-        },
-        {
-          "title": "必選:飲料甜度(特定飲料甜度固定)",
-          "name": "飲料甜度(特定飲料甜度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "有糖",
-              "price": 0
-            },
-            {
-              "name": "無糖",
-              "price": 0
-            }
-          ]
-        },
-        {
           "title": "複選:加購",
           "name": "加購",
           "type": "複選",
@@ -5629,40 +4308,6 @@
           ]
         },
         {
-          "title": "必選:飲料溫度(特定飲料溫度固定)",
-          "name": "飲料溫度(特定飲料溫度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "冰",
-              "price": 0
-            },
-            {
-              "name": "溫",
-              "price": 0
-            }
-          ]
-        },
-        {
-          "title": "必選:飲料甜度(特定飲料甜度固定)",
-          "name": "飲料甜度(特定飲料甜度固定)",
-          "type": "必選",
-          "required": true,
-          "multiple": false,
-          "items": [
-            {
-              "name": "有糖",
-              "price": 0
-            },
-            {
-              "name": "無糖",
-              "price": 0
-            }
-          ]
-        },
-        {
           "title": "複選:加購",
           "name": "加購",
           "type": "複選",
@@ -5682,23 +4327,29 @@
       ]
     }
   ],
+  "orders": [],
   "settings": {
     "openTime": "06:00",
     "closeTime": "13:00",
     "closedDaysOfWeek": "3",
-    "closedDates": "",
     "autoAccept": "開啟",
     "enableDelivery": "關閉",
+    "tableNumberStart": 1,
+    "tableNumberEnd": 8,
     "promoDiscountCode": "vip8888",
     "promoDiscountRate": 0.9,
     "promoDeductCode": "",
     "promoDeductAmount": 0,
-    "specialRestDates": "",
-    "tableNumberStart": 1,
-    "tableNumberEnd": 6
+    "customerDisplayImages": ""
   },
-  "announcement": "",
   "systemPassword": "1111",
+  "announcement": "",
+  "employees": [
+    "詩涵",
+    "銘慧",
+    "冠宇"
+  ],
+  "clockStatus": {},
   "expenseQuickWords": [
     "買蔥",
     "買蛋",
@@ -5742,15 +4393,6 @@
     "溢收現金",
     "其他收入"
   ],
-  "employees": [
-    "詩涵",
-    "銘慧",
-    "冠宇"
-  ],
-  "clockStatus": {
-    "詩涵": "下班",
-    "冠宇": "下班"
-  },
   "messages": [
     {
       "time": "2026/07/24 8:34:29",
@@ -5911,6 +4553,85 @@
       "sender": "customer",
       "content": "123",
       "epoch": "1793934799213"
+    },
+    {
+      "time": "2026/11/10 16:58",
+      "name": "蔡智偉",
+      "phone": "0923552477",
+      "sender": "customer",
+      "content": "123",
+      "epoch": "1794301107748"
+    },
+    {
+      "time": "2026/11/10 16:58",
+      "name": "蔡智偉",
+      "phone": "0923552477",
+      "sender": "customer",
+      "content": "ccccc",
+      "epoch": "1794301110206"
+    },
+    {
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "sender": "customer",
+      "text": "123",
+      "time": "11:52"
+    },
+    {
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "sender": "owner",
+      "text": "1111",
+      "time": "11:59"
+    },
+    {
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "sender": "owner",
+      "text": "9999",
+      "time": "13:20"
+    },
+    {
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "sender": "customer",
+      "text": "2222",
+      "time": "13:20"
+    },
+    {
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "sender": "owner",
+      "text": "76767",
+      "time": "13:47"
+    },
+    {
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "sender": "customer",
+      "text": "3243424",
+      "time": "13:47"
+    },
+    {
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "sender": "customer",
+      "text": "123",
+      "time": "13:47"
+    },
+    {
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "sender": "customer",
+      "text": "123",
+      "time": "13:48"
+    },
+    {
+      "customerName": "蔡智偉",
+      "customerPhone": "0923552477",
+      "sender": "customer",
+      "text": "43\\",
+      "time": "13:51"
     }
   ]
 }

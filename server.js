@@ -143,7 +143,8 @@ async function syncFromGoogleSheets() {
         promoDiscountCode: data.settings.promoDiscountCode || "vip8888",
         promoDiscountRate: parseFloat(data.settings.promoDiscountRate) || 0.9,
         promoDeductCode: data.settings.promoDeductCode || "",
-        promoDeductAmount: parseInt(data.settings.promoDeductAmount) || 0
+        promoDeductAmount: parseInt(data.settings.promoDeductAmount) || 0,
+        customerDisplayImages: data.settings["副螢幕輪播圖"] || data.settings.customerDisplayImages || ""
       };
     }
     if (data.announcement !== undefined) db.announcement = data.announcement;

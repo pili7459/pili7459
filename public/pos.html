@@ -226,30 +226,29 @@
             <p style="text-align:center; color:#94a3b8; font-weight:bold; margin-top:50px;">目前沒有餐點喔！</p>
           </div>
           <div class="pos-cart-footer">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <div class="radio-group" style="margin-bottom: 0;">
-                <label><input type="radio" name="posDiningType" value="內用" checked onchange="togglePosTableOrTime()"> 內用</label>
-                <label><input type="radio" name="posDiningType" value="外帶" onchange="togglePosTableOrTime()"> 外帶</label>
-                <label><input type="radio" name="posDiningType" value="自取" onchange="togglePosTableOrTime()"> 自取</label>
+            <div style="display: flex; align-items: center; gap: 6px; width: 100%;">
+              <select id="pos-dining-type" onchange="togglePosTableOrTime()" style="width: 80px; flex-shrink: 0; padding: 8px 4px; border: 2px solid #cbd5e1; border-radius: 8px; font-weight: bold; font-size: 0.95em; background:#fff; cursor:pointer; color:#1e293b;">
+                <option value="內用" selected>內用</option>
+                <option value="外帶">外帶</option>
+                <option value="自取">自取</option>
+              </select>
+
+              <select id="pos-table-number" style="width: 95px; flex-shrink: 0; padding: 8px 4px; border: 2px solid #cbd5e1; border-radius: 8px; font-weight: bold; font-size: 0.95em; background:#fff; cursor:pointer;">
+                <option value="" disabled selected>桌號</option>
+              </select>
+
+              <select id="pos-pickup-time" style="display: none; width: 95px; flex-shrink: 0; padding: 8px 4px; border: 2px solid #cbd5e1; border-radius: 8px; font-weight: bold; font-size: 0.95em; background:#fff; cursor:pointer;">
+                <option value="盡快取餐" selected>時間</option>
+              </select>
+
+              <div style="flex: 1; min-width: 0; display: flex; gap: 4px;">
+                <input type="text" id="promo-code-input" placeholder="優惠碼" style="flex: 1; min-width: 0; padding: 8px 6px; border: 2px solid #cbd5e1; border-radius: 8px; font-weight: bold; font-size: 0.95em;">
+                <button type="button" onclick="applyPromoCode()" style="background: #3b82f6; color: white; border: none; padding: 0 8px; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap; flex-shrink: 0;">套用</button>
               </div>
-              <div class="pos-cart-total" style="margin: 0; font-size: 1.6em; white-space: nowrap;">
-                <span id="display-subtotal" style="display:none; font-size:0.7em; color:#94a3b8; text-decoration:line-through; margin-right:4px;"></span>
+
+              <div class="pos-cart-total" style="margin: 0; font-size: 1.35em; white-space: nowrap; flex-shrink: 0; width: 135px; text-align: right;">
+                <span id="display-subtotal" style="display:none; font-size:0.7em; color:#94a3b8; text-decoration:line-through; margin-right:2px;"></span>
                 總計: $<span id="pos-total-price">0</span>
-              </div>
-            </div>
-
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <select id="pos-table-number" class="table-input" style="flex: 1.1; background:#fff; cursor:pointer;">
-                <option value="" disabled selected>👉 請選擇桌號</option>
-              </select>
-
-              <select id="pos-pickup-time" class="table-input" style="display: none; flex: 1.1; background:#fff; cursor:pointer;">
-                <option value="盡快取餐" selected>⏰ 盡快取餐</option>
-              </select>
-
-              <div style="flex: 1; display: flex; gap: 4px;">
-                <input type="text" id="promo-code-input" placeholder="優惠碼" style="flex: 1; padding: 10px 8px; border: 2px solid #cbd5e1; border-radius: 8px; font-weight: bold; font-size: 1em; width: 0;">
-                <button type="button" onclick="applyPromoCode()" style="background: #3b82f6; color: white; border: none; padding: 0 12px; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap;">套用</button>
               </div>
             </div>
 
@@ -405,19 +404,29 @@
 
 <!-- ---------------------------------------- [右側工具列面板] 開始 ---------------------------------------- -->
   <div class="toolbar-panel">
-    <button class="tool-btn" id="btn-nav-ordering" onclick="switchMainView('ordering')">點餐</button>
-    <button class="tool-btn" id="btn-nav-checkout" onclick="handleToolbarCheckout()">結帳</button>
-    <button class="tool-btn" id="btn-nav-tx" onclick="switchMainView('tx')">收支</button>
-    <button class="tool-btn" id="btn-nav-settle" style="background:#047857; color:#fff;" onclick="openDailySettlementModal()">關帳</button>
-    <div style="flex-grow: 1;"></div>
-    <button class="tool-btn" id="btn-nav-chat" onclick="switchMainView('chat')">
-      客服
-      <span class="notify-badge" id="chat-badge">新</span>
-    </button>
-    <button class="tool-btn" id="btn-nav-clock" onclick="openClockModal()">打卡</button>
-    <button class="tool-btn" id="btn-nav-drawer" onclick="openCashDrawer()">開錢櫃</button>
-    <button class="tool-btn" id="btn-nav-system" onclick="openSystemUI()">系統</button>
-    <button class="tool-btn" id="btn-nav-test" onclick="testPrint()">測試</button>
+    <!-- 頁面一：點餐、結帳、收支、客服 + 其它 -->
+    <div id="toolbar-page-main" style="display: flex; flex-direction: column; gap: 10px; width: 100%; height: 100%;">
+      <button class="tool-btn" id="btn-nav-ordering" onclick="switchMainView('ordering')">點餐</button>
+      <button class="tool-btn" id="btn-nav-checkout" onclick="handleToolbarCheckout()">結帳</button>
+      <button class="tool-btn" id="btn-nav-tx" onclick="switchMainView('tx')">收支</button>
+      <button class="tool-btn" id="btn-nav-chat" onclick="switchMainView('chat')">
+        客服
+        <span class="notify-badge" id="chat-badge">新</span>
+      </button>
+      <div style="flex-grow: 1;"></div>
+      <button class="tool-btn" id="btn-nav-more" onclick="toggleToolbarPage('more')">其它</button>
+    </div>
+
+    <!-- 頁面二：關帳、打卡、開錢櫃、系統、測試 + 返回 -->
+    <div id="toolbar-page-more" style="display: none; flex-direction: column; gap: 10px; width: 100%; height: 100%;">
+      <button class="tool-btn" id="btn-nav-settle" style="background:#047857; color:#fff;" onclick="openDailySettlementModal()">關帳</button>
+      <button class="tool-btn" id="btn-nav-clock" onclick="openClockModal()">打卡</button>
+      <button class="tool-btn" id="btn-nav-drawer" onclick="openCashDrawer()">開錢櫃</button>
+      <button class="tool-btn" id="btn-nav-system" onclick="openSystemUI()">系統</button>
+      <button class="tool-btn" id="btn-nav-test" onclick="testPrint()">測試</button>
+      <div style="flex-grow: 1;"></div>
+      <button class="tool-btn" id="btn-nav-back" style="background:#334155; color:#fff;" onclick="toggleToolbarPage('main')">返回</button>
+    </div>
   </div>
 <!-- ---------------------------------------- [右側工具列面板] 結束 ---------------------------------------- -->
 
@@ -462,14 +471,6 @@
             <div style="flex: 1; min-width: 120px;">
               <label style="font-weight:bold; color:#64748b;">分類：</label>
               <input type="text" id="edit-item-cat" class="sys-input" placeholder="例如: 蛋餅類">
-            </div>
-            <div style="flex: 1; min-width: 120px;">
-              <label style="font-weight:bold; color:#64748b;">狀態：</label>
-              <select id="edit-item-status" class="sys-input">
-                <option value="上架">🟢 上架</option>
-                <option value="售完">🟡 售完</option>
-                <option value="停售">🔴 停售</option>
-              </select>
             </div>
           </div>
         </div>

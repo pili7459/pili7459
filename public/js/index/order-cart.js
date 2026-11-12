@@ -210,13 +210,13 @@ window.updateCartUI = function() {
                     <div style="flex:1; line-height:1.6; word-break:break-all;">
                         ${blockHtml}
                     </div>
-                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px; margin-left:12px; flex-shrink:0;">
+                    <div style="display:flex; align-items:center; gap:12px; margin-left:12px; flex-shrink:0;">
                         <div class="qty-control" style="display:flex; align-items:center; gap:6px;">
                             <button class="qty-btn" onclick="updateCart('${cartKey}', -1)">-</button>
                             <span class="qty-number" style="min-width:20px; text-align:center; font-weight:bold;">${item.qty}</span>
                             <button class="qty-btn" onclick="updateCart('${cartKey}', 1)">+</button>
                         </div>
-                        <div style="font-weight: 900; font-size: 1.15em; color:#ea580c; text-align:right;">$${itemTotal}</div>
+                        <div style="font-weight: 900; font-size: 1.15em; color:#ea580c; text-align:right; min-width: 55px;">$${itemTotal}</div>
                     </div>
                 </div>
             </div>`;
@@ -409,8 +409,8 @@ window.submitOrder = function() {
     details += `總額 ::: $${finalTotal}${nl}`;
 
     const needCutlery = document.getElementById("need-cutlery").checked ? "提供餐具" : "不提供餐具";
-    details += `🍴 ${needCutlery}${nl}`;
-
+    const needStraw = document.getElementById("need-straw").checked ? "提供吸管" : "不提供吸管";
+    details += `🍴 ${needCutlery} / 🥤 ${needStraw}${nl}`;
     const notes = document.getElementById("order-notes").value.trim();
     if (notes) details += `📝 全單備註：${notes}${nl}`;
 
