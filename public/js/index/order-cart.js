@@ -193,31 +193,29 @@ window.updateCartUI = function() {
         const sec = categorizeCustomerOrderSections(item);
 
         let lines = [];
-        if (sec.comboTitle) lines.push(`<div style="font-size:1.15em; font-weight:900; color:#0f172a;">${sec.comboTitle}</div>`);
+        if (sec.comboTitle) lines.push(`<div style="font-size:1.15em; font-weight:900; color:#0f172a; margin-bottom:4px;">${sec.comboTitle}</div>`);
         if (sec.mainLine) lines.push(`<div style="font-size:0.95em; font-weight:700; color:#1e293b;">${sec.mainLine}</div>`);
         if (sec.drinkLine) lines.push(`<div style="font-size:0.95em; font-weight:700; color:#1e293b;">${sec.drinkLine}</div>`);
         if (sec.sideLines && sec.sideLines.length > 0) {
             sec.sideLines.forEach(s => lines.push(`<div style="font-size:0.95em; font-weight:700; color:#1e293b;">${s}</div>`));
         }
         if (sec.addonLine) lines.push(`<div style="font-size:0.95em; font-weight:700; color:#ea580c;">${sec.addonLine}</div>`);
-        if (sec.note) lines.push(`<div style="font-size:0.88em; color:#0284c7; font-weight:bold; margin-top:2px;">備註：${sec.note}</div>`);
+        if (sec.note) lines.push(`<div style="font-size:0.88em; color:#0284c7; font-weight:bold; margin-top:4px;">備註：${sec.note}</div>`);
 
         let blockHtml = lines.join('');
 
         cartDiv.innerHTML += `
-            <div class="cart-item" style="padding:12px; border-bottom:1px solid #e2e8f0;">
-                <div class="cart-item-main" style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <div style="flex:1; line-height:1.6; word-break:break-all;">
-                        ${blockHtml}
+            <div class="cart-item" style="padding:12px 4px; border-bottom:1px solid #e2e8f0;">
+                <div style="width:100%; line-height:1.55; word-break:break-word;">
+                    ${blockHtml}
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1px dashed #f1f5f9;">
+                    <div class="qty-control" style="display:flex; align-items:center; gap:8px;">
+                        <button class="qty-btn" onclick="updateCart('${cartKey}', -1)">-</button>
+                        <span class="qty-number" style="min-width:24px; text-align:center; font-weight:bold;">${item.qty}</span>
+                        <button class="qty-btn" onclick="updateCart('${cartKey}', 1)">+</button>
                     </div>
-                    <div style="display:flex; align-items:center; gap:12px; margin-left:12px; flex-shrink:0;">
-                        <div class="qty-control" style="display:flex; align-items:center; gap:6px;">
-                            <button class="qty-btn" onclick="updateCart('${cartKey}', -1)">-</button>
-                            <span class="qty-number" style="min-width:20px; text-align:center; font-weight:bold;">${item.qty}</span>
-                            <button class="qty-btn" onclick="updateCart('${cartKey}', 1)">+</button>
-                        </div>
-                        <div style="font-weight: 900; font-size: 1.15em; color:#ea580c; text-align:right; min-width: 55px;">$${itemTotal}</div>
-                    </div>
+                    <div style="font-weight: 900; font-size: 1.2em; color:#ea580c;">$${itemTotal}</div>
                 </div>
             </div>`;
     }
