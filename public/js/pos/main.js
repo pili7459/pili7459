@@ -1219,8 +1219,6 @@ async function initApp() {
     }
 
     // 每次重新開啟 POS 端，必先強制向 Google 試算表同步完成後再讀取資料
-    await api.triggerSheetsSync();
-
     const data = await api.fetchInitialData();
     if (loader) loader.style.display = "none";
 

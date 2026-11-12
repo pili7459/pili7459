@@ -780,22 +780,14 @@ server.listen(PORT, '0.0.0.0', async () => {
                             <div id="datetime-container" style="background: #fff; padding: 14px; border-radius: 10px; margin-top: 15px; border: 2px solid #93c5fd;">
                                 <h3 style="margin-top:0; border-bottom: none; padding-bottom:0; color:#1e3a8a;">⏰ 取餐時間 (必選)</h3>
                                 
-                                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
-                                    <div class="radio-group" id="time-selection" style="margin-top: 0;">
-                                        <label id="label-asap">
-                                            <input type="radio" name="timeType" value="ASAP" onchange="handleTimeTypeChange()"> 立即
-                                        </label>
-                                        <label id="label-specific">
-                                            <input type="radio" name="timeType" value="SPECIFIC" onchange="handleTimeTypeChange()"> 指定預約時間
-                                        </label>
-                                    </div>
-
-                                    <div style="display: flex; gap: 6px; align-items: center; flex: 1; min-width: 180px;">
-                                        <input type="text" id="promo-code-input" placeholder="輸入優惠碼" class="table-input" style="margin-top: 0; flex: 1; min-width: 0; padding: 10px 12px;">
-                                        <button type="button" class="add-btn" style="background:#ea580c; padding: 11px 16px; border-radius:8px; border:none; color:white; font-weight:bold; cursor:pointer; white-space: nowrap; flex-shrink: 0;" onclick="applyPromoCode()">套用</button>
-                                    </div>
+                                <div class="radio-group" id="time-selection" style="margin-top: 0;">
+                                    <label id="label-asap">
+                                        <input type="radio" name="timeType" value="ASAP" onchange="handleTimeTypeChange()"> 立即
+                                    </label>
+                                    <label id="label-specific">
+                                        <input type="radio" name="timeType" value="SPECIFIC" onchange="handleTimeTypeChange()"> 指定預約時間
+                                    </label>
                                 </div>
-                                <div id="promo-message" style="font-size:0.9em; margin-top:5px; font-weight:bold; text-align:right;"></div>
 
                                 <div id="specific-time-container" style="display:none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #cbd5e1;">
                                     <div style="font-weight:bold; color:#475569; margin-bottom:6px;">預約取餐日期：</div>
@@ -809,9 +801,9 @@ server.listen(PORT, '0.0.0.0', async () => {
                                 </div>
                             </div>
 
-                            <div id="contact-info-container" style="margin-top: 15px; display: flex; gap: 10px;">
-                                <input type="text" id="customer-name" placeholder="👉 姓名" class="table-input" style="margin-top: 0; flex: 1;">
-                                <input type="tel" id="customer-phone" placeholder="👉 手機" class="table-input" style="margin-top: 0; flex: 1;">
+                            <div id="contact-info-container" style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
+                                <input type="text" id="customer-name" placeholder="👉 姓名" class="table-input" style="margin-top: 0;">
+                                <input type="tel" id="customer-phone" placeholder="👉 手機" class="table-input" style="margin-top: 0;">
                             </div>
 
                             <div id="cutlery-container" style="margin-top: 15px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
@@ -824,7 +816,13 @@ server.listen(PORT, '0.0.0.0', async () => {
                             </div>
 
                             <h3 style="margin-top:20px;">📝 訂單備註</h3>
-                            <textarea id="order-notes" class="table-input" rows="2" placeholder="備註說明 (例如: 漢堡不要洋蔥)"></textarea>
+                            <textarea id="order-notes" class="table-input" rows="2" style="resize: none;" placeholder="備註說明 (例如: 漢堡不要洋蔥)"></textarea>
+
+                            <div style="display: flex; gap: 6px; align-items: center; margin-top: 15px;">
+                                <input type="text" id="promo-code-input" placeholder="輸入優惠碼" class="table-input" style="margin-top: 0; flex: 1; min-width: 0; padding: 10px 12px;">
+                                <button type="button" class="add-btn" style="background:#ea580c; padding: 11px 16px; border-radius:8px; border:none; color:white; font-weight:bold; cursor:pointer; white-space: nowrap; flex-shrink: 0;" onclick="applyPromoCode()">套用</button>
+                            </div>
+                            <div id="promo-message" style="font-size:0.9em; margin-top:5px; font-weight:bold; text-align:right;"></div>
                         </div>
                         <button class="submit-btn" id="btn-submit-order" onclick="submitOrder()">送出自取訂單</button>
                     </div>
@@ -1167,18 +1165,19 @@ server.listen(PORT, '0.0.0.0', async () => {
                 <option value="盡快取餐" selected>時間</option>
               </select>
 
-              <div style="flex: 1; min-width: 0; display: flex; gap: 4px;">
-                <input type="text" id="promo-code-input" placeholder="優惠碼" style="flex: 1; min-width: 0; padding: 8px 6px; border: 2px solid #cbd5e1; border-radius: 8px; font-weight: bold; font-size: 0.95em;">
+              <div style="display: flex; gap: 4px; flex-shrink: 0;">
+                <input type="text" id="promo-code-input" placeholder="優惠碼" style="width: 92px; padding: 8px 6px; border: 2px solid #cbd5e1; border-radius: 8px; font-weight: bold; font-size: 0.95em;">
                 <button type="button" onclick="applyPromoCode()" style="background: #3b82f6; color: white; border: none; padding: 0 8px; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap; flex-shrink: 0;">套用</button>
               </div>
 
-              <div class="pos-cart-total" style="margin: 0; font-size: 1.35em; white-space: nowrap; flex-shrink: 0; width: 135px; text-align: right;">
-                <span id="display-subtotal" style="display:none; font-size:0.7em; color:#94a3b8; text-decoration:line-through; margin-right:2px;"></span>
-                總計: $<span id="pos-total-price">0</span>
+              <div class="pos-cart-total" style="margin: 0; font-size: 1.3em; white-space: nowrap; flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 4px; min-width: 0;">
+                <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: center; line-height: 1.15;">
+                  <span id="promo-message" style="display: none; font-size: 0.62em; font-weight: 900; color: #10b981;"></span>
+                  <span id="display-subtotal" style="display: none; font-size: 0.68em; color: #94a3b8; text-decoration: line-through;"></span>
+                </div>
+                <span>總計: $<span id="pos-total-price">0</span></span>
               </div>
             </div>
-
-            <div id="promo-message" style="font-size: 0.9em; font-weight: bold; min-height: 18px; margin-top: -4px;"></div>
 
             <div style="display: flex; gap: 10px;">
               <button class="pos-cart-checkout-btn" style="background: #f59e0b; flex: 1; font-size: 1.15em;" onclick="submitPosUnpaidOrder()">送單(未結)</button>
@@ -1350,6 +1349,7 @@ server.listen(PORT, '0.0.0.0', async () => {
       <button class="tool-btn" id="btn-nav-drawer" onclick="openCashDrawer()">開錢櫃</button>
       <button class="tool-btn" id="btn-nav-system" onclick="openSystemUI()">系統</button>
       <button class="tool-btn" id="btn-nav-test" onclick="testPrint()">測試</button>
+      <button class="tool-btn" id="btn-nav-print-preview" onclick="openPrintPreviewModal()">列印預覽</button>
       <div style="flex-grow: 1;"></div>
       <button class="tool-btn" id="btn-nav-back" style="background:#334155; color:#fff;" onclick="toggleToolbarPage('main')">返回</button>
     </div>
@@ -1586,6 +1586,59 @@ server.listen(PORT, '0.0.0.0', async () => {
     </div>
   </div>
 <!-- ---------------------------------------- [關帳日結盤點視窗 Modal] 結束 ---------------------------------------- -->
+
+
+<!-- ---------------------------------------- [列印排版預覽視窗 Modal] 開始 ---------------------------------------- -->
+  <div id="print-preview-modal" class="modal-overlay" style="z-index: 3600;">
+    <div class="modal-box" style="width: 95%; max-width: 720px; max-height: 92vh; display: flex; flex-direction: column; padding: 24px; text-align: left;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 12px; margin-bottom: 14px;">
+        <h3 style="margin:0; font-size:1.5em; color:#0f172a; font-weight:900;">🖨️ 出單紙張大小與排版預覽</h3>
+        <button class="close-btn" onclick="closePrintPreviewModal()">✖</button>
+      </div>
+
+      <!-- 控制列：紙張類型 / 型號尺寸 / 檢視倍率 -->
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; background: #f8fafc; padding: 12px 14px; border-radius: 12px; border: 1px solid #cbd5e1; margin-bottom: 12px; align-items: center;">
+        <div style="display: flex; gap: 6px;">
+          <button type="button" id="btn-pp-type-sticker" onclick="switchPrintPreviewType('sticker')" style="padding: 8px 14px; border-radius: 8px; border: 2px solid #3b82f6; background: #3b82f6; color: #fff; font-weight: 800; cursor: pointer;">🏷️ 標籤貼紙</button>
+          <button type="button" id="btn-pp-type-receipt" onclick="switchPrintPreviewType('receipt')" style="padding: 8px 14px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; color: #334155; font-weight: 800; cursor: pointer;">🧾 熱感紙</button>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <label style="font-weight: bold; color: #475569; font-size: 0.95em;">型號規格：</label>
+          <select id="pp-model-select" onchange="updatePrintPreviewRender()" style="padding: 8px 10px; border-radius: 8px; border: 2px solid #cbd5e1; font-weight: 800; font-size: 0.95em; background: #fff; color: #0f172a; cursor: pointer;">
+            <option value="32x25" selected>32*25 (32mm × 25mm)</option>
+            <option value="40x30">40*30 (40mm × 30mm)</option>
+            <option value="50x30">50*30 (50mm × 30mm)</option>
+          </select>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
+          <label style="font-weight: bold; color: #475569; font-size: 0.95em;">顯示比例：</label>
+          <select id="pp-zoom-select" onchange="updatePrintPreviewRender()" style="padding: 8px 10px; border-radius: 8px; border: 2px solid #cbd5e1; font-weight: 800; font-size: 0.95em; background: #fff; color: #0f172a; cursor: pointer;">
+            <option value="1">100% (實體 1:1)</option>
+            <option value="1.5" selected>150% (放大檢視)</option>
+            <option value="2">200% (細節檢視)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 尺寸與裁切狀態提示列 -->
+      <div id="pp-status-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 8px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a8a; font-weight: bold; font-size: 0.92em; margin-bottom: 12px;">
+        <span id="pp-dim-info">目前尺寸：寬 32mm × 高 25mm</span>
+        <span id="pp-overflow-warning">✅ 文字在安全範圍內</span>
+      </div>
+
+      <!-- 預覽畫布區（模擬真實黑白熱感列印） -->
+      <div id="pp-canvas-wrapper" style="flex: 1; min-height: 280px; max-height: 52vh; overflow: auto; background: #cbd5e1; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 18px; border: inset 2px solid #94a3b8;">
+      </div>
+
+      <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+        <span id="pp-source-info" style="font-size: 0.88em; color: #64748b; font-weight: bold;">資料來源：範例測試餐點</span>
+        <button class="btn-finish" style="width: auto; padding: 10px 28px; font-size: 1.15em;" onclick="closePrintPreviewModal()">關 閉</button>
+      </div>
+    </div>
+  </div>
+<!-- ---------------------------------------- [列印排版預覽視窗 Modal] 結束 ---------------------------------------- -->
 
 
 <!-- ---------------------------------------- [主模組腳本載入] 開始 ---------------------------------------- -->
@@ -2499,8 +2552,8 @@ function categorizeCustomerOrderSections(item) {
             if (!sideGroupsMap[sideIdx]) sideGroupsMap[sideIdx] = [];
             sideGroupsMap[sideIdx].push(displayMod);
         } else {
-            if (title.includes('口感') || title.includes('加料') || title.includes('熟度')) {
-                mainModifiers.push(displayMod);
+            if (title.includes('口感') || title.includes('加料') || title.includes('減料') || title.includes('熟度') || title.includes('口味') || 			title.includes('醬')) {
+              mainModifiers.push(displayMod);
             } else if (title.includes('冰') || title.includes('糖')) {
                 drinkModifiers.push(displayMod);
             } else {
@@ -3281,7 +3334,7 @@ function renderModalOptionGroups() {
                 <div class="option-item" style="flex-direction:column; align-items:stretch;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <label style="flex:1; cursor:pointer;">
-                            <input type="${inputType}" name="modal_group_${index}" value="${opt.name}" data-price="${p}" ${isChecked} onchange="handleModalOptionChange(${index}, '${opt.name}', ${isDrinkGroup})">
+                            <input type="${inputType}" name="modal_group_${index}" value="${opt.name}" data-price="${p}" data-was-checked="${isChecked ? 'true' : 'false'}" ${isChecked} onclick="handleRadioToggle(this, ${isRequired})" onchange="handleModalOptionChange(${index}, '${opt.name}', ${isDrinkGroup})">
                             ${opt.name}
                         </label>
                         ${priceText}
@@ -3314,6 +3367,18 @@ function renderModalOptionGroups() {
         }
     });
 }
+
+window.handleRadioToggle = function(inp, isRequired) {
+    if (inp.type !== 'radio') return;
+    const groupInputs = document.querySelectorAll(`input[name="${inp.name}"]`);
+    if (!isRequired && inp.getAttribute('data-was-checked') === 'true') {
+        inp.checked = false;
+        inp.setAttribute('data-was-checked', 'false');
+        calcModalPrice();
+    } else {
+        groupInputs.forEach(el => el.setAttribute('data-was-checked', el === inp ? 'true' : 'false'));
+    }
+};
 
 // 飲料選取時動態展開甜度與冰塊規格
 window.handleModalOptionChange = function(groupIndex, selectedOptName, isDrinkGroup) {
@@ -5200,10 +5265,13 @@ window.addOptGroup = system.addOptGroup;
 
 window.openCashDrawer = utils.openCashDrawer;
 window.testPrint = utils.testPrint;
+window.openPrintPreviewModal = utils.openPrintPreviewModal;
+window.closePrintPreviewModal = utils.closePrintPreviewModal;
+window.switchPrintPreviewType = utils.switchPrintPreviewType;
+window.updatePrintPreviewRender = utils.updatePrintPreviewRender;
 
 window.syncMenuFromSheets = async () => {
   try {
-    await api.triggerSheetsSync();
     await initApp();
     utils.showToast('✅ 菜單、員工名單、客服與設定已成功同步！');
   } catch (e) {
@@ -5606,9 +5674,17 @@ window.renderOrderDetailsHtml = function(detailsText) {
 
 // ---------------------------------------- [系統初始化 App] 開始 ----------------------------------------
 async function initApp() {
+  const loader = document.getElementById("sync-loader");
   try {
+    if (loader) {
+      loader.style.display = "block";
+      loader.innerText = "🔄 正在與 Google 試算表後台同步最新資料...";
+    }
+
+    // 每次重新開啟 POS 端，必先強制向 Google 試算表同步完成後再讀取資料
+    await api.triggerSheetsSync();
+
     const data = await api.fetchInitialData();
-    const loader = document.getElementById("sync-loader");
     if (loader) loader.style.display = "none";
 
     if (data.menu && data.menu.length > 0) {
@@ -5644,7 +5720,6 @@ async function initApp() {
     await loadOrders();
     switchMainView('ordering');
   } catch (e) {
-    const loader = document.getElementById("sync-loader");
     if (loader) loader.innerText = "⚠️ 無法連線至伺服器";
   }
 }
@@ -5965,7 +6040,10 @@ export function applyPromoCode() {
 
   if (!code) {
     state.appliedPromo = null;
-    if (msgEl) msgEl.innerText = '';
+    if (msgEl) {
+      msgEl.innerText = '';
+      msgEl.style.display = 'none';
+    }
     updateCartUI();
     return;
   }
@@ -5977,25 +6055,28 @@ export function applyPromoCode() {
   const deductAmt = parseInt(s.promoDeductAmount || s['直扣金額']) || 0;
 
   if (code.toLowerCase() === discountCode.toLowerCase()) {
-    const foldText = Math.round(discountRate * 100) % 10 === 0 ? (discountRate * 10) + '折' : (discountRate * 100) + '折';
+    const foldVal = +(discountRate * 10).toFixed(1);
+    const foldText = `${foldVal}折`;
     state.appliedPromo = { code: code, type: 'discount', rate: discountRate, text: foldText };
     if (msgEl) {
       msgEl.style.color = '#10b981';
-      msgEl.innerText = `✅ 套用成功：整單 ${foldText}`;
+      msgEl.innerText = `✅${foldText}`;
+      msgEl.style.display = 'inline';
     }
     showToast(`✅ 套用優惠碼：整單 ${foldText}`);
   } else if (deductCode && code.toLowerCase() === deductCode.toLowerCase()) {
-    state.appliedPromo = { code: code, type: 'deduct', amount: deductAmt, text: `折抵$${deductAmt}` };
+    state.appliedPromo = { code: code, type: 'deduct', amount: deductAmt, text: `折$${deductAmt}` };
     if (msgEl) {
       msgEl.style.color = '#10b981';
-      msgEl.innerText = `✅ 套用成功：現折 $${deductAmt}`;
+      msgEl.innerText = `✅折$${deductAmt}`;
+      msgEl.style.display = 'inline';
     }
     showToast(`✅ 套用優惠碼：現折 $${deductAmt}`);
   } else {
     state.appliedPromo = null;
     if (msgEl) {
-      msgEl.style.color = '#ef4444';
-      msgEl.innerText = '❌ 優惠碼無效或過期';
+      msgEl.innerText = '';
+      msgEl.style.display = 'none';
     }
     showToast('⚠️ 優惠碼不存在或已停用');
   }
@@ -6062,8 +6143,8 @@ function categorizeOrderSections(item) {
       if (!sideGroupsMap[sideIdx]) sideGroupsMap[sideIdx] = [];
       sideGroupsMap[sideIdx].push(displayMod);
     } else {
-      if (title.includes('口感') || title.includes('加料') || title.includes('熟度')) {
-        mainModifiers.push(displayMod);
+      if (title.includes('口感') || title.includes('加料') || title.includes('減料') || title.includes('熟度') || title.includes('口味') ||      	title.includes('醬')) {
+      mainModifiers.push(displayMod);
       } else if (title.includes('冰') || title.includes('糖')) {
         drinkModifiers.push(displayMod);
       } else {
@@ -6171,22 +6252,20 @@ export function updateCartUI() {
 
     cartDiv.innerHTML += `
       <div class="cart-item-row" style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px; margin-bottom:10px;">
-        <div class="cart-item-main" style="display:flex; justify-content:space-between; align-items:flex-start;">
-          <div style="flex:1; line-height:1.55; word-break:break-word;">
-            ${orderBlockHtml}
-          </div>
-          <div style="display: flex; flex-direction:column; align-items: flex-end; gap: 8px; flex-shrink:0; margin-left:12px;">
-            <button type="button" onclick="toggleItemComp('${cartKey}')" title="0.5秒內連點兩下切換招待" style="background:${compBtnBg}; color:${compBtnColor}; border:${compBorder}; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:0.8em; cursor:pointer;">
-              ${item.isComp ? '🎁 招待中' : '🎁 招待'}
-            </button>
-            <div style="display:flex; align-items:center; gap:10px;">
-              <div class="qty-control" style="display:flex; align-items:center; gap:6px;">
-                <button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '', ${item.price}, '', -1)">-</button>
-                <span class="qty-number" style="font-weight:bold; min-width:20px; text-align:center;">${item.qty}</span>
-                <button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '', ${item.price}, '', 1)">+</button>
-              </div>
-              <div style="font-weight: 900; font-size: 1.2em; color:#ea580c; text-align: right;">${priceDisplay}</div>
+        <div style="width:100%; line-height:1.55; word-break:break-word;">
+          ${orderBlockHtml}
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1px dashed #e2e8f0;">
+          <button type="button" onclick="toggleItemComp('${cartKey}')" title="0.5秒內連點兩下切換招待" style="background:${compBtnBg}; color:${compBtnColor}; border:${compBorder}; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:0.8em; cursor:pointer;">
+            ${item.isComp ? '🎁 招待中' : '🎁 招待'}
+          </button>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div class="qty-control" style="display:flex; align-items:center; gap:6px;">
+              <button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '', ${item.price}, '', -1)">-</button>
+              <span class="qty-number" style="font-weight:bold; min-width:20px; text-align:center;">${item.qty}</span>
+              <button class="qty-btn" onclick="updateCart('${cartKey}', ${item.baseId}, '', ${item.price}, '', 1)">+</button>
             </div>
+            <div style="font-weight: 900; font-size: 1.2em; color:#ea580c; text-align: right; min-width: 55px;">${priceDisplay}</div>
           </div>
         </div>
       </div>`;
@@ -6293,7 +6372,7 @@ export function renderModalOptionGroups() {
         <div class="option-item" style="flex-direction:column; align-items:stretch;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <label style="flex:1; cursor:pointer;">
-              <input type="${inputType}" name="modal_group_${gIdx}" value="${opt.name}" data-price="${opt.price || 0}" ${isChecked} onchange="handleModalOptionChange(${gIdx}, '${opt.name}', ${isDrinkGroup})">
+              <input type="${inputType}" name="modal_group_${gIdx}" value="${opt.name}" data-price="${opt.price || 0}" data-was-checked="${isChecked ? 'true' : 'false'}" ${isChecked} onclick="handleRadioToggle(this, ${isRequired})" onchange="handleModalOptionChange(${gIdx}, '${opt.name}', ${isDrinkGroup})">
               ${opt.name}
             </label>
             <span class="option-price">${optPrice}</span>
@@ -6322,6 +6401,19 @@ export function renderModalOptionGroups() {
     </div>
   `;
 }
+
+// 非必選的單選項目，再次點擊可取消選取
+window.handleRadioToggle = function(inp, isRequired) {
+  if (inp.type !== 'radio') return;
+  const groupInputs = document.querySelectorAll(`input[name="${inp.name}"]`);
+  if (!isRequired && inp.getAttribute('data-was-checked') === 'true') {
+    inp.checked = false;
+    inp.setAttribute('data-was-checked', 'false');
+    calcModalPrice();
+  } else {
+    groupInputs.forEach(el => el.setAttribute('data-was-checked', el === inp ? 'true' : 'false'));
+  }
+};
 
 // 飲料選取動態聯動：載入單點客製規格
 window.handleModalOptionChange = function(groupIndex, selectedOptName, isDrinkGroup) {
@@ -6538,7 +6630,7 @@ function buildOrderDetailsPayload() {
       discountAmt = Math.min(subtotal, state.appliedPromo.amount);
     }
     finalTotal = Math.max(0, subtotal - discountAmt);
-    details += `優惠折抵 (${state.appliedPromo.code}) ::: -$${discountAmt}${nl}`;
+    details += `優惠折抵 (${state.appliedPromo.text}) ::: -$${discountAmt}${nl}`;
     details += `----------------------${nl}`;
   }
 
@@ -7171,6 +7263,7 @@ export async function saveItemEditor() {
 
 
 ==================== [C:\Users\admin\Desktop\練習\MyPOS\pos-v1.1\public\js\pos\utils.js] ====================
+import { state } from './state.js';
 // ---------------------------------------- [提示訊息 Toast] 開始 ----------------------------------------
 let toastTimeout = null;
 
@@ -7260,6 +7353,678 @@ export function testPrint() {
   printStickers("TEST-01");
 }
 // ---------------------------------------- [測試列印] 結束 ----------------------------------------
+
+
+// ---------------------------------------- [列印尺寸與排版預覽邏輯] 開始 ----------------------------------------
+let currentPpType = 'sticker';
+
+const PP_MODELS = {
+  sticker: [
+    { value: '32x25', label: '32*25 (32mm × 25mm)', wMm: 32, hMm: 25 },
+    { value: '40x30', label: '40*30 (40mm × 30mm)', wMm: 40, hMm: 30 },
+    { value: '50x30', label: '50*30 (50mm × 30mm)', wMm: 50, hMm: 30 }
+  ],
+  receipt: [
+    { value: '80x80x12', label: '80*80*12 (紙寬 80mm / 有效 72mm)', wMm: 80, hMm: null },
+    { value: '58x40x12', label: '58*40*12 (紙寬 58mm / 有效 48mm)', wMm: 58, hMm: null }
+  ]
+};
+
+function isDrinkItemName(name) {
+  if (!name) return false;
+  const keywords = ['飲', '茶', '咖啡', '豆漿', '拿鐵', '冬瓜', '可可', '牛奶', '鮮奶', '果汁', '可樂', '雪碧'];
+  return keywords.some(k => name.includes(k));
+}
+
+function formatStickerDiningLabel(diningType) {
+  if (!diningType) return '';
+  const str = String(diningType).trim();
+  if (str.includes('內用')) {
+    const numMatch = str.match(/(\d+)/);
+    return numMatch ? `桌號：${numMatch[1]}` : '';
+  }
+  return str.replace(/\(盡快取餐\)/g, '').trim();
+}
+
+function parseCartItemForPrint(item) {
+  const nameLines = (item.name || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+  const comboTitle = nameLines[0] || '';
+  const subItems = nameLines.slice(1);
+  const isCombo = subItems.length > 0;
+
+  let mainItemName = '';
+  let drinkItemName = '';
+  let rawSideItems = [];
+
+  if (isCombo) {
+    let foundDrink = false;
+    subItems.forEach(line => {
+      if (isDrinkItemName(line) && !foundDrink) {
+        drinkItemName = line;
+        foundDrink = true;
+      } else if (!foundDrink) {
+        if (!mainItemName) mainItemName = line;
+        else rawSideItems.push(line);
+      } else {
+        rawSideItems.push(line);
+      }
+    });
+  } else {
+    mainItemName = comboTitle;
+  }
+
+  let mainModifiers = [];
+  let drinkModifiers = [];
+  let drinkPriceAdd = 0;
+  let sideGroupsMap = {};
+  let extraAddons = [];
+
+  (item.structuredOptions || []).forEach(opt => {
+    const title = opt.groupTitle || '';
+    const extraText = opt.price > 0 ? `+${opt.price}` : '';
+    const displayMod = `${opt.name}${extraText}`;
+
+    if (title.includes('主餐')) {
+      mainModifiers.push(displayMod);
+    } else if (title.includes('飲料') || title.includes('飲品')) {
+      drinkItemName = opt.name;
+      drinkPriceAdd = opt.price || 0;
+      if (opt.subModifiers && opt.subModifiers.length > 0) {
+        drinkModifiers.push(...opt.subModifiers);
+      }
+    } else if (title.includes('加購') || title.includes('加點')) {
+      extraAddons.push({ name: opt.name, price: opt.price || 0 });
+    } else if (title.includes('副餐')) {
+      const match = title.match(/副餐(\d+)/);
+      const sideIdx = match ? parseInt(match[1], 10) : 1;
+      if (!sideGroupsMap[sideIdx]) sideGroupsMap[sideIdx] = [];
+      sideGroupsMap[sideIdx].push(displayMod);
+    } else {
+      if (title.includes('口感') || title.includes('加料') || title.includes('減料') || title.includes('熟度') || title.includes('口味') || title.includes('醬')) {
+        mainModifiers.push(displayMod);
+      } else if (title.includes('冰') || title.includes('糖')) {
+        drinkModifiers.push(displayMod);
+      } else {
+        if (!sideGroupsMap[1]) sideGroupsMap[1] = [];
+        sideGroupsMap[1].push(displayMod);
+      }
+    }
+  });
+
+  const sideList = [];
+  const maxSideCount = Math.max(rawSideItems.length, Object.keys(sideGroupsMap).length);
+  for (let i = 1; i <= maxSideCount; i++) {
+    const name = rawSideItems[i - 1] || (Object.keys(sideGroupsMap).length > 1 ? `副餐${i}` : '副餐');
+    const mods = sideGroupsMap[i] || [];
+    sideList.push({ name, mods });
+  }
+
+  return {
+    isCombo,
+    comboTitle,
+    mainItemName,
+    mainModifiers,
+    drinkItemName,
+    drinkPriceAdd,
+    drinkModifiers,
+    sideList,
+    extraAddons,
+    note: item.note || '',
+    qty: item.qty || 1,
+    totalPrice: item.isComp ? 0 : (item.price * (item.qty || 1))
+  };
+}
+
+function getPreviewSampleData() {
+  const cartKeys = Object.keys(state.cart || {});
+  if (cartKeys.length > 0) {
+    const diningType = document.getElementById('pos-dining-type')?.value || '內用';
+    const tableNum = document.getElementById('pos-table-number')?.value || '5';
+    const parsedItems = cartKeys.map(k => parseCartItemForPrint(state.cart[k]));
+    const subtotal = parsedItems.reduce((sum, i) => sum + i.totalPrice, 0);
+
+    let finalTotal = subtotal;
+    let promoLabel = '';
+    let discountAmt = 0;
+
+    if (state.appliedPromo && subtotal > 0) {
+      if (state.appliedPromo.type === 'discount') {
+        discountAmt = Math.round(subtotal * (1 - state.appliedPromo.rate));
+        const foldVal = +(state.appliedPromo.rate * 10).toFixed(1);
+        promoLabel = `${foldVal}折`;
+      } else if (state.appliedPromo.type === 'deduct') {
+        discountAmt = Math.min(subtotal, state.appliedPromo.amount);
+        promoLabel = `折抵$${discountAmt}`;
+      }
+      finalTotal = Math.max(0, subtotal - discountAmt);
+    }
+
+    return {
+      sourceLabel: '資料來源：目前購物車餐點',
+      orderNum: '018',
+      diningType: diningType === '內用' ? `內用(桌號:${tableNum})` : diningType,
+      time: getFormattedTime(),
+      parsedItems,
+      subtotal,
+      promoLabel,
+      discountAmt,
+      total: finalTotal
+    };
+  }
+
+  if (state.selectedOrder && state.selectedOrder.detailsText) {
+    const rawLines = state.selectedOrder.detailsText.split(/\r?\n/);
+    const parsedItems = [];
+    let cur = null;
+    let parsedSubtotal = 0;
+    let parsedPromoLabel = '';
+    let parsedDiscountAmt = 0;
+
+    rawLines.forEach(rawLine => {
+      const t = rawLine.trim();
+      if (!t || t.includes('---')) return;
+
+      if (t.includes(':::')) {
+        const [left, right] = t.split(':::');
+        if (left.includes('小計')) {
+          parsedSubtotal = parseInt((right || '').replace(/[^0-9]/g, ''), 10) || 0;
+          return;
+        }
+        if (left.includes('優惠')) {
+          parsedDiscountAmt = parseInt((right || '').replace(/[^0-9]/g, ''), 10) || 0;
+          const foldMatch = left.match(/(\d+(\.\d+)?折)/);
+          parsedPromoLabel = foldMatch ? foldMatch[1] : `折抵$${parsedDiscountAmt}`;
+          return;
+        }
+        if (left.includes('總額') || left.includes('總計')) return;
+
+        if (cur) parsedItems.push(cur);
+        const qtyMatch = left.trim().match(/^(\d+)x\s*(.*)$/);
+        const qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
+        const title = qtyMatch ? qtyMatch[2].trim() : left.trim();
+        cur = {
+          isCombo: false,
+          comboTitle: title,
+          mainItemName: title,
+          mainModifiers: [],
+          drinkItemName: '',
+          drinkPriceAdd: 0,
+          drinkModifiers: [],
+          sideList: [],
+          extraAddons: [],
+          note: '',
+          qty,
+          totalPrice: parseInt((right || '').replace(/[^0-9]/g, ''), 10) || 0,
+          _lastTarget: 'main'
+        };
+      } else if (cur) {
+        if (t.startsWith('▸')) {
+          cur.isCombo = true;
+          const subName = t.replace(/^▸\s*/, '').trim();
+          if (isDrinkItemName(subName)) {
+            cur.drinkItemName = subName;
+            cur._lastTarget = 'drink';
+          } else if (cur.mainItemName === cur.comboTitle) {
+            cur.mainItemName = subName;
+            cur._lastTarget = 'main';
+          } else {
+            cur.sideList.push({ name: subName, mods: [] });
+            cur._lastTarget = 'side';
+          }
+        } else if (t.startsWith('└')) {
+          const mods = t.replace(/^└\s*/, '').split('/').map(s => s.trim()).filter(Boolean);
+          if (cur._lastTarget === 'drink') cur.drinkModifiers.push(...mods);
+          else if (cur._lastTarget === 'side' && cur.sideList.length > 0) cur.sideList[cur.sideList.length - 1].mods.push(...mods);
+          else cur.mainModifiers.push(...mods);
+        } else if (t.startsWith('＋加購：')) {
+          const addons = t.replace(/^＋加購：/, '').split('/').map(s => s.trim()).filter(Boolean);
+          addons.forEach(a => cur.extraAddons.push({ name: a, price: 0 }));
+        } else if (t.startsWith('※ 備註：')) {
+          cur.note = t.replace(/^※ 備註：/, '').trim();
+        }
+      }
+    });
+    if (cur) parsedItems.push(cur);
+
+    if (parsedItems.length > 0) {
+      const calcSub = parsedSubtotal || parsedItems.reduce((sum, i) => sum + i.totalPrice, 0);
+      return {
+        sourceLabel: `資料來源：目前選取訂單 (#${state.selectedOrder.orderNumber})`,
+        orderNum: state.selectedOrder.orderNumber || '001',
+        diningType: state.selectedOrder.diningType || '內用',
+        time: state.selectedOrder.time || getFormattedTime(),
+        parsedItems,
+        subtotal: calcSub,
+        promoLabel: parsedPromoLabel,
+        discountAmt: parsedDiscountAmt,
+        total: Math.abs(parseInt(state.selectedOrder.totalAmount || 0, 10))
+      };
+    }
+  }
+
+  return {
+    sourceLabel: '資料來源：範例測試餐點（測試自動放大與超長自動分張）',
+    orderNum: '012',
+    diningType: '內用(桌號:5)',
+    time: getFormattedTime(),
+    parsedItems: [
+      {
+        isCombo: true,
+        comboTitle: '一號餐',
+        mainItemName: '嫩煎雞腿蛋餅',
+        mainModifiers: ['焦一點', '加起司+10', '加九層塔+15', '加玉米+10', '加雙蛋+20', '不要蔥', '加辣'],
+        drinkItemName: '招牌日十紅茶',
+        drinkPriceAdd: 0,
+        drinkModifiers: ['冰', '甜度固定'],
+        sideList: [{ name: '炸物雙拼', mods: [] }],
+        extraAddons: [{ name: '熱狗', price: 16 }],
+        note: '蛋餅切小塊、不要醬油膏',
+        qty: 1,
+        totalPrice: 243
+      },
+      {
+        isCombo: false,
+        comboTitle: '杉林溪青茶 (大)',
+        mainItemName: '杉林溪青茶 (大)',
+        mainModifiers: ['固定冰', '固定無糖'],
+        drinkItemName: '',
+        drinkPriceAdd: 0,
+        drinkModifiers: [],
+        sideList: [],
+        extraAddons: [],
+        note: '',
+        qty: 2,
+        totalPrice: 100
+      }
+    ],
+    subtotal: 343,
+    promoLabel: '',
+    discountAmt: 0,
+    total: 343
+  };
+}
+
+function splitTicketIfOverflow(rawTicket, wMm, hMm, itemIndex, totalItems) {
+  const mods = rawTicket.mods || [];
+  const countBadge = `${itemIndex}/${totalItems}`;
+
+  if (mods.length === 0) {
+    return [{ title: rawTicket.title, mods: [], isCont: false, countBadge }];
+  }
+
+  const areaFactor = (wMm * hMm) / (32 * 25);
+  const maxFirstChars = Math.max(22, Math.floor(28 * areaFactor));
+  const maxNextChars = Math.max(26, Math.floor(34 * areaFactor));
+
+  const pages = [];
+  let currentMods = [];
+  let currentLen = 0;
+
+  mods.forEach(mod => {
+    const addLen = mod.length + (currentMods.length > 0 ? 3 : 0);
+    const limit = pages.length === 0 ? maxFirstChars : maxNextChars;
+
+    if (currentMods.length > 0 && currentLen + addLen > limit) {
+      pages.push({
+        title: pages.length === 0 ? rawTicket.title : `(續)${rawTicket.title}`,
+        mods: currentMods,
+        isCont: pages.length > 0,
+        countBadge
+      });
+      currentMods = [mod];
+      currentLen = mod.length;
+    } else {
+      currentMods.push(mod);
+      currentLen += addLen;
+    }
+  });
+
+  if (currentMods.length > 0) {
+    pages.push({
+      title: pages.length === 0 ? rawTicket.title : `(續)${rawTicket.title}`,
+      mods: currentMods,
+      isCont: pages.length > 0,
+      countBadge
+    });
+  }
+
+  return pages;
+}
+
+function buildStickerTickets(parsedItems, wMm = 32, hMm = 25) {
+  const rawTickets = [];
+  parsedItems.forEach(item => {
+    const qty = item.qty || 1;
+    for (let q = 0; q < qty; q++) {
+      if (item.isCombo) {
+        if (item.mainItemName && !isDrinkItemName(item.mainItemName)) {
+          rawTickets.push({ title: item.mainItemName, mods: item.mainModifiers });
+        }
+        (item.sideList || []).forEach(s => {
+          if (s.name && !isDrinkItemName(s.name)) {
+            rawTickets.push({ title: s.name, mods: s.mods });
+          }
+        });
+      } else {
+        if (item.mainItemName && !isDrinkItemName(item.mainItemName)) {
+          rawTickets.push({ title: item.mainItemName, mods: item.mainModifiers });
+        }
+      }
+
+      (item.extraAddons || []).forEach(ad => {
+        if (ad.name && !isDrinkItemName(ad.name)) {
+          rawTickets.push({ title: ad.name, mods: [] });
+        }
+      });
+    }
+  });
+
+  const totalItems = rawTickets.length;
+  const finalTickets = [];
+  rawTickets.forEach((rt, idx) => {
+    finalTickets.push(...splitTicketIfOverflow(rt, wMm, hMm, idx + 1, totalItems));
+  });
+  return finalTickets;
+}
+
+function calcAutoStickerFontSizes(title, modLine, wMm, hMm) {
+  const scale = Math.min(wMm / 32, hMm / 25);
+  const titleLen = title.length;
+  const modLen = modLine.length;
+
+  if (modLen === 0) {
+    let baseTitle = 16;
+    if (titleLen <= 4) baseTitle = 17.5;
+    else if (titleLen <= 6) baseTitle = 15.5;
+    else if (titleLen <= 9) baseTitle = 13.5;
+    else baseTitle = 11.5;
+    return {
+      titlePx: +(baseTitle * scale).toFixed(1),
+      modPx: 0,
+      centerOnly: true
+    };
+  }
+
+  let baseTitle = titleLen <= 6 ? 11.5 : 10;
+  let baseMod = 9.5;
+  if (modLen > 24) {
+    baseTitle = 9.5;
+    baseMod = 7.5;
+  } else if (modLen > 16) {
+    baseTitle = 10;
+    baseMod = 8.2;
+  } else if (modLen > 8) {
+    baseTitle = 10.5;
+    baseMod = 9;
+  }
+
+  return {
+    titlePx: +(baseTitle * scale).toFixed(1),
+    modPx: +(baseMod * scale).toFixed(1),
+    centerOnly: false
+  };
+}
+
+export function openPrintPreviewModal() {
+  const modal = document.getElementById('print-preview-modal');
+  if (!modal) return;
+  switchPrintPreviewType(currentPpType);
+  modal.style.display = 'flex';
+}
+
+export function closePrintPreviewModal() {
+  const modal = document.getElementById('print-preview-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+export function switchPrintPreviewType(type) {
+  currentPpType = type;
+  const btnSticker = document.getElementById('btn-pp-type-sticker');
+  const btnReceipt = document.getElementById('btn-pp-type-receipt');
+  const modelSel = document.getElementById('pp-model-select');
+
+  if (btnSticker && btnReceipt) {
+    if (type === 'sticker') {
+      btnSticker.style.background = '#3b82f6';
+      btnSticker.style.color = '#fff';
+      btnSticker.style.borderColor = '#3b82f6';
+      btnReceipt.style.background = '#fff';
+      btnReceipt.style.color = '#334155';
+      btnReceipt.style.borderColor = '#cbd5e1';
+    } else {
+      btnReceipt.style.background = '#3b82f6';
+      btnReceipt.style.color = '#fff';
+      btnReceipt.style.borderColor = '#3b82f6';
+      btnSticker.style.background = '#fff';
+      btnSticker.style.color = '#334155';
+      btnSticker.style.borderColor = '#cbd5e1';
+    }
+  }
+
+  if (modelSel) {
+    const list = PP_MODELS[type] || [];
+    modelSel.innerHTML = list.map((m, idx) => `<option value="${m.value}" ${idx === 0 ? 'selected' : ''}>${m.label}</option>`).join('');
+  }
+
+  updatePrintPreviewRender();
+}
+
+export function updatePrintPreviewRender() {
+  const wrapper = document.getElementById('pp-canvas-wrapper');
+  const modelSel = document.getElementById('pp-model-select');
+  const zoomSel = document.getElementById('pp-zoom-select');
+  const dimInfo = document.getElementById('pp-dim-info');
+  const warnEl = document.getElementById('pp-overflow-warning');
+  const srcInfo = document.getElementById('pp-source-info');
+  if (!wrapper || !modelSel) return;
+
+  const modelVal = modelSel.value;
+  const zoom = parseFloat(zoomSel ? zoomSel.value : '1.5') || 1.5;
+  const modelCfg = (PP_MODELS[currentPpType] || []).find(m => m.value === modelVal) || PP_MODELS[currentPpType][0];
+  const data = getPreviewSampleData();
+
+  if (srcInfo) srcInfo.innerText = data.sourceLabel;
+
+  const wPx = modelCfg.wMm * 3.7795;
+  const hPx = modelCfg.hMm ? modelCfg.hMm * 3.7795 : null;
+
+  if (dimInfo) {
+    dimInfo.innerText = modelCfg.hMm
+      ? `目前尺寸：寬 ${modelCfg.wMm}mm × 高 ${modelCfg.hMm}mm (字體自動縮放，超長自動續印下張)`
+      : `目前尺寸：紙寬 ${modelCfg.wMm}mm (連續出紙，左右超出會被切掉)`;
+  }
+
+  wrapper.innerHTML = '';
+  let hasAnyClip = false;
+
+  if (currentPpType === 'sticker') {
+    const tickets = buildStickerTickets(data.parsedItems, modelCfg.wMm, modelCfg.hMm);
+    const stickerDiningLabel = formatStickerDiningLabel(data.diningType);
+
+    if (tickets.length === 0) {
+      wrapper.innerHTML = '<div style="color:#475569; font-weight:bold; padding:30px;">目前只有飲料品項，依照規則不列印貼紙。</div>';
+    } else {
+      tickets.forEach((tk) => {
+        const modLine = (tk.mods && tk.mods.length > 0) ? tk.mods.join(' / ') : '';
+        const fonts = calcAutoStickerFontSizes(tk.title, modLine, modelCfg.wMm, modelCfg.hMm);
+
+        const outer = document.createElement('div');
+        outer.style.cssText = `width: ${wPx * zoom}px; height: ${hPx * zoom}px; flex-shrink: 0; position: relative;`;
+
+        const paper = document.createElement('div');
+        paper.style.cssText = `
+          width: ${wPx}px;
+          height: ${hPx}px;
+          transform: scale(${zoom});
+          transform-origin: top left;
+          background: #ffffff;
+          color: #000000;
+          border: 1.5px solid #000000;
+          border-radius: 3px;
+          padding: 1.5mm 2mm;
+          box-sizing: border-box;
+          overflow: hidden;
+          font-family: 'Microsoft JhengHei', sans-serif;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+        `;
+
+        const centerHtml = fonts.centerOnly
+          ? `<div style="flex:1; display:flex; align-items:center; justify-content:center; text-align:center; font-size:${fonts.titlePx}px; font-weight:900; line-height:1.15; word-break:break-all;">${tk.title}</div>`
+          : `
+            <div style="font-size:${fonts.titlePx}px; font-weight:900; line-height:1.15; margin-top:1px; word-break:break-all;">${tk.title}</div>
+            <div style="font-size:${fonts.modPx}px; font-weight:700; line-height:1.2; word-break:break-all; flex:1; overflow:hidden; margin-top:2px;">${modLine}</div>
+          `;
+
+        paper.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #000; padding-bottom:1px; font-size:8px; font-weight:900; line-height:1.1;">
+            <span>#${data.orderNum}</span>
+            <span>${stickerDiningLabel}</span>
+            <span>${tk.countBadge}</span>
+          </div>
+          ${centerHtml}
+          <div style="display:flex; justify-content:space-between; font-size:7px; font-weight:bold; border-top:1px dashed #000; padding-top:1px; line-height:1;">
+            <span>日十。大里店</span>
+            <span>${data.time}</span>
+          </div>
+        `;
+
+        outer.appendChild(paper);
+        wrapper.appendChild(outer);
+
+        if (paper.scrollHeight > paper.clientHeight + 1 || paper.scrollWidth > paper.clientWidth + 1) {
+          hasAnyClip = true;
+          paper.style.border = '2px solid #ef4444';
+        }
+      });
+    }
+  } else {
+    const itemsHtml = data.parsedItems.map(it => {
+      let bodyHtml = '';
+
+      if (it.isCombo) {
+        if (it.mainItemName) {
+          bodyHtml += `<div style="padding-left:6px; font-size:10px; font-weight:bold;">▸ ${it.mainItemName}</div>`;
+          if (it.mainModifiers.length > 0) {
+            bodyHtml += `<div style="padding-left:14px; font-size:9.5px;">└ ${it.mainModifiers.join(' / ')}</div>`;
+          }
+        }
+        if (it.drinkItemName) {
+          const drinkAdd = it.drinkPriceAdd > 0 ? ` +${it.drinkPriceAdd}` : '';
+          bodyHtml += `<div style="padding-left:6px; font-size:10px; font-weight:bold;">▸ ${it.drinkItemName}${drinkAdd}</div>`;
+          if (it.drinkModifiers.length > 0) {
+            bodyHtml += `<div style="padding-left:14px; font-size:9.5px;">└ ${it.drinkModifiers.join(' / ')}</div>`;
+          }
+        }
+        (it.sideList || []).forEach(s => {
+          bodyHtml += `<div style="padding-left:6px; font-size:10px; font-weight:bold;">▸ ${s.name}</div>`;
+          if (s.mods.length > 0) {
+            bodyHtml += `<div style="padding-left:14px; font-size:9.5px;">└ ${s.mods.join(' / ')}</div>`;
+          }
+        });
+      } else {
+        if (it.mainModifiers.length > 0) {
+          bodyHtml += `<div style="padding-left:8px; font-size:9.5px;">└ ${it.mainModifiers.join(' / ')}</div>`;
+        }
+      }
+
+      if (it.extraAddons && it.extraAddons.length > 0) {
+        const addonText = it.extraAddons.map(a => a.price > 0 ? `${a.name}+${a.price}` : a.name).join(' / ');
+        bodyHtml += `<div style="padding-left:6px; font-size:9.5px; font-weight:bold;">＋加購：${addonText}</div>`;
+      }
+
+      if (it.note) {
+        bodyHtml += `<div style="padding-left:6px; font-size:9.5px; font-weight:bold;">※ 備註：${it.note}</div>`;
+      }
+
+      return `
+        <div style="margin-bottom:5px;">
+          <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:900;">
+            <span style="word-break:break-all;">${it.qty}x ${it.comboTitle}</span>
+            <span style="flex-shrink:0; margin-left:4px;">$${it.totalPrice}</span>
+          </div>
+          ${bodyHtml}
+        </div>
+      `;
+    }).join('');
+
+    const promoHtml = data.promoLabel
+      ? `
+        <div style="border-top:1px dashed #000; padding-top:3px; margin-top:4px; display:flex; justify-content:space-between; font-size:10px; font-weight:bold;">
+          <span>小計</span>
+          <span>$${data.subtotal}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:10.5px; font-weight:900; margin-top:2px;">
+          <span>優惠：${data.promoLabel}</span>
+          <span>-$${data.discountAmt}</span>
+        </div>
+      `
+      : '';
+
+    const paper = document.createElement('div');
+    paper.style.cssText = `
+      width: ${wPx}px;
+      background: #ffffff;
+      color: #000000;
+      border: 1px solid #000000;
+      padding: 3mm 2.5mm;
+      box-sizing: border-box;
+      overflow: hidden;
+      font-family: 'Microsoft JhengHei', monospace;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    `;
+
+    paper.innerHTML = `
+      <div style="text-align:center; font-size:13px; font-weight:900; border-bottom:1.5px solid #000; padding-bottom:3px; margin-bottom:4px;">
+        日十。台中大里店
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:10.5px; font-weight:900; margin-bottom:2px;">
+        <span>單號：#${data.orderNum}</span>
+        <span>${data.diningType}</span>
+      </div>
+      <div style="font-size:9.5px; border-bottom:1px dashed #000; padding-bottom:3px; margin-bottom:4px;">
+        時間：${data.time}
+      </div>
+      ${itemsHtml}
+      ${promoHtml}
+      <div style="border-top:1px dashed #000; padding-top:4px; margin-top:4px; display:flex; justify-content:space-between; font-size:13px; font-weight:900;">
+        <span>合計金額</span>
+        <span>$${data.total}</span>
+      </div>
+      <div style="text-align:center; font-size:9px; margin-top:6px; border-top:1px solid #000; padding-top:3px;">
+        謝謝光臨・歡迎再次光臨
+      </div>
+    `;
+
+    const tempContainer = document.createElement('div');
+    tempContainer.style.cssText = `width: ${wPx * zoom}px; flex-shrink: 0;`;
+    paper.style.transform = `scale(${zoom})`;
+    paper.style.transformOrigin = 'top left';
+    tempContainer.appendChild(paper);
+    wrapper.appendChild(tempContainer);
+
+    requestAnimationFrame(() => {
+      tempContainer.style.height = `${paper.offsetHeight * zoom}px`;
+      if (paper.scrollWidth > paper.clientWidth + 1) {
+        hasAnyClip = true;
+        paper.style.border = '2px solid #ef4444';
+      }
+    });
+  }
+
+  if (warnEl) {
+    if (hasAnyClip) {
+      warnEl.style.color = '#dc2626';
+      warnEl.innerText = '⚠️ 警告：內容超出紙張邊界，實際列印會被切掉！';
+    } else {
+      warnEl.style.color = '#059669';
+      warnEl.innerText = '✅ 排版正常，文字完整顯示不會被切掉';
+    }
+  }
+}
+// ---------------------------------------- [列印尺寸與排版預覽邏輯] 結束 ----------------------------------------
 
 
 
