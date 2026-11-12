@@ -261,7 +261,10 @@ export function applyPromoCode() {
 
   if (!code) {
     state.appliedPromo = null;
-    if (msgEl) msgEl.innerText = '';
+    if (msgEl) {
+      msgEl.innerText = '';
+      msgEl.style.display = 'none';
+    }
     updateCartUI();
     return;
   }
@@ -273,25 +276,28 @@ export function applyPromoCode() {
   const deductAmt = parseInt(s.promoDeductAmount || s['直扣金額']) || 0;
 
   if (code.toLowerCase() === discountCode.toLowerCase()) {
-    const foldText = Math.round(discountRate * 100) % 10 === 0 ? (discountRate * 10) + '折' : (discountRate * 100) + '折';
+    const foldVal = +(discountRate * 10).toFixed(1);
+    const foldText = `${foldVal}折`;
     state.appliedPromo = { code: code, type: 'discount', rate: discountRate, text: foldText };
     if (msgEl) {
       msgEl.style.color = '#10b981';
-      msgEl.innerText = `✅ 套用成功：整單 ${foldText}`;
+      msgEl.innerText = `✅${foldText}`;
+      msgEl.style.display = 'inline';
     }
     showToast(`✅ 套用優惠碼：整單 ${foldText}`);
   } else if (deductCode && code.toLowerCase() === deductCode.toLowerCase()) {
-    state.appliedPromo = { code: code, type: 'deduct', amount: deductAmt, text: `折抵$${deductAmt}` };
+    state.appliedPromo = { code: code, type: 'deduct', amount: deductAmt, text: `折$${deductAmt}` };
     if (msgEl) {
       msgEl.style.color = '#10b981';
-      msgEl.innerText = `✅ 套用成功：現折 $${deductAmt}`;
+      msgEl.innerText = `✅折$${deductAmt}`;
+      msgEl.style.display = 'inline';
     }
     showToast(`✅ 套用優惠碼：現折 $${deductAmt}`);
   } else {
     state.appliedPromo = null;
     if (msgEl) {
-      msgEl.style.color = '#ef4444';
-      msgEl.innerText = '❌ 優惠碼無效或過期';
+      msgEl.innerText = '';
+      msgEl.style.display = 'none';
     }
     showToast('⚠️ 優惠碼不存在或已停用');
   }

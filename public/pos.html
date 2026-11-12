@@ -246,13 +246,14 @@
                 <button type="button" onclick="applyPromoCode()" style="background: #3b82f6; color: white; border: none; padding: 0 8px; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap; flex-shrink: 0;">套用</button>
               </div>
 
-              <div class="pos-cart-total" style="margin: 0; font-size: 1.3em; white-space: nowrap; flex: 1; text-align: right; min-width: 0;">
-                <span id="display-subtotal" style="display:none; font-size:0.7em; color:#94a3b8; text-decoration:line-through; margin-right:2px;"></span>
-                總計: $<span id="pos-total-price">0</span>
+              <div class="pos-cart-total" style="margin: 0; font-size: 1.3em; white-space: nowrap; flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 4px; min-width: 0;">
+                <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: center; line-height: 1.15;">
+                  <span id="promo-message" style="display: none; font-size: 0.62em; font-weight: 900; color: #10b981;"></span>
+                  <span id="display-subtotal" style="display: none; font-size: 0.68em; color: #94a3b8; text-decoration: line-through;"></span>
+                </div>
+                <span>總計: $<span id="pos-total-price">0</span></span>
               </div>
             </div>
-
-            <div id="promo-message" style="font-size: 0.9em; font-weight: bold; min-height: 18px; margin-top: -4px;"></div>
 
             <div style="display: flex; gap: 10px;">
               <button class="pos-cart-checkout-btn" style="background: #f59e0b; flex: 1; font-size: 1.15em;" onclick="submitPosUnpaidOrder()">送單(未結)</button>
