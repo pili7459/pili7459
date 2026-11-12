@@ -337,14 +337,15 @@ function getPreviewSampleData() {
   };
 }
 
-// 依據貼紙寬高計算單張可容納的客製化字數上限，超出自動拆出「(續)」下一張貼紙
-function splitTicketIfOverflow(rawTicket, wMm, hMm) {
+// 依據貼紙寬高計算單張可容納的客製化字數上限，超出自動拆出「(續)餐點名稱」且沿用原本餐點序號
+function splitTicketIfOverflow(rawTicket, wMm, hMm, itemIndex, totalItems) {
   const mods = rawTicket.mods || [];
+  const countBadge = `${itemIndex}/${totalItems}`;
+
   if (mods.length === 0) {
-    return [{ title: rawTicket.title, mods: [], isCont: false }];
+    return [{ title: rawTicket.title, mods: [], isCont: false, countBadge }];
   }
 
-  // 依據貼紙面積估算第一張可容納的客製化字元總量（保留標題與上下邊界）
   const areaFactor = (wMm * hMm) / (32 * 25);
   const maxFirstChars = Math.max(22, Math.floor(28 * areaFactor));
   const maxNextChars = Math.max(26, Math.floor(34 * areaFactor));
@@ -359,9 +360,10 @@ function splitTicketIfOverflow(rawTicket, wMm, hMm) {
 
     if (currentMods.length > 0 && currentLen + addLen > limit) {
       pages.push({
-        title: pages.length === 0 ? rawTicket.title : `${rawTicket.title} (續)`,
+        title: pages.length === 0 ? rawTicket.title : `(續)${rawTicket.title}`,
         mods: currentMods,
-        isCont: pages.length > 0
+        isCont: pages.length > 0,
+        countBadge
       });
       currentMods = [mod];
       currentLen = mod.length;
@@ -373,9 +375,10 @@ function splitTicketIfOverflow(rawTicket, wMm, hMm) {
 
   if (currentMods.length > 0) {
     pages.push({
-      title: pages.length === 0 ? rawTicket.title : `${rawTicket.title} (續)`,
+      title: pages.length === 0 ? rawTicket.title : `(續)${rawTicket.title}`,
       mods: currentMods,
-      isCont: pages.length > 0
+      isCont: pages.length > 0,
+      countBadge
     });
   }
 
@@ -410,21 +413,20 @@ function buildStickerTickets(parsedItems, wMm = 32, hMm = 25) {
     }
   });
 
+  const totalItems = rawTickets.length;
   const finalTickets = [];
-  rawTickets.forEach(rt => {
-    finalTickets.push(...splitTicketIfOverflow(rt, wMm, hMm));
+  rawTickets.forEach((rt, idx) => {
+    finalTickets.push(...splitTicketIfOverflow(rt, wMm, hMm, idx + 1, totalItems));
   });
   return finalTickets;
 }
 
-// 依據有無客製化與文字長度，自動計算最適合填滿貼紙的字體大小
 function calcAutoStickerFontSizes(title, modLine, wMm, hMm) {
   const scale = Math.min(wMm / 32, hMm / 25);
   const titleLen = title.length;
   const modLen = modLine.length;
 
   if (modLen === 0) {
-    // 只有餐點名稱：自動放大填滿中央空白區域
     let baseTitle = 16;
     if (titleLen <= 4) baseTitle = 17.5;
     else if (titleLen <= 6) baseTitle = 15.5;
@@ -437,7 +439,6 @@ function calcAutoStickerFontSizes(title, modLine, wMm, hMm) {
     };
   }
 
-  // 有客製化：依據客製化總字數動態縮放，確保完全不溢出
   let baseTitle = titleLen <= 6 ? 11.5 : 10;
   let baseMod = 9.5;
   if (modLen > 24) {
@@ -537,7 +538,7 @@ export function updatePrintPreviewRender() {
     if (tickets.length === 0) {
       wrapper.innerHTML = '<div style="color:#475569; font-weight:bold; padding:30px;">目前只有飲料品項，依照規則不列印貼紙。</div>';
     } else {
-      tickets.forEach((tk, idx) => {
+      tickets.forEach((tk) => {
         const modLine = (tk.mods && tk.mods.length > 0) ? tk.mods.join(' / ') : '';
         const fonts = calcAutoStickerFontSizes(tk.title, modLine, modelCfg.wMm, modelCfg.hMm);
 
@@ -575,7 +576,7 @@ export function updatePrintPreviewRender() {
           <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #000; padding-bottom:1px; font-size:8px; font-weight:900; line-height:1.1;">
             <span>#${data.orderNum}</span>
             <span>${stickerDiningLabel}</span>
-            <span>${idx + 1}/${tickets.length}</span>
+            <span>${tk.countBadge}</span>
           </div>
           ${centerHtml}
           <div style="display:flex; justify-content:space-between; font-size:7px; font-weight:bold; border-top:1px dashed #000; padding-top:1px; line-height:1;">
