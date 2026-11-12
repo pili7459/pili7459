@@ -111,7 +111,6 @@ function isDrinkItemName(name) {
   return keywords.some(k => name.includes(k));
 }
 
-// 格式化貼紙頂部用餐標示：不印「內用」，桌號改為「桌號：5」
 function formatStickerDiningLabel(diningType) {
   if (!diningType) return '';
   const str = String(diningType).trim();
@@ -176,7 +175,7 @@ function parseCartItemForPrint(item) {
       if (!sideGroupsMap[sideIdx]) sideGroupsMap[sideIdx] = [];
       sideGroupsMap[sideIdx].push(displayMod);
     } else {
-      if (title.includes('口感') || title.includes('加料') || title.includes('熟度')) {
+      if (title.includes('口感') || title.includes('加料') || title.includes('減料') || title.includes('熟度') || title.includes('口味') || title.includes('醬')) {
         mainModifiers.push(displayMod);
       } else if (title.includes('冰') || title.includes('糖')) {
         drinkModifiers.push(displayMod);
@@ -300,7 +299,7 @@ function getPreviewSampleData() {
   }
 
   return {
-    sourceLabel: '資料來源：範例測試餐點（測試長字數是否被裁切）',
+    sourceLabel: '資料來源：範例測試餐點（測試自動放大與超長自動分張）',
     orderNum: '012',
     diningType: '內用(桌號:5)',
     time: getFormattedTime(),
@@ -309,7 +308,7 @@ function getPreviewSampleData() {
         isCombo: true,
         comboTitle: '一號餐',
         mainItemName: '嫩煎雞腿蛋餅',
-        mainModifiers: ['焦一點', '加起司+10', '加九層塔+15'],
+        mainModifiers: ['焦一點', '加起司+10', '加九層塔+15', '加玉米+10', '加雙蛋+20', '不要蔥', '加辣'],
         drinkItemName: '招牌日十紅茶',
         drinkPriceAdd: 0,
         drinkModifiers: ['冰', '甜度固定'],
@@ -317,7 +316,7 @@ function getPreviewSampleData() {
         extraAddons: [{ name: '熱狗', price: 16 }],
         note: '蛋餅切小塊、不要醬油膏',
         qty: 1,
-        totalPrice: 208
+        totalPrice: 243
       },
       {
         isCombo: false,
@@ -334,51 +333,129 @@ function getPreviewSampleData() {
         totalPrice: 100
       }
     ],
-    total: 308
+    total: 343
   };
 }
 
-// 依據規則展開所有標籤貼紙（一餐一張、排除飲料、不印幾號餐、不印備註）
-function buildStickerTickets(parsedItems) {
-  const tickets = [];
+// 依據貼紙寬高計算單張可容納的客製化字數上限，超出自動拆出「(續)」下一張貼紙
+function splitTicketIfOverflow(rawTicket, wMm, hMm) {
+  const mods = rawTicket.mods || [];
+  if (mods.length === 0) {
+    return [{ title: rawTicket.title, mods: [], isCont: false }];
+  }
+
+  // 依據貼紙面積估算第一張可容納的客製化字元總量（保留標題與上下邊界）
+  const areaFactor = (wMm * hMm) / (32 * 25);
+  const maxFirstChars = Math.max(22, Math.floor(28 * areaFactor));
+  const maxNextChars = Math.max(26, Math.floor(34 * areaFactor));
+
+  const pages = [];
+  let currentMods = [];
+  let currentLen = 0;
+
+  mods.forEach(mod => {
+    const addLen = mod.length + (currentMods.length > 0 ? 3 : 0);
+    const limit = pages.length === 0 ? maxFirstChars : maxNextChars;
+
+    if (currentMods.length > 0 && currentLen + addLen > limit) {
+      pages.push({
+        title: pages.length === 0 ? rawTicket.title : `${rawTicket.title} (續)`,
+        mods: currentMods,
+        isCont: pages.length > 0
+      });
+      currentMods = [mod];
+      currentLen = mod.length;
+    } else {
+      currentMods.push(mod);
+      currentLen += addLen;
+    }
+  });
+
+  if (currentMods.length > 0) {
+    pages.push({
+      title: pages.length === 0 ? rawTicket.title : `${rawTicket.title} (續)`,
+      mods: currentMods,
+      isCont: pages.length > 0
+    });
+  }
+
+  return pages;
+}
+
+function buildStickerTickets(parsedItems, wMm = 32, hMm = 25) {
+  const rawTickets = [];
   parsedItems.forEach(item => {
     const qty = item.qty || 1;
     for (let q = 0; q < qty; q++) {
       if (item.isCombo) {
         if (item.mainItemName && !isDrinkItemName(item.mainItemName)) {
-          tickets.push({
-            title: item.mainItemName,
-            mods: item.mainModifiers
-          });
+          rawTickets.push({ title: item.mainItemName, mods: item.mainModifiers });
         }
         (item.sideList || []).forEach(s => {
           if (s.name && !isDrinkItemName(s.name)) {
-            tickets.push({
-              title: s.name,
-              mods: s.mods
-            });
+            rawTickets.push({ title: s.name, mods: s.mods });
           }
         });
       } else {
         if (item.mainItemName && !isDrinkItemName(item.mainItemName)) {
-          tickets.push({
-            title: item.mainItemName,
-            mods: item.mainModifiers
-          });
+          rawTickets.push({ title: item.mainItemName, mods: item.mainModifiers });
         }
       }
 
       (item.extraAddons || []).forEach(ad => {
         if (ad.name && !isDrinkItemName(ad.name)) {
-          tickets.push({
-            title: ad.name,
-            mods: []
-          });
+          rawTickets.push({ title: ad.name, mods: [] });
         }
       });
     }
   });
-  return tickets;
+
+  const finalTickets = [];
+  rawTickets.forEach(rt => {
+    finalTickets.push(...splitTicketIfOverflow(rt, wMm, hMm));
+  });
+  return finalTickets;
+}
+
+// 依據有無客製化與文字長度，自動計算最適合填滿貼紙的字體大小
+function calcAutoStickerFontSizes(title, modLine, wMm, hMm) {
+  const scale = Math.min(wMm / 32, hMm / 25);
+  const titleLen = title.length;
+  const modLen = modLine.length;
+
+  if (modLen === 0) {
+    // 只有餐點名稱：自動放大填滿中央空白區域
+    let baseTitle = 16;
+    if (titleLen <= 4) baseTitle = 17.5;
+    else if (titleLen <= 6) baseTitle = 15.5;
+    else if (titleLen <= 9) baseTitle = 13.5;
+    else baseTitle = 11.5;
+    return {
+      titlePx: +(baseTitle * scale).toFixed(1),
+      modPx: 0,
+      centerOnly: true
+    };
+  }
+
+  // 有客製化：依據客製化總字數動態縮放，確保完全不溢出
+  let baseTitle = titleLen <= 6 ? 11.5 : 10;
+  let baseMod = 9.5;
+  if (modLen > 24) {
+    baseTitle = 9.5;
+    baseMod = 7.5;
+  } else if (modLen > 16) {
+    baseTitle = 10;
+    baseMod = 8.2;
+  } else if (modLen > 8) {
+    baseTitle = 10.5;
+    baseMod = 9;
+  }
+
+  return {
+    titlePx: +(baseTitle * scale).toFixed(1),
+    modPx: +(baseMod * scale).toFixed(1),
+    centerOnly: false
+  };
 }
 
 export function openPrintPreviewModal() {
@@ -446,7 +523,7 @@ export function updatePrintPreviewRender() {
 
   if (dimInfo) {
     dimInfo.innerText = modelCfg.hMm
-      ? `目前尺寸：寬 ${modelCfg.wMm}mm × 高 ${modelCfg.hMm}mm (一餐一張貼紙，不含飲料)`
+      ? `目前尺寸：寬 ${modelCfg.wMm}mm × 高 ${modelCfg.hMm}mm (字體自動縮放，超長自動續印下張)`
       : `目前尺寸：紙寬 ${modelCfg.wMm}mm (連續出紙，左右超出會被切掉)`;
   }
 
@@ -454,7 +531,7 @@ export function updatePrintPreviewRender() {
   let hasAnyClip = false;
 
   if (currentPpType === 'sticker') {
-    const tickets = buildStickerTickets(data.parsedItems);
+    const tickets = buildStickerTickets(data.parsedItems, modelCfg.wMm, modelCfg.hMm);
     const stickerDiningLabel = formatStickerDiningLabel(data.diningType);
 
     if (tickets.length === 0) {
@@ -462,6 +539,7 @@ export function updatePrintPreviewRender() {
     } else {
       tickets.forEach((tk, idx) => {
         const modLine = (tk.mods && tk.mods.length > 0) ? tk.mods.join(' / ') : '';
+        const fonts = calcAutoStickerFontSizes(tk.title, modLine, modelCfg.wMm, modelCfg.hMm);
 
         const outer = document.createElement('div');
         outer.style.cssText = `width: ${wPx * zoom}px; height: ${hPx * zoom}px; flex-shrink: 0; position: relative;`;
@@ -486,18 +564,20 @@ export function updatePrintPreviewRender() {
           box-shadow: 0 4px 10px rgba(0,0,0,0.25);
         `;
 
+        const centerHtml = fonts.centerOnly
+          ? `<div style="flex:1; display:flex; align-items:center; justify-content:center; text-align:center; font-size:${fonts.titlePx}px; font-weight:900; line-height:1.15; word-break:break-all;">${tk.title}</div>`
+          : `
+            <div style="font-size:${fonts.titlePx}px; font-weight:900; line-height:1.15; margin-top:1px; word-break:break-all;">${tk.title}</div>
+            <div style="font-size:${fonts.modPx}px; font-weight:700; line-height:1.2; word-break:break-all; flex:1; overflow:hidden; margin-top:2px;">${modLine}</div>
+          `;
+
         paper.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #000; padding-bottom:1px; font-size:8px; font-weight:900; line-height:1.1;">
             <span>#${data.orderNum}</span>
             <span>${stickerDiningLabel}</span>
             <span>${idx + 1}/${tickets.length}</span>
           </div>
-          <div style="font-size:10.5px; font-weight:900; line-height:1.15; margin-top:2px; word-break:break-all;">
-            ${tk.title}
-          </div>
-          <div style="font-size:7.5px; font-weight:700; line-height:1.2; word-break:break-all; flex:1; overflow:hidden; margin-top:1px;">
-            ${modLine}
-          </div>
+          ${centerHtml}
           <div style="display:flex; justify-content:space-between; font-size:7px; font-weight:bold; border-top:1px dashed #000; padding-top:1px; line-height:1;">
             <span>日十。大里店</span>
             <span>${data.time}</span>

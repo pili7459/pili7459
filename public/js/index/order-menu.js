@@ -175,7 +175,7 @@ function renderModalOptionGroups() {
                 <div class="option-item" style="flex-direction:column; align-items:stretch;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <label style="flex:1; cursor:pointer;">
-                            <input type="${inputType}" name="modal_group_${index}" value="${opt.name}" data-price="${p}" ${isChecked} onchange="handleModalOptionChange(${index}, '${opt.name}', ${isDrinkGroup})">
+                            <input type="${inputType}" name="modal_group_${index}" value="${opt.name}" data-price="${p}" data-was-checked="${isChecked ? 'true' : 'false'}" ${isChecked} onclick="handleRadioToggle(this, ${isRequired})" onchange="handleModalOptionChange(${index}, '${opt.name}', ${isDrinkGroup})">
                             ${opt.name}
                         </label>
                         ${priceText}
@@ -208,6 +208,18 @@ function renderModalOptionGroups() {
         }
     });
 }
+
+window.handleRadioToggle = function(inp, isRequired) {
+    if (inp.type !== 'radio') return;
+    const groupInputs = document.querySelectorAll(`input[name="${inp.name}"]`);
+    if (!isRequired && inp.getAttribute('data-was-checked') === 'true') {
+        inp.checked = false;
+        inp.setAttribute('data-was-checked', 'false');
+        calcModalPrice();
+    } else {
+        groupInputs.forEach(el => el.setAttribute('data-was-checked', el === inp ? 'true' : 'false'));
+    }
+};
 
 // 飲料選取時動態展開甜度與冰塊規格
 window.handleModalOptionChange = function(groupIndex, selectedOptName, isDrinkGroup) {

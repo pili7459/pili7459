@@ -358,8 +358,8 @@ function categorizeOrderSections(item) {
       if (!sideGroupsMap[sideIdx]) sideGroupsMap[sideIdx] = [];
       sideGroupsMap[sideIdx].push(displayMod);
     } else {
-      if (title.includes('口感') || title.includes('加料') || title.includes('熟度')) {
-        mainModifiers.push(displayMod);
+      if (title.includes('口感') || title.includes('加料') || title.includes('減料') || title.includes('熟度') || title.includes('口味') ||      	title.includes('醬')) {
+      mainModifiers.push(displayMod);
       } else if (title.includes('冰') || title.includes('糖')) {
         drinkModifiers.push(displayMod);
       } else {
@@ -587,7 +587,7 @@ export function renderModalOptionGroups() {
         <div class="option-item" style="flex-direction:column; align-items:stretch;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <label style="flex:1; cursor:pointer;">
-              <input type="${inputType}" name="modal_group_${gIdx}" value="${opt.name}" data-price="${opt.price || 0}" ${isChecked} onchange="handleModalOptionChange(${gIdx}, '${opt.name}', ${isDrinkGroup})">
+              <input type="${inputType}" name="modal_group_${gIdx}" value="${opt.name}" data-price="${opt.price || 0}" data-was-checked="${isChecked ? 'true' : 'false'}" ${isChecked} onclick="handleRadioToggle(this, ${isRequired})" onchange="handleModalOptionChange(${gIdx}, '${opt.name}', ${isDrinkGroup})">
               ${opt.name}
             </label>
             <span class="option-price">${optPrice}</span>
@@ -616,6 +616,19 @@ export function renderModalOptionGroups() {
     </div>
   `;
 }
+
+// 非必選的單選項目，再次點擊可取消選取
+window.handleRadioToggle = function(inp, isRequired) {
+  if (inp.type !== 'radio') return;
+  const groupInputs = document.querySelectorAll(`input[name="${inp.name}"]`);
+  if (!isRequired && inp.getAttribute('data-was-checked') === 'true') {
+    inp.checked = false;
+    inp.setAttribute('data-was-checked', 'false');
+    calcModalPrice();
+  } else {
+    groupInputs.forEach(el => el.setAttribute('data-was-checked', el === inp ? 'true' : 'false'));
+  }
+};
 
 // 飲料選取動態聯動：載入單點客製規格
 window.handleModalOptionChange = function(groupIndex, selectedOptName, isDrinkGroup) {

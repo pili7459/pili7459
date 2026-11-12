@@ -108,8 +108,8 @@ function categorizeCustomerOrderSections(item) {
             if (!sideGroupsMap[sideIdx]) sideGroupsMap[sideIdx] = [];
             sideGroupsMap[sideIdx].push(displayMod);
         } else {
-            if (title.includes('口感') || title.includes('加料') || title.includes('熟度')) {
-                mainModifiers.push(displayMod);
+            if (title.includes('口感') || title.includes('加料') || title.includes('減料') || title.includes('熟度') || title.includes('口味') || 			title.includes('醬')) {
+              mainModifiers.push(displayMod);
             } else if (title.includes('冰') || title.includes('糖')) {
                 drinkModifiers.push(displayMod);
             } else {
