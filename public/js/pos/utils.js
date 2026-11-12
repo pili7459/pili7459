@@ -105,85 +105,284 @@ const PP_MODELS = {
   ]
 };
 
+function isDrinkItemName(name) {
+  if (!name) return false;
+  const keywords = ['飲', '茶', '咖啡', '豆漿', '拿鐵', '冬瓜', '可可', '牛奶', '鮮奶', '果汁', '可樂', '雪碧'];
+  return keywords.some(k => name.includes(k));
+}
+
+// 將購物車項目結構化拆解（供熱感紙與貼紙共用，保證不重複、邏輯一致）
+function parseCartItemForPrint(item) {
+  const nameLines = (item.name || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+  const comboTitle = nameLines[0] || '';
+  const subItems = nameLines.slice(1);
+  const isCombo = subItems.length > 0;
+
+  let mainItemName = '';
+  let drinkItemName = '';
+  let rawSideItems = [];
+
+  if (isCombo) {
+    let foundDrink = false;
+    subItems.forEach(line => {
+      if (isDrinkItemName(line) && !foundDrink) {
+        drinkItemName = line;
+        foundDrink = true;
+      } else if (!foundDrink) {
+        if (!mainItemName) mainItemName = line;
+        else rawSideItems.push(line);
+      } else {
+        rawSideItems.push(line);
+      }
+    });
+  } else {
+    mainItemName = comboTitle;
+  }
+
+  let mainModifiers = [];
+  let drinkModifiers = [];
+  let drinkPriceAdd = 0;
+  let sideGroupsMap = {};
+  let extraAddons = [];
+
+  (item.structuredOptions || []).forEach(opt => {
+    const title = opt.groupTitle || '';
+    const extraText = opt.price > 0 ? `+${opt.price}` : '';
+    const displayMod = `${opt.name}${extraText}`;
+
+    if (title.includes('主餐')) {
+      mainModifiers.push(displayMod);
+    } else if (title.includes('飲料') || title.includes('飲品')) {
+      drinkItemName = opt.name;
+      drinkPriceAdd = opt.price || 0;
+      if (opt.subModifiers && opt.subModifiers.length > 0) {
+        drinkModifiers.push(...opt.subModifiers);
+      }
+    } else if (title.includes('加購') || title.includes('加點')) {
+      extraAddons.push({ name: opt.name, price: opt.price || 0 });
+    } else if (title.includes('副餐')) {
+      const match = title.match(/副餐(\d+)/);
+      const sideIdx = match ? parseInt(match[1], 10) : 1;
+      if (!sideGroupsMap[sideIdx]) sideGroupsMap[sideIdx] = [];
+      sideGroupsMap[sideIdx].push(displayMod);
+    } else {
+      if (title.includes('口感') || title.includes('加料') || title.includes('熟度')) {
+        mainModifiers.push(displayMod);
+      } else if (title.includes('冰') || title.includes('糖')) {
+        drinkModifiers.push(displayMod);
+      } else {
+        if (!sideGroupsMap[1]) sideGroupsMap[1] = [];
+        sideGroupsMap[1].push(displayMod);
+      }
+    }
+  });
+
+  const sideList = [];
+  const maxSideCount = Math.max(rawSideItems.length, Object.keys(sideGroupsMap).length);
+  for (let i = 1; i <= maxSideCount; i++) {
+    const name = rawSideItems[i - 1] || (Object.keys(sideGroupsMap).length > 1 ? `副餐${i}` : '副餐');
+    const mods = sideGroupsMap[i] || [];
+    sideList.push({ name, mods });
+  }
+
+  return {
+    isCombo,
+    comboTitle,
+    mainItemName,
+    mainModifiers,
+    drinkItemName,
+    drinkPriceAdd,
+    drinkModifiers,
+    sideList,
+    extraAddons,
+    note: item.note || '',
+    qty: item.qty || 1,
+    totalPrice: item.isComp ? 0 : (item.price * (item.qty || 1))
+  };
+}
+
 function getPreviewSampleData() {
   const cartKeys = Object.keys(state.cart || {});
   if (cartKeys.length > 0) {
     const diningType = document.getElementById('pos-dining-type')?.value || '內用';
     const tableNum = document.getElementById('pos-table-number')?.value || '3';
-    const items = cartKeys.map(k => {
-      const it = state.cart[k];
-      const opts = (it.structuredOptions || []).map(o => o.price > 0 ? `${o.name}+${o.price}` : o.name);
-      return {
-        name: it.name,
-        qty: it.qty,
-        price: it.isComp ? 0 : it.price * it.qty,
-        opts: opts,
-        note: it.note || ''
-      };
-    });
-    const total = items.reduce((sum, i) => sum + i.price, 0);
+    const parsedItems = cartKeys.map(k => parseCartItemForPrint(state.cart[k]));
+    const total = parsedItems.reduce((sum, i) => sum + i.totalPrice, 0);
     return {
       sourceLabel: '資料來源：目前購物車餐點',
       orderNum: '018',
       diningType: diningType === '內用' ? `內用(${tableNum}號桌)` : diningType,
       time: getFormattedTime(),
-      items,
+      parsedItems,
       total
     };
   }
 
   if (state.selectedOrder && state.selectedOrder.detailsText) {
-    const rawLines = state.selectedOrder.detailsText.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-    const items = [];
-    rawLines.forEach(l => {
-      if (l.includes(':::') && !l.includes('小計') && !l.includes('總額') && !l.includes('優惠')) {
-        const [left, right] = l.split(':::');
-        items.push({
-          name: left.replace(/^\d+x\s*/, '').trim(),
-          qty: parseInt(left) || 1,
-          price: parseInt((right || '').replace(/[^0-9]/g, '')) || 0,
-          opts: [],
-          note: ''
-        });
-      } else if (items.length > 0 && (l.startsWith('▸') || l.startsWith('└') || l.startsWith('＋') || l.startsWith('※'))) {
-        items[items.length - 1].opts.push(l);
+    const rawLines = state.selectedOrder.detailsText.split(/\r?\n/);
+    const parsedItems = [];
+    let cur = null;
+
+    rawLines.forEach(rawLine => {
+      const t = rawLine.trim();
+      if (!t || t.includes('---')) return;
+
+      if (t.includes(':::') && !t.includes('小計') && !t.includes('總額') && !t.includes('優惠')) {
+        if (cur) parsedItems.push(cur);
+        const [left, right] = t.split(':::');
+        const qtyMatch = left.trim().match(/^(\d+)x\s*(.*)$/);
+        const qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
+        const title = qtyMatch ? qtyMatch[2].trim() : left.trim();
+        cur = {
+          isCombo: false,
+          comboTitle: title,
+          mainItemName: title,
+          mainModifiers: [],
+          drinkItemName: '',
+          drinkPriceAdd: 0,
+          drinkModifiers: [],
+          sideList: [],
+          extraAddons: [],
+          note: '',
+          qty,
+          totalPrice: parseInt((right || '').replace(/[^0-9]/g, ''), 10) || 0,
+          _lastTarget: 'main'
+        };
+      } else if (cur) {
+        if (t.startsWith('▸')) {
+          cur.isCombo = true;
+          const subName = t.replace(/^▸\s*/, '').trim();
+          if (isDrinkItemName(subName)) {
+            cur.drinkItemName = subName;
+            cur._lastTarget = 'drink';
+          } else if (cur.mainItemName === cur.comboTitle) {
+            cur.mainItemName = subName;
+            cur._lastTarget = 'main';
+          } else {
+            cur.sideList.push({ name: subName, mods: [] });
+            cur._lastTarget = 'side';
+          }
+        } else if (t.startsWith('└')) {
+          const mods = t.replace(/^└\s*/, '').split('/').map(s => s.trim()).filter(Boolean);
+          if (cur._lastTarget === 'drink') cur.drinkModifiers.push(...mods);
+          else if (cur._lastTarget === 'side' && cur.sideList.length > 0) cur.sideList[cur.sideList.length - 1].mods.push(...mods);
+          else cur.mainModifiers.push(...mods);
+        } else if (t.startsWith('＋加購：')) {
+          const addons = t.replace(/^＋加購：/, '').split('/').map(s => s.trim()).filter(Boolean);
+          addons.forEach(a => cur.extraAddons.push({ name: a, price: 0 }));
+        } else if (t.startsWith('※ 備註：')) {
+          cur.note = t.replace(/^※ 備註：/, '').trim();
+        }
       }
     });
-    if (items.length > 0) {
+    if (cur) parsedItems.push(cur);
+
+    if (parsedItems.length > 0) {
       return {
         sourceLabel: `資料來源：目前選取訂單 (#${state.selectedOrder.orderNumber})`,
         orderNum: state.selectedOrder.orderNumber || '001',
         diningType: state.selectedOrder.diningType || '內用',
         time: state.selectedOrder.time || getFormattedTime(),
-        items,
+        parsedItems,
         total: Math.abs(parseInt(state.selectedOrder.totalAmount || 0, 10))
       };
     }
   }
 
+  // 預設範例資料（完全不重複品項）
   return {
     sourceLabel: '資料來源：範例測試餐點（測試長字數是否被裁切）',
     orderNum: '012',
     diningType: '內用(5號桌)',
     time: getFormattedTime(),
-    items: [
+    parsedItems: [
       {
-        name: '一號餐\n嫩煎雞腿蛋餅\n炸物雙拼\n招牌日十紅茶',
+        isCombo: true,
+        comboTitle: '一號餐',
+        mainItemName: '嫩煎雞腿蛋餅',
+        mainModifiers: ['焦一點', '加起司+10', '加九層塔+15'],
+        drinkItemName: '招牌日十紅茶',
+        drinkPriceAdd: 0,
+        drinkModifiers: ['冰', '甜度固定'],
+        sideList: [{ name: '炸物雙拼', mods: [] }],
+        extraAddons: [{ name: '熱狗', price: 16 }],
+        note: '蛋餅切小塊、不要醬油膏',
         qty: 1,
-        price: 208,
-        opts: ['▸ 嫩煎雞腿蛋餅', '└ 焦一點 / 加起司+10 / 加九層塔+15', '▸ 招牌日十紅茶', '└ 冰 / 甜度固定', '＋加購：熱狗+16'],
-        note: '蛋餅切小塊、不要醬油膏'
+        totalPrice: 208
       },
       {
-        name: '杉林溪青茶 (大)',
+        isCombo: false,
+        comboTitle: '杉林溪青茶 (大)',
+        mainItemName: '杉林溪青茶 (大)',
+        mainModifiers: ['固定冰', '固定無糖'],
+        drinkItemName: '',
+        drinkPriceAdd: 0,
+        drinkModifiers: [],
+        sideList: [],
+        extraAddons: [],
+        note: '',
         qty: 2,
-        price: 100,
-        opts: ['└ 固定冰 / 固定無糖'],
-        note: ''
+        totalPrice: 100
       }
     ],
     total: 308
   };
+}
+
+// 依據規則展開所有標籤貼紙（一餐一張、排除所有飲料、依數量展開）
+function buildStickerTickets(parsedItems) {
+  const tickets = [];
+  parsedItems.forEach(item => {
+    const qty = item.qty || 1;
+    for (let q = 0; q < qty; q++) {
+      if (item.isCombo) {
+        // 1. 套餐主餐（若非飲料則出一張）
+        if (item.mainItemName && !isDrinkItemName(item.mainItemName)) {
+          tickets.push({
+            title: item.mainItemName,
+            subTag: `(${item.comboTitle})`,
+            mods: item.mainModifiers,
+            note: item.note
+          });
+        }
+        // 2. 套餐各副餐（若非飲料則各出一張）
+        (item.sideList || []).forEach(s => {
+          if (s.name && !isDrinkItemName(s.name)) {
+            tickets.push({
+              title: s.name,
+              subTag: `(${item.comboTitle})`,
+              mods: s.mods,
+              note: item.note
+            });
+          }
+        });
+        // 3. 套餐飲料：依照規則「貼紙不需要印出飲料」，略過
+      } else {
+        // 單點品項：若為飲料則略過，非飲料則出一張
+        if (item.mainItemName && !isDrinkItemName(item.mainItemName)) {
+          tickets.push({
+            title: item.mainItemName,
+            subTag: '',
+            mods: item.mainModifiers,
+            note: item.note
+          });
+        }
+      }
+
+      // 4. 加購項目（若非飲料則各出一張）
+      (item.extraAddons || []).forEach(ad => {
+        if (ad.name && !isDrinkItemName(ad.name)) {
+          tickets.push({
+            title: ad.name,
+            subTag: '(加購)',
+            mods: [],
+            note: item.note
+          });
+        }
+      });
+    }
+  });
+  return tickets;
 }
 
 export function openPrintPreviewModal() {
@@ -251,7 +450,7 @@ export function updatePrintPreviewRender() {
 
   if (dimInfo) {
     dimInfo.innerText = modelCfg.hMm
-      ? `目前尺寸：寬 ${modelCfg.wMm}mm × 高 ${modelCfg.hMm}mm (固定高度，超出會被切掉)`
+      ? `目前尺寸：寬 ${modelCfg.wMm}mm × 高 ${modelCfg.hMm}mm (一餐一張貼紙，不含飲料)`
       : `目前尺寸：紙寬 ${modelCfg.wMm}mm (連續出紙，左右超出會被切掉)`;
   }
 
@@ -259,68 +458,112 @@ export function updatePrintPreviewRender() {
   let hasAnyClip = false;
 
   if (currentPpType === 'sticker') {
-    data.items.forEach((it, idx) => {
-      const mainTitle = (it.name || '').split('\n')[0];
-      const optText = [...it.opts, it.note ? `備註:${it.note}` : ''].filter(Boolean).join(' / ');
+    const tickets = buildStickerTickets(data.parsedItems);
 
-      const outer = document.createElement('div');
-      outer.style.cssText = `width: ${wPx * zoom}px; height: ${hPx * zoom}px; flex-shrink: 0; position: relative;`;
+    if (tickets.length === 0) {
+      wrapper.innerHTML = '<div style="color:#475569; font-weight:bold; padding:30px;">目前只有飲料品項，依照規則不列印貼紙。</div>';
+    } else {
+      tickets.forEach((tk, idx) => {
+        const modLine = (tk.mods && tk.mods.length > 0) ? tk.mods.join(' / ') : '';
+        const noteLine = tk.note ? `※${tk.note}` : '';
 
-      const paper = document.createElement('div');
-      paper.style.cssText = `
-        width: ${wPx}px;
-        height: ${hPx}px;
-        transform: scale(${zoom});
-        transform-origin: top left;
-        background: #ffffff;
-        color: #000000;
-        border: 1.5px solid #000000;
-        border-radius: 3px;
-        padding: 1.5mm 2mm;
-        box-sizing: border-box;
-        overflow: hidden;
-        font-family: 'Microsoft JhengHei', sans-serif;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-      `;
+        const outer = document.createElement('div');
+        outer.style.cssText = `width: ${wPx * zoom}px; height: ${hPx * zoom}px; flex-shrink: 0; position: relative;`;
 
-      paper.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #000; padding-bottom:1px; font-size:8px; font-weight:900; line-height:1.1;">
-          <span>#${data.orderNum} ${data.diningType}</span>
-          <span>${idx + 1}/${data.items.length}</span>
-        </div>
-        <div style="font-size:10px; font-weight:900; line-height:1.15; margin-top:1px; word-break:break-all;">${mainTitle}</div>
-        <div style="font-size:7.5px; font-weight:700; line-height:1.15; word-break:break-all; flex:1; overflow:hidden;">${optText || '正常'}</div>
-        <div style="display:flex; justify-content:space-between; font-size:7px; font-weight:bold; border-top:1px dashed #000; padding-top:1px; line-height:1;">
-          <span>日十。大里店</span>
-          <span>$${it.price}</span>
-        </div>
-      `;
+        const paper = document.createElement('div');
+        paper.style.cssText = `
+          width: ${wPx}px;
+          height: ${hPx}px;
+          transform: scale(${zoom});
+          transform-origin: top left;
+          background: #ffffff;
+          color: #000000;
+          border: 1.5px solid #000000;
+          border-radius: 3px;
+          padding: 1.5mm 2mm;
+          box-sizing: border-box;
+          overflow: hidden;
+          font-family: 'Microsoft JhengHei', sans-serif;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+        `;
 
-      outer.appendChild(paper);
-      wrapper.appendChild(outer);
-
-      if (paper.scrollHeight > paper.clientHeight + 1 || paper.scrollWidth > paper.clientWidth + 1) {
-        hasAnyClip = true;
-        paper.style.border = '2px solid #ef4444';
-      }
-    });
-  } else {
-    const itemsHtml = data.items.map(it => {
-      const lines = (it.name || '').split('\n');
-      const head = lines[0];
-      const subs = lines.slice(1).map(s => `<div style="padding-left:6px; font-size:10px;">▸ ${s}</div>`).join('');
-      const opts = it.opts.map(o => `<div style="padding-left:6px; font-size:9.5px;">${o}</div>`).join('');
-      const note = it.note ? `<div style="padding-left:6px; font-size:9.5px; font-weight:bold;">※ 備註：${it.note}</div>` : '';
-      return `
-        <div style="margin-bottom:4px;">
-          <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:900;">
-            <span style="word-break:break-all;">${it.qty}x ${head}</span>
-            <span style="flex-shrink:0; margin-left:4px;">$${it.price}</span>
+        paper.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #000; padding-bottom:1px; font-size:8px; font-weight:900; line-height:1.1;">
+            <span>#${data.orderNum} ${data.diningType}</span>
+            <span>${idx + 1}/${tickets.length}</span>
           </div>
-          ${subs}${opts}${note}
+          <div style="font-size:10.5px; font-weight:900; line-height:1.15; margin-top:2px; word-break:break-all;">
+            ${tk.title} <span style="font-size:7.5px; font-weight:bold;">${tk.subTag}</span>
+          </div>
+          <div style="font-size:7.5px; font-weight:700; line-height:1.2; word-break:break-all; flex:1; overflow:hidden; margin-top:1px;">
+            ${modLine ? `<div>${modLine}</div>` : ''}
+            ${noteLine ? `<div style="font-weight:900;">${noteLine}</div>` : ''}
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:7px; font-weight:bold; border-top:1px dashed #000; padding-top:1px; line-height:1;">
+            <span>日十。大里店</span>
+            <span>${data.time}</span>
+          </div>
+        `;
+
+        outer.appendChild(paper);
+        wrapper.appendChild(outer);
+
+        if (paper.scrollHeight > paper.clientHeight + 1 || paper.scrollWidth > paper.clientWidth + 1) {
+          hasAnyClip = true;
+          paper.style.border = '2px solid #ef4444';
+        }
+      });
+    }
+  } else {
+    // 熱感紙小白單：只列出各餐點一次並直接附上其客製化，絕不重複
+    const itemsHtml = data.parsedItems.map(it => {
+      let bodyHtml = '';
+
+      if (it.isCombo) {
+        if (it.mainItemName) {
+          bodyHtml += `<div style="padding-left:6px; font-size:10px; font-weight:bold;">▸ ${it.mainItemName}</div>`;
+          if (it.mainModifiers.length > 0) {
+            bodyHtml += `<div style="padding-left:14px; font-size:9.5px;">└ ${it.mainModifiers.join(' / ')}</div>`;
+          }
+        }
+        if (it.drinkItemName) {
+          const drinkAdd = it.drinkPriceAdd > 0 ? ` +${it.drinkPriceAdd}` : '';
+          bodyHtml += `<div style="padding-left:6px; font-size:10px; font-weight:bold;">▸ ${it.drinkItemName}${drinkAdd}</div>`;
+          if (it.drinkModifiers.length > 0) {
+            bodyHtml += `<div style="padding-left:14px; font-size:9.5px;">└ ${it.drinkModifiers.join(' / ')}</div>`;
+          }
+        }
+        (it.sideList || []).forEach(s => {
+          bodyHtml += `<div style="padding-left:6px; font-size:10px; font-weight:bold;">▸ ${s.name}</div>`;
+          if (s.mods.length > 0) {
+            bodyHtml += `<div style="padding-left:14px; font-size:9.5px;">└ ${s.mods.join(' / ')}</div>`;
+          }
+        });
+      } else {
+        if (it.mainModifiers.length > 0) {
+          bodyHtml += `<div style="padding-left:8px; font-size:9.5px;">└ ${it.mainModifiers.join(' / ')}</div>`;
+        }
+      }
+
+      if (it.extraAddons && it.extraAddons.length > 0) {
+        const addonText = it.extraAddons.map(a => a.price > 0 ? `${a.name}+${a.price}` : a.name).join(' / ');
+        bodyHtml += `<div style="padding-left:6px; font-size:9.5px; font-weight:bold;">＋加購：${addonText}</div>`;
+      }
+
+      if (it.note) {
+        bodyHtml += `<div style="padding-left:6px; font-size:9.5px; font-weight:bold;">※ 備註：${it.note}</div>`;
+      }
+
+      return `
+        <div style="margin-bottom:5px;">
+          <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:900;">
+            <span style="word-break:break-all;">${it.qty}x ${it.comboTitle}</span>
+            <span style="flex-shrink:0; margin-left:4px;">$${it.totalPrice}</span>
+          </div>
+          ${bodyHtml}
         </div>
       `;
     }).join('');
