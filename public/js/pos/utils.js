@@ -111,7 +111,17 @@ function isDrinkItemName(name) {
   return keywords.some(k => name.includes(k));
 }
 
-// 將購物車項目結構化拆解（供熱感紙與貼紙共用，保證不重複、邏輯一致）
+// 格式化貼紙頂部用餐標示：不印「內用」，桌號改為「桌號：5」
+function formatStickerDiningLabel(diningType) {
+  if (!diningType) return '';
+  const str = String(diningType).trim();
+  if (str.includes('內用')) {
+    const numMatch = str.match(/(\d+)/);
+    return numMatch ? `桌號：${numMatch[1]}` : '';
+  }
+  return str.replace(/\(盡快取餐\)/g, '').trim();
+}
+
 function parseCartItemForPrint(item) {
   const nameLines = (item.name || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
   const comboTitle = nameLines[0] || '';
@@ -205,13 +215,13 @@ function getPreviewSampleData() {
   const cartKeys = Object.keys(state.cart || {});
   if (cartKeys.length > 0) {
     const diningType = document.getElementById('pos-dining-type')?.value || '內用';
-    const tableNum = document.getElementById('pos-table-number')?.value || '3';
+    const tableNum = document.getElementById('pos-table-number')?.value || '5';
     const parsedItems = cartKeys.map(k => parseCartItemForPrint(state.cart[k]));
     const total = parsedItems.reduce((sum, i) => sum + i.totalPrice, 0);
     return {
       sourceLabel: '資料來源：目前購物車餐點',
       orderNum: '018',
-      diningType: diningType === '內用' ? `內用(${tableNum}號桌)` : diningType,
+      diningType: diningType === '內用' ? `內用(桌號:${tableNum})` : diningType,
       time: getFormattedTime(),
       parsedItems,
       total
@@ -289,11 +299,10 @@ function getPreviewSampleData() {
     }
   }
 
-  // 預設範例資料（完全不重複品項）
   return {
     sourceLabel: '資料來源：範例測試餐點（測試長字數是否被裁切）',
     orderNum: '012',
-    diningType: '內用(5號桌)',
+    diningType: '內用(桌號:5)',
     time: getFormattedTime(),
     parsedItems: [
       {
@@ -329,54 +338,41 @@ function getPreviewSampleData() {
   };
 }
 
-// 依據規則展開所有標籤貼紙（一餐一張、排除所有飲料、依數量展開）
+// 依據規則展開所有標籤貼紙（一餐一張、排除飲料、不印幾號餐、不印備註）
 function buildStickerTickets(parsedItems) {
   const tickets = [];
   parsedItems.forEach(item => {
     const qty = item.qty || 1;
     for (let q = 0; q < qty; q++) {
       if (item.isCombo) {
-        // 1. 套餐主餐（若非飲料則出一張）
         if (item.mainItemName && !isDrinkItemName(item.mainItemName)) {
           tickets.push({
             title: item.mainItemName,
-            subTag: `(${item.comboTitle})`,
-            mods: item.mainModifiers,
-            note: item.note
+            mods: item.mainModifiers
           });
         }
-        // 2. 套餐各副餐（若非飲料則各出一張）
         (item.sideList || []).forEach(s => {
           if (s.name && !isDrinkItemName(s.name)) {
             tickets.push({
               title: s.name,
-              subTag: `(${item.comboTitle})`,
-              mods: s.mods,
-              note: item.note
+              mods: s.mods
             });
           }
         });
-        // 3. 套餐飲料：依照規則「貼紙不需要印出飲料」，略過
       } else {
-        // 單點品項：若為飲料則略過，非飲料則出一張
         if (item.mainItemName && !isDrinkItemName(item.mainItemName)) {
           tickets.push({
             title: item.mainItemName,
-            subTag: '',
-            mods: item.mainModifiers,
-            note: item.note
+            mods: item.mainModifiers
           });
         }
       }
 
-      // 4. 加購項目（若非飲料則各出一張）
       (item.extraAddons || []).forEach(ad => {
         if (ad.name && !isDrinkItemName(ad.name)) {
           tickets.push({
             title: ad.name,
-            subTag: '(加購)',
-            mods: [],
-            note: item.note
+            mods: []
           });
         }
       });
@@ -459,13 +455,13 @@ export function updatePrintPreviewRender() {
 
   if (currentPpType === 'sticker') {
     const tickets = buildStickerTickets(data.parsedItems);
+    const stickerDiningLabel = formatStickerDiningLabel(data.diningType);
 
     if (tickets.length === 0) {
       wrapper.innerHTML = '<div style="color:#475569; font-weight:bold; padding:30px;">目前只有飲料品項，依照規則不列印貼紙。</div>';
     } else {
       tickets.forEach((tk, idx) => {
         const modLine = (tk.mods && tk.mods.length > 0) ? tk.mods.join(' / ') : '';
-        const noteLine = tk.note ? `※${tk.note}` : '';
 
         const outer = document.createElement('div');
         outer.style.cssText = `width: ${wPx * zoom}px; height: ${hPx * zoom}px; flex-shrink: 0; position: relative;`;
@@ -492,15 +488,15 @@ export function updatePrintPreviewRender() {
 
         paper.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #000; padding-bottom:1px; font-size:8px; font-weight:900; line-height:1.1;">
-            <span>#${data.orderNum} ${data.diningType}</span>
+            <span>#${data.orderNum}</span>
+            <span>${stickerDiningLabel}</span>
             <span>${idx + 1}/${tickets.length}</span>
           </div>
           <div style="font-size:10.5px; font-weight:900; line-height:1.15; margin-top:2px; word-break:break-all;">
-            ${tk.title} <span style="font-size:7.5px; font-weight:bold;">${tk.subTag}</span>
+            ${tk.title}
           </div>
           <div style="font-size:7.5px; font-weight:700; line-height:1.2; word-break:break-all; flex:1; overflow:hidden; margin-top:1px;">
-            ${modLine ? `<div>${modLine}</div>` : ''}
-            ${noteLine ? `<div style="font-weight:900;">${noteLine}</div>` : ''}
+            ${modLine}
           </div>
           <div style="display:flex; justify-content:space-between; font-size:7px; font-weight:bold; border-top:1px dashed #000; padding-top:1px; line-height:1;">
             <span>日十。大里店</span>
@@ -518,7 +514,6 @@ export function updatePrintPreviewRender() {
       });
     }
   } else {
-    // 熱感紙小白單：只列出各餐點一次並直接附上其客製化，絕不重複
     const itemsHtml = data.parsedItems.map(it => {
       let bodyHtml = '';
 
