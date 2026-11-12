@@ -303,13 +303,11 @@ window.applyPromoCode = applyPromoCode;
 
 
 // ---------------------------------------- [更新購物車介面UI] 開始 ----------------------------------------
-// 輔助函式：依照「主餐 -> 飲料 -> 各副餐 -> 加購 -> 備註」層次解析結構，產出 Excel 單行排版
 function categorizeOrderSections(item) {
   const nameLines = (item.name || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
   const comboTitle = nameLines[0] || '';
   const subItems = nameLines.slice(1);
 
-  // 1. 拆解套餐名稱子行：識別主餐、飲料、副餐
   let mainItemName = '';
   let drinkItemName = '';
   let rawSideItems = [];
@@ -317,7 +315,7 @@ function categorizeOrderSections(item) {
   if (subItems.length > 0) {
     let foundDrink = false;
     subItems.forEach(line => {
-      let isDrink = line.includes('飲') || line.includes('茶') || line.includes('咖啡') || line.includes('豆漿');
+      let isDrink = line.includes('飲') || line.includes('茶') || line.includes('咖啡') || line.includes('豆漿') || line.includes('拿鐵') || line.includes('冬瓜');
       if (isDrink && !foundDrink) {
         drinkItemName = line;
         foundDrink = true;
@@ -332,7 +330,6 @@ function categorizeOrderSections(item) {
     mainItemName = comboTitle;
   }
 
-  // 2. 依照標籤分類各項客製化
   let mainModifiers = [];
   let drinkModifiers = [];
   let drinkPriceAdd = 0;
@@ -342,7 +339,7 @@ function categorizeOrderSections(item) {
   const opts = item.structuredOptions || [];
   opts.forEach(opt => {
     const title = opt.groupTitle || '';
-    let extraText = opt.price > 0 ? ` +${opt.price}` : '';
+    let extraText = opt.price > 0 ? `+${opt.price}` : '';
     let displayMod = `${opt.name}${extraText}`;
 
     if (title.includes('主餐')) {
@@ -361,7 +358,6 @@ function categorizeOrderSections(item) {
       if (!sideGroupsMap[sideIdx]) sideGroupsMap[sideIdx] = [];
       sideGroupsMap[sideIdx].push(displayMod);
     } else {
-      // 若標題未包含特定名詞，依關鍵字容錯分類
       if (title.includes('口感') || title.includes('加料') || title.includes('熟度')) {
         mainModifiers.push(displayMod);
       } else if (title.includes('冰') || title.includes('糖')) {
@@ -373,41 +369,24 @@ function categorizeOrderSections(item) {
     }
   });
 
-  // 3. 組合主餐行：嫩煎雞腿蛋餅●焦一點●加起司 +10...
-  let mainLine = '';
-  if (mainItemName) {
-    mainLine = mainItemName + (mainModifiers.length > 0 ? '●' + mainModifiers.join('●') : '');
-  }
-
-  // 4. 組合飲料行：豆漿 +5●有糖●冰
-  let drinkLine = '';
-  if (drinkItemName) {
-    let drinkPriceText = drinkPriceAdd > 0 ? ` +${drinkPriceAdd}` : '';
-    drinkLine = drinkItemName + drinkPriceText + (drinkModifiers.length > 0 ? '●' + drinkModifiers.join('●') : '');
-  }
-
-  // 5. 組合副餐各行
-  let sideLines = [];
+  let sideList = [];
   let maxSideCount = Math.max(rawSideItems.length, Object.keys(sideGroupsMap).length);
   for (let i = 1; i <= maxSideCount; i++) {
     let name = rawSideItems[i - 1] || (Object.keys(sideGroupsMap).length > 1 ? `副餐${i}` : '副餐');
     let mods = sideGroupsMap[i] || [];
-    let sLine = name + (mods.length > 0 ? '●' + mods.join('●') : '');
-    sideLines.push(sLine);
-  }
-
-  // 6. 組合加購行：加購●熱狗 +16
-  let addonLine = '';
-  if (extraAddons.length > 0) {
-    addonLine = '加購●' + extraAddons.join('●');
+    sideList.push({ name, mods });
   }
 
   return {
+    isCombo: subItems.length > 0,
     comboTitle: subItems.length > 0 ? comboTitle : '',
-    mainLine,
-    drinkLine,
-    sideLines,
-    addonLine,
+    mainItemName,
+    mainModifiers,
+    drinkItemName,
+    drinkPriceAdd,
+    drinkModifiers,
+    sideList,
+    extraAddons,
     note: item.note || ''
   };
 }
@@ -436,17 +415,45 @@ export function updateCartUI() {
     subtotal += itemTotal;
 
     const sec = categorizeOrderSections(item);
-
-    // 依照 Excel 格式一行行輸出，不換行，每個選項前加●
     let lines = [];
-    if (sec.comboTitle) lines.push(`<div style="font-size:1.15em; font-weight:900; color:#0f172a;">${sec.comboTitle}</div>`);
-    if (sec.mainLine) lines.push(`<div style="font-size:0.95em; font-weight:700; color:#1e293b;">${sec.mainLine}</div>`);
-    if (sec.drinkLine) lines.push(`<div style="font-size:0.95em; font-weight:700; color:#1e293b;">${sec.drinkLine}</div>`);
-    if (sec.sideLines && sec.sideLines.length > 0) {
-      sec.sideLines.forEach(s => lines.push(`<div style="font-size:0.95em; font-weight:700; color:#1e293b;">${s}</div>`));
+
+    if (sec.isCombo) {
+      lines.push(`<div style="font-size:1.15em; font-weight:900; color:#0f172a; margin-bottom:4px;">${sec.comboTitle}</div>`);
+      if (sec.mainItemName) {
+        lines.push(`<div style="font-size:0.95em; font-weight:800; color:#1e293b; padding-left:6px;">▸ ${sec.mainItemName}</div>`);
+        if (sec.mainModifiers.length > 0) {
+          lines.push(`<div style="font-size:0.88em; font-weight:700; color:#475569; padding-left:20px; margin-bottom:2px;">└ ${sec.mainModifiers.join(' / ')}</div>`);
+        }
+      }
+    } else {
+      lines.push(`<div style="font-size:1.1em; font-weight:900; color:#0f172a; margin-bottom:2px;">${sec.mainItemName}</div>`);
+      if (sec.mainModifiers.length > 0) {
+        lines.push(`<div style="font-size:0.9em; font-weight:700; color:#475569; padding-left:12px; margin-bottom:2px;">└ ${sec.mainModifiers.join(' / ')}</div>`);
+      }
     }
-    if (sec.addonLine) lines.push(`<div style="font-size:0.95em; font-weight:700; color:#ea580c;">${sec.addonLine}</div>`);
-    if (sec.note) lines.push(`<div class="cart-item-note-text" style="font-size:0.88em; color:#0284c7; font-weight:bold; margin-top:2px;">備註：${sec.note}</div>`);
+
+    if (sec.drinkItemName) {
+      let drinkAdd = sec.drinkPriceAdd > 0 ? ` +${sec.drinkPriceAdd}` : '';
+      lines.push(`<div style="font-size:0.95em; font-weight:800; color:#1e293b; padding-left:${sec.isCombo ? '6px' : '0'};">▸ ${sec.drinkItemName}${drinkAdd}</div>`);
+      if (sec.drinkModifiers.length > 0) {
+        lines.push(`<div style="font-size:0.88em; font-weight:700; color:#475569; padding-left:${sec.isCombo ? '20px' : '12px'}; margin-bottom:2px;">└ ${sec.drinkModifiers.join(' / ')}</div>`);
+      }
+    }
+
+    sec.sideList.forEach(s => {
+      lines.push(`<div style="font-size:0.95em; font-weight:800; color:#1e293b; padding-left:${sec.isCombo ? '6px' : '0'};">▸ ${s.name}</div>`);
+      if (s.mods.length > 0) {
+        lines.push(`<div style="font-size:0.88em; font-weight:700; color:#475569; padding-left:${sec.isCombo ? '20px' : '12px'}; margin-bottom:2px;">└ ${s.mods.join(' / ')}</div>`);
+      }
+    });
+
+    if (sec.extraAddons.length > 0) {
+      lines.push(`<div style="font-size:0.9em; font-weight:800; color:#ea580c; margin-top:3px;">＋加購：${sec.extraAddons.join(' / ')}</div>`);
+    }
+
+    if (sec.note) {
+      lines.push(`<div style="font-size:0.88em; color:#0284c7; font-weight:bold; margin-top:3px;">※ 備註：${sec.note}</div>`);
+    }
 
     let orderBlockHtml = lines.join('');
 
@@ -461,7 +468,7 @@ export function updateCartUI() {
     cartDiv.innerHTML += `
       <div class="cart-item-row" style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px; margin-bottom:10px;">
         <div class="cart-item-main" style="display:flex; justify-content:space-between; align-items:flex-start;">
-          <div style="flex:1; line-height:1.6; word-break:break-all;">
+          <div style="flex:1; line-height:1.55; word-break:break-word;">
             ${orderBlockHtml}
           </div>
           <div style="display: flex; flex-direction:column; align-items: flex-end; gap: 8px; flex-shrink:0; margin-left:12px;">
@@ -504,7 +511,7 @@ export function updateCartUI() {
     name: i.name.split('\n')[0],
     qty: i.qty,
     price: i.isComp ? 0 : i.price,
-    options: (i.structuredOptions || []).map(o => o.name).join(' ● '),
+    options: (i.structuredOptions || []).map(o => o.name).join(' / '),
     note: i.note || ''
   }));
   cartBroadcast.postMessage({
@@ -782,21 +789,37 @@ function buildOrderDetailsPayload() {
     let itemTotal = effectivePrice * item.qty;
     subtotal += itemTotal;
 
-    let compTag = item.isComp ? " (🎁招待)" : "";
+    let compTag = item.isComp ? " (招待)" : "";
     const sec = categorizeOrderSections(item);
 
-    // 套餐單號行
-    let headerName = sec.comboTitle || sec.mainLine;
+    let headerName = sec.isCombo ? sec.comboTitle : sec.mainItemName;
     details += `${item.qty}x ${headerName}${compTag} ::: $${itemTotal}${nl}`;
 
-    // 依序輸出主餐、飲料、副餐、加購、備註（Excel 一行化排版）
-    if (sec.comboTitle && sec.mainLine) details += `  ${sec.mainLine}${nl}`;
-    if (sec.drinkLine) details += `  ${sec.drinkLine}${nl}`;
-    if (sec.sideLines && sec.sideLines.length > 0) {
-      sec.sideLines.forEach(s => details += `  ${s}${nl}`);
+    if (sec.isCombo) {
+      if (sec.mainItemName) {
+        details += `  ▸ ${sec.mainItemName}${nl}`;
+        if (sec.mainModifiers.length > 0) details += `    └ ${sec.mainModifiers.join(' / ')}${nl}`;
+      }
+    } else {
+      if (sec.mainModifiers.length > 0) details += `  └ ${sec.mainModifiers.join(' / ')}${nl}`;
     }
-    if (sec.addonLine) details += `  ${sec.addonLine}${nl}`;
-    if (sec.note) details += `  備註：${sec.note}${nl}`;
+
+    if (sec.drinkItemName) {
+      let drinkAdd = sec.drinkPriceAdd > 0 ? ` +${sec.drinkPriceAdd}` : '';
+      details += `  ▸ ${sec.drinkItemName}${drinkAdd}${nl}`;
+      if (sec.drinkModifiers.length > 0) details += `    └ ${sec.drinkModifiers.join(' / ')}${nl}`;
+    }
+
+    sec.sideList.forEach(s => {
+      details += `  ▸ ${s.name}${nl}`;
+      if (s.mods.length > 0) details += `    └ ${s.mods.join(' / ')}${nl}`;
+    });
+
+    if (sec.extraAddons.length > 0) {
+      details += `  ＋加購：${sec.extraAddons.join(' / ')}${nl}`;
+    }
+
+    if (sec.note) details += `  ※ 備註：${sec.note}${nl}`;
   }
 
   details += `----------------------${nl}`;
@@ -811,7 +834,7 @@ function buildOrderDetailsPayload() {
       discountAmt = Math.min(subtotal, state.appliedPromo.amount);
     }
     finalTotal = Math.max(0, subtotal - discountAmt);
-    details += `🎟️ 優惠折抵 (${state.appliedPromo.code}) ::: -$${discountAmt}${nl}`;
+    details += `優惠折抵 (${state.appliedPromo.code}) ::: -$${discountAmt}${nl}`;
     details += `----------------------${nl}`;
   }
 

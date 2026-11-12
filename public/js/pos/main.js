@@ -1079,7 +1079,7 @@ window.renderOrderDetailsHtml = function(detailsText) {
   if (!detailsText) return '<div class="empty-state">無餐點項目</div>';
 
   let lines = detailsText.split(/\r?\n/);
-  let html = '<div class="detail-list-wrapper" style="display:flex; flex-direction:column; gap:8px;">';
+  let html = '<div class="detail-list-wrapper" style="display:flex; flex-direction:column; gap:6px;">';
 
   lines.forEach(line => {
     let t = line.trim();
@@ -1127,13 +1127,34 @@ window.renderOrderDetailsHtml = function(detailsText) {
       let nameStr = match ? match[2] : left;
 
       html += `
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; padding:4px 0;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; padding:6px 0 2px 0;">
           <div style="display:flex; align-items:center; gap:8px; flex:1;">
             <span style="font-size:1.1em; font-weight:900; color:#2563eb; background:#eff6ff; padding:2px 8px; border-radius:6px; min-width:36px; text-align:center;">${qtyStr || '1x'}</span>
-            <span style="font-size:1.25em; font-weight:800; color:#0f172a;">${nameStr}</span>
+            <span style="font-size:1.25em; font-weight:900; color:#0f172a;">${nameStr}</span>
           </div>
           <span style="font-size:1.3em; font-weight:900; color:#ea580c; flex-shrink:0; margin-left:15px;">${right}</span>
         </div>`;
+      return;
+    }
+
+    if (t.startsWith('▸')) {
+      html += `<div style="padding-left:44px; font-size:1.05em; font-weight:800; color:#1e293b;">${t}</div>`;
+      return;
+    }
+
+    if (t.startsWith('└')) {
+      const indent = line.startsWith('    ') ? '58px' : '44px';
+      html += `<div style="padding-left:${indent}; font-size:0.95em; font-weight:700; color:#475569;">${t}</div>`;
+      return;
+    }
+
+    if (t.startsWith('＋加購')) {
+      html += `<div style="padding-left:44px; font-size:0.95em; font-weight:800; color:#ea580c; margin-top:2px;">${t}</div>`;
+      return;
+    }
+
+    if (t.startsWith('※ 備註')) {
+      html += `<div style="padding-left:44px; font-size:0.95em; font-weight:bold; color:#0284c7; margin-top:2px;">${t}</div>`;
       return;
     }
 
