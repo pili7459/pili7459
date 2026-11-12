@@ -132,20 +132,25 @@ async function syncFromGoogleSheets() {
 
     if (data.menu && data.menu.length > 0) db.menu = data.menu;
     if (data.settings) {
+      const sObj = data.settings;
+      const rawStart = sObj.tableNumberStart ?? sObj["內用桌號起"];
+      const rawEnd = sObj.tableNumberEnd ?? sObj["內用桌號迄"];
+
       db.settings = {
         ...db.settings,
-        openTime: normalizeTime(data.settings.openTime || data.settings["營業時間起"]),
-        closeTime: normalizeTime(data.settings.closeTime || data.settings["營業時間迄"]),
-        closedDaysOfWeek: data.settings.closedDaysOfWeek || data.settings["每週公休"] || "3",
-        tableNumberStart: parseInt(data.settings.tableNumberStart || data.settings["內用桌號起"]) || 1,
-        tableNumberEnd: parseInt(data.settings.tableNumberEnd || data.settings["內用桌號迄"]) || 8,
-        autoAccept: data.settings.autoAccept || data.settings["自動接單模式"] || db.settings.autoAccept || "關閉",
-        enableDelivery: data.settings.enableDelivery || data.settings["外送服務"] || db.settings.enableDelivery || "開啟",
-        promoDiscountCode: data.settings.promoDiscountCode || "vip8888",
-        promoDiscountRate: parseFloat(data.settings.promoDiscountRate) || 0.9,
-        promoDeductCode: data.settings.promoDeductCode || "",
-        promoDeductAmount: parseInt(data.settings.promoDeductAmount) || 0,
-        customerDisplayImages: data.settings["副螢幕輪播圖"] || data.settings.customerDisplayImages || ""
+        openTime: normalizeTime(sObj.openTime || sObj["營業時間起"] || db.settings.openTime),
+        closeTime: normalizeTime(sObj.closeTime || sObj["營業時間迄"] || db.settings.closeTime),
+        closedDaysOfWeek: sObj.closedDaysOfWeek ?? sObj["每週公休"] ?? db.settings.closedDaysOfWeek ?? "3",
+        specialRestDates: sObj.closedDates ?? sObj.specialRestDates ?? sObj["特定公休日"] ?? db.settings.specialRestDates ?? "",
+        tableNumberStart: (rawStart !== undefined && rawStart !== "") ? parseInt(rawStart, 10) : (db.settings.tableNumberStart || 1),
+        tableNumberEnd: (rawEnd !== undefined && rawEnd !== "") ? parseInt(rawEnd, 10) : (db.settings.tableNumberEnd || 6),
+        autoAccept: sObj.autoAccept || sObj["自動接單模式"] || db.settings.autoAccept || "關閉",
+        enableDelivery: sObj.enableDelivery || sObj["外送服務"] || db.settings.enableDelivery || "開啟",
+        promoDiscountCode: sObj.promoDiscountCode ?? sObj["打折優惠碼"] ?? db.settings.promoDiscountCode ?? "vip8888",
+        promoDiscountRate: parseFloat(sObj.promoDiscountRate ?? sObj["打折折數"] ?? db.settings.promoDiscountRate) || 0.9,
+        promoDeductCode: sObj.promoDeductCode ?? sObj["直扣優惠碼"] ?? db.settings.promoDeductCode ?? "",
+        promoDeductAmount: parseInt(sObj.promoDeductAmount ?? sObj["直扣金額"] ?? db.settings.promoDeductAmount, 10) || 0,
+        customerDisplayImages: sObj["副螢幕輪播圖"] || sObj.customerDisplayImages || db.settings.customerDisplayImages || ""
       };
     }
     if (data.announcement !== undefined) db.announcement = data.announcement;
@@ -159,7 +164,7 @@ async function syncFromGoogleSheets() {
 
     saveDB(db);
     broadcast({ type: 'MENU_UPDATE' });
-    console.log('✅ 同步完成！目前自動接單模式：', db.settings.autoAccept);
+    console.log(`✅ 同步完成！內用桌號：${db.settings.tableNumberStart} ~ ${db.settings.tableNumberEnd}，自動接單：${db.settings.autoAccept}`);
     return true;
   } catch (error) {
     console.error('⚠️ 從 Google 試算表同步失敗：', error.message);
@@ -338,7 +343,7 @@ app.post('/api/pos', (req, res) => {
         if (k === "每週公休") db.settings.closedDaysOfWeek = v;
         if (k === "特定公休日") db.settings.specialRestDates = v;
         if (k === "內用桌號起") db.settings.tableNumberStart = parseInt(v) || 1;
-        if (k === "內用桌號迄") db.settings.tableNumberEnd = parseInt(v) || 8;
+        if (k === "內用桌號迄") db.settings.tableNumberEnd = parseInt(v) || 6;
         if (k === "自動接單模式") db.settings.autoAccept = v;
         if (k === "打折優惠碼") db.settings.promoDiscountCode = v;
         if (k === "打折折數") db.settings.promoDiscountRate = parseFloat(v) || 0.9;
@@ -5682,8 +5687,6 @@ async function initApp() {
     }
 
     // 每次重新開啟 POS 端，必先強制向 Google 試算表同步完成後再讀取資料
-    await api.triggerSheetsSync();
-
     const data = await api.fetchInitialData();
     if (loader) loader.style.display = "none";
 
